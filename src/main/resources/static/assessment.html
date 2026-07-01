@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skill Assessment – SkillSwap</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --indigo: #4f46e5; --indigo-light: #e0e7ff; --green: #10b981; --green-light: #d1fae5;
+      --amber: #f59e0b; --rose: #f43f5e; --text: #0f172a; --muted: #64748b;
+      --border: #e2e8f0; --bg: #f8faff; --radius: 14px;
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 16px; }
+    .container { width: 100%; max-width: 640px; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; text-decoration: none; margin-bottom: 24px; }
+    .back-link:hover { color: var(--indigo); }
+    h1 { font-family: 'Fraunces', serif; font-size: 1.8rem; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 6px; }
+    .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
+    .card {
+      background: white; border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 28px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); margin-bottom: 20px;
+    }
+    .progress-bar-wrap { margin-bottom: 24px; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .progress-track { height: 6px; background: var(--border); border-radius: 3px; }
+    .progress-fill  { height: 6px; background: var(--indigo); border-radius: 3px; transition: width .3s; }
+    .question-num { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .question-text { font-size: 17px; font-weight: 500; line-height: 1.55; margin-bottom: 22px; }
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .option-btn {
+      text-align: left; padding: 13px 16px; border: 1.5px solid var(--border); border-radius: 10px;
+      background: white; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 14px;
+      color: var(--text); transition: all .15s;
+    }
+    .option-btn:hover { border-color: var(--indigo); background: var(--indigo-light); color: var(--indigo); }
+    .option-btn.selected { border-color: var(--indigo); background: var(--indigo-light); color: var(--indigo); font-weight: 500; }
+    .nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 28px; }
+    .btn {
+      padding: 10px 22px; border-radius: 9px; font-family: 'DM Sans', sans-serif;
+      font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all .15s;
+    }
+    .btn-primary { background: var(--indigo); color: white; }
+    .btn-primary:hover { background: #3730a3; }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-ghost { background: none; border: 1.5px solid var(--border); color: var(--muted); }
+    .btn-ghost:hover { border-color: var(--indigo); color: var(--indigo); }
+    /* Result */
+    .result-card { text-align: center; padding: 40px 28px; }
+    .score-circle {
+      width: 120px; height: 120px; border-radius: 50%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; margin: 0 auto 24px;
+      font-family: 'Fraunces', serif; font-size: 2.4rem; font-weight: 700;
+    }
+    .score-circle.pass { background: var(--green-light); color: #065f46; }
+    .score-circle.fail { background: #fee2e2; color: #991b1b; }
+    .result-title { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
+    .result-sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+    .badge-award {
+      display: inline-flex; align-items: center; gap: 8px; background: #fef3c7;
+      color: #92400e; padding: 10px 18px; border-radius: 10px; font-size: 14px; font-weight: 600; margin-bottom: 24px;
+    }
+    .result-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    /* Loading */
+    .loading { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .spinner { display: inline-block; width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--indigo); border-radius: 50%; animation: spin .7s linear infinite; margin-bottom: 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error-msg { background: #fee2e2; color: #991b1b; padding: 14px 18px; border-radius: 10px; text-align: center; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <a id="backLink" href="/userProfile.html" class="back-link">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    <span id="backLinkText">Back to Profile</span>
+  </a>
+
+  <h1 id="pageTitle">Skill Assessment</h1>
+  <p class="subtitle" id="pageSubtitle">Answer 5 questions to validate your knowledge.</p>
+
+  <div id="loadingState" class="card loading">
+    <div class="spinner"></div>
+    <p>Generating your questions…</p>
+  </div>
+
+  <div id="errorState" class="card" style="display:none;">
+    <div class="error-msg" id="errorMsg">Failed to load assessment.</div>
+    <a href="/userProfile.html" class="btn btn-ghost">Back to Profile</a>
+  </div>
+
+  <div id="questionCard" class="card" style="display:none;">
+    <div class="progress-bar-wrap">
+      <div class="progress-label">
+        <span id="progressLabel">Question 1 of 5</span>
+        <span id="progressPct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="question-num" id="questionNum">Question 1</div>
+    <div class="question-text" id="questionText"></div>
+    <div class="options" id="optionsContainer"></div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" id="prevBtn" onclick="prevQuestion()" style="display:none;">← Back</button>
+      <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>Next →</button>
+    </div>
+  </div>
+
+  <div id="resultCard" class="card result-card" style="display:none;"></div>
+</div>
+
+<script>
+const token = localStorage.getItem('jwtToken');
+if (!token) window.location.href = '/login.html';
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+}
+
+const params      = new URLSearchParams(location.search);
+const skillId     = params.get('skillId');
+const skillName   = params.get('skillName') || 'Skill';
+const fromSession = params.get('fromSession') === 'true';
+
+if (fromSession) {
+  document.getElementById('backLink').href = '/sessions.html';
+  document.getElementById('backLinkText').textContent = 'Back to Sessions';
+}
+
+let assessmentId  = null;
+let questions     = [];
+let selectedAnswers = [];
+let current       = 0;
+
+document.getElementById('pageTitle').textContent = skillName + ' Assessment';
+document.getElementById('pageSubtitle').textContent =
+    fromSession
+        ? 'Complete this quiz to earn your Skill Validated badge for this session.'
+        : 'Answer ' + 5 + ' multiple-choice questions to earn the Skill Validated badge.';
+
+async function apiFetch(path, opts = {}) {
+  const res = await fetch('/api' + path, {
+    ...opts,
+    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', ...opts.headers }
+  });
+  if (res.status === 401) { localStorage.removeItem('jwtToken'); window.location.href = '/login.html'; throw new Error('401'); }
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || data.message || 'Request failed');
+  return data;
+}
+
+async function init() {
+  if (!skillId) { showError('No skill specified. Please go back and try again.'); return; }
+  try {
+    const data = await apiFetch('/assessments/generate/' + skillId, { method: 'POST' });
+    assessmentId = data.assessmentId;
+    questions    = data.questions || [];
+    selectedAnswers = new Array(questions.length).fill(null);
+
+    if (!questions.length) { showError('Could not generate questions. Please try again.'); return; }
+
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('questionCard').style.display = 'block';
+    renderQuestion();
+  } catch (e) {
+    showError(e.message || 'Failed to generate assessment.');
+  }
+}
+
+function showError(msg) {
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('errorState').style.display = 'block';
+  document.getElementById('errorMsg').textContent = msg;
+}
+
+function renderQuestion() {
+  const total = questions.length;
+  const q     = questions[current];
+  const pct   = Math.round((current / total) * 100);
+
+  document.getElementById('progressLabel').textContent = 'Question ' + (current + 1) + ' of ' + total;
+  document.getElementById('progressPct').textContent   = pct + '%';
+  document.getElementById('progressFill').style.width  = pct + '%';
+  document.getElementById('questionNum').textContent   = 'Question ' + (current + 1);
+  document.getElementById('questionText').textContent  = q.question || '';
+
+  const opts = q.options || [];
+  const container = document.getElementById('optionsContainer');
+  container.innerHTML = opts.map((opt, i) => `
+    <button class="option-btn${selectedAnswers[current] === i ? ' selected' : ''}"
+            onclick="selectOption(${i})">${escapeHtml(opt)}</button>
+  `).join('');
+
+  document.getElementById('prevBtn').style.display = current > 0 ? 'inline-flex' : 'none';
+
+  const nextBtn = document.getElementById('nextBtn');
+  const isLast  = current === total - 1;
+  nextBtn.textContent  = isLast ? 'Submit' : 'Next →';
+  nextBtn.disabled     = selectedAnswers[current] === null;
+}
+
+function selectOption(idx) {
+  selectedAnswers[current] = idx;
+  document.querySelectorAll('.option-btn').forEach((b, i) =>
+    b.classList.toggle('selected', i === idx));
+  document.getElementById('nextBtn').disabled = false;
+}
+
+function prevQuestion() {
+  if (current > 0) { current--; renderQuestion(); }
+}
+
+async function nextQuestion() {
+  if (selectedAnswers[current] === null) return;
+  if (current < questions.length - 1) {
+    current++;
+    renderQuestion();
+  } else {
+    await submitAssessment();
+  }
+}
+
+async function submitAssessment() {
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.disabled = true;
+  nextBtn.textContent = 'Submitting…';
+
+  try {
+    const result = await apiFetch('/assessments/' + assessmentId + '/submit', {
+      method: 'POST',
+      body: JSON.stringify({ answers: selectedAnswers })
+    });
+
+    document.getElementById('questionCard').style.display = 'none';
+    showResult(result);
+  } catch (e) {
+    nextBtn.disabled = false;
+    nextBtn.textContent = 'Submit';
+    alert('Submission failed: ' + (e.message || 'Unknown error'));
+  }
+}
+
+function showResult(result) {
+  const passed = result.passed;
+  const score  = result.score;
+  const pct    = result.passingScore;
+  const badge  = result.badgeEarned;
+  const sName  = result.skillName || skillName;
+
+  const el = document.getElementById('resultCard');
+  el.style.display = 'block';
+
+  el.innerHTML = `
+    <div class="score-circle ${passed ? 'pass' : 'fail'}">
+      ${score}%
+    </div>
+    <div class="result-title">${passed ? '🎉 You Passed!' : '😔 Not Quite'}</div>
+    <div class="result-sub">
+      You scored ${result.correct} out of ${result.total} (${score}%).
+      ${passed
+        ? 'Congratulations — you\'ve demonstrated solid knowledge of ' + escapeHtml(sName) + '!'
+        : 'You need ' + pct + '% to pass. Review the topic and try again.'}
+    </div>
+    ${badge ? `<div class="badge-award">🏅 New Badge Earned: ${escapeHtml(badge)}</div>` : ''}
+    <div class="result-actions">
+      <a href="${fromSession ? '/sessions.html' : '/userProfile.html'}" class="btn btn-ghost">${fromSession ? 'Back to Sessions' : 'Back to Profile'}</a>
+      <a href="/assessment.html?skillId=${encodeURIComponent(skillId || result.skillId || '')}&skillName=${encodeURIComponent(sName)}" class="btn btn-primary">Retake Assessment</a>
+    </div>
+  `;
+}
+
+init();
+</script>
+</body>
+</html>

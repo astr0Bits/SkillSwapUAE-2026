@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap – Log In</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <style>
+        /* ... (same as original, unchanged) ... */
+        :root {
+            --indigo: #4f46e5;
+            --indigo-dark: #3730a3;
+            --indigo-light: #e0e7ff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --bg: #f8faff;
+        }
+
+        *, *::before, *::after {
+            margin: 0; padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Noise overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.4;
+        }
+
+        /* ─── NAV ─── */
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(248, 250, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            animation: slideDown 0.5s ease forwards;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to   { transform: translateY(0); opacity: 1; }
+        }
+
+        .nav-container {
+            max-width: 1100px;
+            margin: auto;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 34px; height: 34px;
+            background: var(--indigo);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-family: 'Fraunces', serif;
+            font-size: 21px;
+            font-weight: 600;
+            color: var(--indigo);
+            letter-spacing: -0.3px;
+        }
+
+        .nav-buttons { display: flex; gap: 10px; align-items: center; }
+
+        .btn {
+            padding: 9px 20px;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+        }
+        .btn-ghost:hover {
+            background: white;
+            border-color: #c7d2fe;
+            color: var(--indigo);
+        }
+
+        .btn-primary {
+            background: var(--indigo);
+            color: white;
+            box-shadow: 0 1px 3px rgba(79,70,229,0.25);
+        }
+        .btn-primary:hover {
+            background: var(--indigo-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(79,70,229,0.35);
+        }
+
+        /* ─── PAGE LAYOUT ─── */
+        .page-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 68px);
+            padding: 48px 24px;
+            overflow: hidden;
+        }
+
+        /* Blobs */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.45;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .blob-1 {
+            width: 420px; height: 420px;
+            background: radial-gradient(circle, #c7d2fe, #a5b4fc, transparent 75%);
+            top: -80px; right: -60px;
+        }
+        .blob-2 {
+            width: 340px; height: 340px;
+            background: radial-gradient(circle, #fce7f3, #fbcfe8, transparent 75%);
+            bottom: 0; left: -60px;
+        }
+        .blob-3 {
+            width: 320px; height: 320px;
+            background: radial-gradient(circle, #d1fae5, #a7f3d0, transparent 75%);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* ─── FORM CARD ─── */
+        .form-wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+            background: rgba(255, 255, 255, 0.92);
+            padding: 40px;
+            border-radius: 16px;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,0.6) inset;
+            border: 1px solid rgba(255,255,255,0.7);
+            animation: fadeUp 0.5s ease 0.1s both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── FORM HEADER ─── */
+        .form-logo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 6px;
+        }
+
+        .form-logo-icon {
+            width: 36px; height: 36px;
+            background: var(--indigo);
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+        }
+
+        .form-logo-text {
+            font-family: 'Fraunces', serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--indigo);
+        }
+
+        .form-title {
+            font-family: 'Fraunces', serif;
+            text-align: center;
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+            letter-spacing: -0.4px;
+        }
+
+        .form-subtitle {
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 28px;
+        }
+
+        /* ─── ALERT ─── */
+        .alert {
+            padding: 11px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+        }
+
+        .alert-success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+        }
+
+        /* ─── INPUTS ─── */
+        .field {
+            margin-bottom: 16px;
+        }
+
+        .field-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .forgot-link {
+            font-size: 12px;
+            color: var(--indigo);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .forgot-link:hover { text-decoration: underline; }
+
+        .field input {
+            width: 100%;
+            padding: 11px 14px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: white;
+            color: var(--text);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        .field input::placeholder { color: #b0bac5; }
+
+        .field input:focus {
+            border-color: var(--indigo);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        /* Password wrapper with show/hide toggle */
+        .password-wrap {
+            position: relative;
+        }
+
+        .password-wrap input {
+            padding-right: 42px;
+        }
+
+        .toggle-pw {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--muted);
+            padding: 2px;
+            display: flex;
+            align-items: center;
+            transition: color 0.2s;
+        }
+        .toggle-pw:hover { color: var(--indigo); }
+
+        /* MFA field (initially hidden) */
+        .mfa-field {
+            display: none;
+        }
+
+        /* ─── SUBMIT ─── */
+        .submit-btn {
+            width: 100%;
+            padding: 13px;
+            background: var(--indigo);
+            border: none;
+            color: white;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: var(--indigo-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(79,70,229,0.35);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            width: 16px; height: 16px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ─── DIVIDER ─── */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 4px 0 18px;
+        }
+
+        /* ─── FOOTER ─── */
+        .footer-text {
+            font-size: 13px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .footer-text a {
+            color: var(--indigo);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .footer-text a:hover { text-decoration: underline; }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            color: var(--muted);
+            text-decoration: none;
+            transition: color 0.2s;
+            margin-bottom: 20px;
+        }
+        .back-link:hover { color: var(--indigo); }
+
+        @media (max-width: 480px) {
+            .form-wrapper { padding: 28px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAV (unchanged) -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <div class="logo-icon">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+                <span class="logo-text">SkillSwap</span>
+            </a>
+            <div class="nav-buttons">
+                <a href="login.html" class="btn btn-ghost">Log in</a>
+                <a href="register.html" class="btn btn-primary">Sign up</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-container">
+        <!-- Blobs (unchanged) -->
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+
+        <div class="form-wrapper">
+            <!-- Back link -->
+            <a href="index.html" class="back-link">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                Back to Home
+            </a>
+
+            <!-- Logo -->
+            <div class="form-logo">
+                <div class="form-logo-icon">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+                <span class="form-logo-text">SkillSwap</span>
+            </div>
+
+            <h2 class="form-title">Welcome back</h2>
+            <p class="form-subtitle">Log in to continue your learning journey</p>
+
+            <!-- Alerts -->
+            <div class="alert alert-error" id="alertError"></div>
+            <div class="alert alert-success" id="alertSuccess"></div>
+
+            <form id="loginForm" novalidate>
+                <!-- Email -->
+                <div class="field">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email"
+                           placeholder="jane@example.com"
+                           required autocomplete="email">
+                </div>
+
+                <!-- Password -->
+                <div class="field">
+                    <div class="field-header">
+                        <label for="password">Password</label>
+                        <a href="forgot-password.html" class="forgot-link">Forgot password?</a>
+                    </div>
+                    <div class="password-wrap">
+                        <input type="password" id="password" name="password"
+                               placeholder="••••••••"
+                               required autocomplete="current-password">
+                        <button type="button" class="toggle-pw" id="togglePw" aria-label="Show password">
+                            <svg id="eyeIcon" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- MFA field (initially hidden) -->
+                <div class="field mfa-field" id="mfaField">
+                    <label for="totpCode">Authentication Code</label>
+                    <input type="text" id="totpCode" name="totpCode"
+                           placeholder="Enter 6-digit code from authenticator app"
+                           autocomplete="off">
+                    <small style="display: block; margin-top: 4px; color: var(--muted);">
+                        If you have two-factor authentication enabled, enter the code from your authenticator app.
+                    </small>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <div class="spinner" id="spinner"></div>
+                    <span id="btnText">Log In</span>
+                </button>
+
+                <div class="divider"></div>
+
+                <div class="footer-text">
+                    Don't have an account? <a href="register">Sign up free</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<script>
+    // SHOW / HIDE PASSWORD (unchanged)
+    const togglePw  = document.getElementById('togglePw');
+    const pwInput   = document.getElementById('password');
+    const eyeIcon   = document.getElementById('eyeIcon');
+    const eyeOpen   = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+    const eyeClosed = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+
+    togglePw.addEventListener('click', () => {
+        const isText = pwInput.type === 'text';
+        pwInput.type = isText ? 'password' : 'text';
+        eyeIcon.innerHTML = isText ? eyeOpen : eyeClosed;
+    });
+
+    // ALERT HELPERS (unchanged)
+    function showError(msg) {
+        const el = document.getElementById('alertError');
+        el.textContent = msg;
+        el.style.display = 'block';
+        document.getElementById('alertSuccess').style.display = 'none';
+    }
+
+    function showSuccess(msg) {
+        const el = document.getElementById('alertSuccess');
+        el.textContent = msg;
+        el.style.display = 'block';
+        document.getElementById('alertError').style.display = 'none';
+    }
+
+    function clearAlerts() {
+        document.getElementById('alertError').style.display = 'none';
+        document.getElementById('alertSuccess').style.display = 'none';
+    }
+
+    // State for MFA step
+    let tempToken = null;
+
+    // Fetch full user details after login (if needed)
+    async function fetchAndStoreUserDetails(token) {
+        try {
+        	const res = await fetch('/api/users/me', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const userData = await res.json();
+                localStorage.setItem('user', JSON.stringify({
+                    id:      userData.id,
+                    email:   userData.email,
+                    name:    userData.name,
+                    role:    userData.role,
+                    credits: userData.credits
+                }));
+                return true;
+            }
+        } catch (err) {
+            console.error('Failed to fetch user details:', err);
+        }
+        return false;
+    }
+
+    // FORM SUBMIT
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        clearAlerts();
+
+        const email    = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const totpCode = document.getElementById('totpCode').value.trim();
+
+        // If we are already in the MFA step, verify the code
+        if (tempToken !== null) {
+            if (!totpCode) {
+                return showError('Please enter your authentication code.');
+            }
+            await verifyMfa(tempToken, totpCode);
+            return;
+        }
+
+        // First step: standard login
+        if (!email)    return showError('Please enter your email address.');
+        if (!password) return showError('Please enter your password.');
+
+        // Loading state
+        const btn     = document.getElementById('submitBtn');
+        const spinner = document.getElementById('spinner');
+        const btnText = document.getElementById('btnText');
+        btn.disabled          = true;
+        spinner.style.display = 'block';
+        btnText.textContent   = 'Logging in…';
+
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // If MFA is required, switch to second step
+                if (data.requiresMfa === true) {
+                    tempToken = data.tempToken;
+                    // Hide password field, show MFA field
+                    document.querySelectorAll('.field:not(#mfaField)').forEach(field => {
+                        if (field.id !== 'mfaField') field.style.display = 'none';
+                    });
+                    document.getElementById('mfaField').style.display = 'block';
+                    document.getElementById('password').value = ''; // clear password
+                    btnText.textContent = 'Verify Code';
+                    btn.disabled = false;
+                    spinner.style.display = 'none';
+                    showSuccess(data.message || 'Please enter your authentication code.');
+                    return;
+                }
+
+                // Normal login (no MFA)
+				localStorage.setItem('jwtToken', data.token);
+                
+                // Attempt to fetch full user details if the backend doesn't return them
+                let userStored = false;
+                if (data.id && data.name && data.role) {
+                    // Backend already returned full data
+                    localStorage.setItem('user', JSON.stringify({
+                        id:      data.id,
+                        email:   data.email,
+                        name:    data.name,
+                        role:    data.role,
+                        credits: data.credits || 0
+                    }));
+                    userStored = true;
+                } else {
+                    // Try to fetch from /api/users/me
+                    userStored = await fetchAndStoreUserDetails(data.token);
+                }
+
+                if (!userStored) {
+                    // Fallback: store minimal info (profile page may still fail)
+                    localStorage.setItem('user', JSON.stringify({
+                        email:   data.email || email,
+                        name:    data.name || data.username || email.split('@')[0],
+                        role:    (data.role || (data.roles && data.roles[0]) || 'LEARNER').toUpperCase(),
+                        credits: 0
+                    }));
+                }
+
+                showSuccess('Login successful! Redirecting…');
+                const role = data.role || '';
+                const redirectUrl = data.redirectUrl ||
+                    (role === 'ADMIN'   ? '/admin-dashboard.html' :
+                     role === 'SPONSOR' ? '/sponsor-dashboard.html' : '/dashboard.html');
+                setTimeout(() => {
+                    window.location.href = redirectUrl;
+                }, 1000);
+            } else {
+                showError(data.error || data.message || 'Invalid email or password.');
+            }
+        } catch (err) {
+            console.error(err);
+            showError('Could not connect to the server. Please try again.');
+        } finally {
+            if (!tempToken) { // only reset if we are not in MFA step
+                btn.disabled          = false;
+                spinner.style.display = 'none';
+                btnText.textContent   = 'Log In';
+            }
+        }
+    });
+
+    async function verifyMfa(tempToken, totpCode) {
+        const btn     = document.getElementById('submitBtn');
+        const spinner = document.getElementById('spinner');
+        const btnText = document.getElementById('btnText');
+        btn.disabled          = true;
+        spinner.style.display = 'block';
+        btnText.textContent   = 'Verifying…';
+
+        try {
+            const response = await fetch('/api/auth/verify-mfa', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tempToken, totpCode })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                localStorage.setItem('jwtToken', data.token);
+                // Try to store full user details (same as above)
+                let userStored = false;
+                if (data.id && data.name && data.role) {
+                    localStorage.setItem('user', JSON.stringify({
+                        id:      data.id,
+                        email:   data.email,
+                        name:    data.name,
+                        role:    data.role,
+                        credits: data.credits || 0
+                    }));
+                    userStored = true;
+                } else {
+                    userStored = await fetchAndStoreUserDetails(data.token);
+                }
+                if (!userStored) {
+                    localStorage.setItem('user', JSON.stringify({
+                        email:   data.email,
+                        name:    data.name || (data.email || '').split('@')[0],
+                        role:    data.role || 'LEARNER',
+                        credits: 0
+                    }));
+                }
+
+                showSuccess('Login successful! Redirecting…');
+                const role = data.role || '';
+                const redirectUrl = data.redirectUrl ||
+                    (role === 'ADMIN'   ? '/admin-dashboard.html' :
+                     role === 'SPONSOR' ? '/sponsor-dashboard.html' : '/dashboard.html');
+                setTimeout(() => {
+                    window.location.href = redirectUrl;
+                }, 1000);
+            } else {
+                showError(data.message || 'Invalid authentication code. Please try again.');
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.textContent = 'Verify Code';
+            }
+        } catch (err) {
+            console.error(err);
+            showError('Could not verify the code. Please try again.');
+            btn.disabled = false;
+            spinner.style.display = 'none';
+            btnText.textContent = 'Verify Code';
+        }
+    }
+</script>
+</body>
+</html>

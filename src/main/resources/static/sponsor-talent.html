@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Talent Pool – SkillSwap</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/sponsor.css">
+</head>
+<body>
+
+<aside class="sidebar">
+    <a href="sponsor-dashboard.html" class="sidebar-logo">
+        <div class="sidebar-logo-icon">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+        </div>
+        <span class="sidebar-logo-text">SkillSwap</span>
+    </a>
+    <nav class="nav-section">
+        <p class="nav-label">Overview</p>
+        <a href="sponsor-dashboard.html" class="nav-link">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span>Dashboard</span>
+        </a>
+        <p class="nav-label">Manage</p>
+        <a href="sponsor-sponsorships.html" class="nav-link">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Sponsorships</span>
+        </a>
+        <a href="sponsor-coupons.html" class="nav-link">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/></svg>
+            <span>Coupons</span>
+        </a>
+        <a href="sponsor-talent.html" class="nav-link active">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <span>Talent Pool</span>
+        </a>
+        <p class="nav-label">Insights</p>
+        <a href="sponsor-reports.html" class="nav-link">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>Reports</span>
+        </a>
+        <p class="nav-label">Account</p>
+        <a href="sponsor-profile.html" class="nav-link">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            <span>Profile &amp; Settings</span>
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-avatar-sm" id="sidebarAvatar">SP</div>
+        <div class="user-details">
+            <h4 id="sidebarName">Organization</h4>
+            <p>Sponsor</p>
+        </div>
+        <button class="logout-btn" onclick="logout()" title="Log out">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        </button>
+    </div>
+</aside>
+
+<div class="main">
+    <header class="topbar">
+        <span class="topbar-title">Talent Pool</span>
+        <div class="topbar-right">
+            <span style="font-size:13px;color:var(--muted);" id="learnerCount">Loading…</span>
+        </div>
+    </header>
+
+    <div class="page">
+        <div class="card" id="talentCard">
+            <div class="section-head">
+                <span class="section-title">Active Learners</span>
+            </div>
+            <div style="padding:4px 20px 20px;">
+                <div class="talent-grid" id="talentGrid">
+                    <div class="empty-state">Loading…</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const token = localStorage.getItem('jwtToken');
+    if (!token) window.location.href = '/login.html';
+
+    function authHeaders() {
+        return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+    }
+
+    function logout() {
+        localStorage.removeItem('jwtToken');
+        document.cookie = 'jwtToken=; path=/; max-age=0';
+        window.location.href = '/login.html';
+    }
+
+    async function init() {
+        try {
+            const [meRes, talentRes] = await Promise.all([
+                fetch('/api/users/me',      { headers: authHeaders() }),
+                fetch('/api/sponsors/talent', { headers: authHeaders() })
+            ]);
+
+            if (!meRes.ok || !talentRes.ok) { logout(); return; }
+
+            const me      = await meRes.json();
+            const learners = await talentRes.json();
+
+            const initials = (me.name || 'SP').substring(0, 2).toUpperCase();
+            document.getElementById('sidebarAvatar').textContent = initials;
+            document.getElementById('sidebarName').textContent   = me.name || 'Organization';
+            document.getElementById('learnerCount').textContent  = learners.length + ' learners';
+
+            const grid = document.getElementById('talentGrid');
+            if (learners.length === 0) {
+                grid.innerHTML = '<div class="empty-state" style="padding:60px 20px;">' +
+                    '<svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="color:var(--border);display:block;margin:0 auto 12px;">' +
+                    '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>' +
+                    '<path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' +
+                    'No learners have registered on the platform yet.</div>';
+            } else {
+                grid.innerHTML = learners.map(l => {
+                    const initials = (l.name || 'AB').substring(0, 2).toUpperCase();
+                    return `
+                    <div class="talent-card">
+                        <div class="talent-avatar">${initials}</div>
+                        <div class="talent-name">${l.name || ''}</div>
+                        <div class="talent-email">${l.email || ''}</div>
+                        <div class="talent-loc">${l.location || 'UAE'}</div>
+                    </div>`;
+                }).join('');
+            }
+        } catch (e) {
+            console.error('Talent load error:', e);
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Coupons – SkillSwap</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/sponsor.css">
+</head>
+<body>
+
+<aside class="sidebar">
+    <a href="sponsor-dashboard.html" class="sidebar-logo">
+        <div class="sidebar-logo-icon">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+        </div>
+        <span class="sidebar-logo-text">SkillSwap</span>
+    </a>
+    <nav class="nav-section">
+        <p class="nav-label">Overview</p>
+        <a href="sponsor-dashboard.html" class="nav-link">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span>Dashboard</span>
+        </a>
+        <p class="nav-label">Manage</p>
+        <a href="sponsor-sponsorships.html" class="nav-link">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Sponsorships</span>
+        </a>
+        <a href="sponsor-coupons.html" class="nav-link active">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/></svg>
+            <span>Coupons</span>
+        </a>
+        <a href="sponsor-talent.html" class="nav-link">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <span>Talent Pool</span>
+        </a>
+        <p class="nav-label">Insights</p>
+        <a href="sponsor-reports.html" class="nav-link">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>Reports</span>
+        </a>
+        <p class="nav-label">Account</p>
+        <a href="sponsor-profile.html" class="nav-link">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            <span>Profile &amp; Settings</span>
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-avatar-sm" id="sidebarAvatar">SP</div>
+        <div class="user-details">
+            <h4 id="sidebarName">Organization</h4>
+            <p>Sponsor</p>
+        </div>
+        <button class="logout-btn" onclick="logout()" title="Log out">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        </button>
+    </div>
+</aside>
+
+<div class="main">
+    <header class="topbar">
+        <span class="topbar-title">Coupons</span>
+        <div class="topbar-right">
+            <span id="couponsCount" style="font-size:13px;color:var(--muted);">0 active</span>
+        </div>
+    </header>
+
+    <div class="page">
+
+        <!-- Generate coupon -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <div class="card-icon">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </div>
+                    Generate New Coupon
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="formMsg" style="display:none;padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:14px;"></div>
+                <form id="couponForm">
+                    <div style="display:flex;flex-direction:column;gap:14px;">
+                        <div class="grid-3">
+                            <div class="field">
+                                <label>Coupon Code</label>
+                                <input type="text" name="code" placeholder="e.g. TECH2025" required
+                                       style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"/>
+                            </div>
+                            <div class="field">
+                                <label>Discount (%)</label>
+                                <input type="number" name="discount" placeholder="20" min="1" max="100" required/>
+                            </div>
+                            <div class="field">
+                                <label>Max Uses</label>
+                                <input type="number" name="maxUses" placeholder="100" min="1" value="100"/>
+                            </div>
+                        </div>
+                        <div style="max-width:260px;">
+                            <div class="field">
+                                <label>Expiry Date</label>
+                                <input type="text" name="expiryDate" placeholder="e.g. Dec 2025"/>
+                            </div>
+                        </div>
+                        <div class="btn-row">
+                            <button type="reset" class="btn btn-ghost">Clear</button>
+                            <button type="submit" id="submitBtn" class="btn btn-primary">Generate Coupon</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Active coupons list -->
+        <div class="card">
+            <div class="section-head">
+                <span class="section-title">Active Coupons</span>
+            </div>
+            <div id="couponsList" class="coupons-list"></div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const token = localStorage.getItem('jwtToken');
+    if (!token) { window.location.href = '/login.html'; }
+
+    function authHeaders(extra) {
+        return Object.assign({ 'Authorization': 'Bearer ' + token }, extra || {});
+    }
+
+    function escHtml(str) {
+        const d = document.createElement('div');
+        d.textContent = str != null ? String(str) : '';
+        return d.innerHTML;
+    }
+
+    async function loadUserInfo() {
+        try {
+            const res = await fetch('/api/auth/me', { headers: authHeaders() });
+            if (res.ok) {
+                const u = await res.json();
+                const name = u.name || u.username || 'Sponsor';
+                document.getElementById('sidebarName').textContent = name;
+                document.getElementById('sidebarAvatar').textContent = name.substring(0, 2).toUpperCase();
+            }
+        } catch (e) { /* non-blocking */ }
+    }
+
+    async function loadCoupons() {
+        try {
+            const res = await fetch('/api/sponsors/coupons', { headers: authHeaders() });
+            if (!res.ok) return;
+            const coupons = await res.json();
+            const list  = document.getElementById('couponsList');
+            const count = document.getElementById('couponsCount');
+
+            count.textContent = coupons.length + ' active';
+
+            if (coupons.length === 0) {
+                list.innerHTML = '<div class="empty-state">No coupons yet. Generate one above.</div>';
+                return;
+            }
+
+            list.innerHTML = coupons.map(c => {
+                const used    = c.usedCount || 0;
+                const max     = c.maxUses   || 0;
+                const pct     = max > 0 ? Math.round((used / max) * 100) : 0;
+                const expiry  = c.expiryDate || 'N/A';
+                const cls     = c.active ? 'badge-active' : 'badge-inactive';
+                const label   = c.active ? 'Active' : 'Expired';
+                return `<div class="coupon-row">
+                    <div>
+                        <div class="coupon-code">${escHtml(c.code)}</div>
+                        <div class="coupon-detail">${escHtml(c.discount)}% off · Expires ${escHtml(expiry)}</div>
+                    </div>
+                    <div class="coupon-right">
+                        <div class="coupon-uses">${escHtml(used)}/${escHtml(max)} used</div>
+                        <div style="min-width:120px;">
+                            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:3px;">
+                                <span>${escHtml(used)}</span>
+                                <span>${escHtml(max)}</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-fill" style="width:${pct}%"></div>
+                            </div>
+                        </div>
+                        <span class="badge ${cls}">${label}</span>
+                    </div>
+                </div>`;
+            }).join('');
+        } catch (e) { /* non-blocking */ }
+    }
+
+    document.getElementById('couponForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const msg = document.getElementById('formMsg');
+        const btn = document.getElementById('submitBtn');
+        msg.style.display = 'none';
+        btn.disabled = true;
+        btn.textContent = 'Generating…';
+
+        const fd = new FormData(this);
+        const payload = {
+            code:       fd.get('code'),
+            discount:   fd.get('discount'),
+            maxUses:    fd.get('maxUses') || '100',
+            expiryDate: fd.get('expiryDate') || ''
+        };
+
+        try {
+            const res = await fetch('/api/sponsors/coupons', {
+                method: 'POST',
+                headers: authHeaders({ 'Content-Type': 'application/json' }),
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                msg.style.cssText = 'display:block;padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:14px;background:#dcfce7;color:#166534;border:1px solid #bbf7d0;';
+                msg.textContent = 'Coupon generated successfully!';
+                this.reset();
+                await loadCoupons();
+            } else {
+                const err = await res.json().catch(() => ({}));
+                msg.style.cssText = 'display:block;padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:14px;background:#fee2e2;color:#991b1b;border:1px solid #fecaca;';
+                msg.textContent = err.error || 'Failed to generate coupon. Please try again.';
+            }
+        } catch (ex) {
+            msg.style.cssText = 'display:block;padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:14px;background:#fee2e2;color:#991b1b;border:1px solid #fecaca;';
+            msg.textContent = 'Network error — please check your connection and try again.';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Generate Coupon';
+        }
+    });
+
+    function logout() {
+        localStorage.removeItem('jwtToken');
+        document.cookie = 'jwtToken=; path=/; max-age=0';
+        window.location.href = '/login.html';
+    }
+
+    loadUserInfo();
+    loadCoupons();
+</script>
+</body>
+</html>

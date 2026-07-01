@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap – Browse Sessions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --indigo: #4f46e5; --indigo-dark: #3730a3; --indigo-light: #eef2ff;
+            --green: #10b981; --green-light: #d1fae5;
+            --amber: #f59e0b; --amber-light: #fef3c7;
+            --rose: #f43f5e; --rose-light: #fff0f3;
+            --text: #0f172a; --muted: #64748b; --border: #e8edf5;
+            --bg: #f5f7fc; --white: #ffffff; --radius: 12px;
+        }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; }
+        a { text-decoration:none; color:inherit; }
+
+        /* Sidebar */
+        .sidebar { width:220px; background:var(--white); border-right:1px solid var(--border); height:100vh; position:fixed; left:0; top:0; display:flex; flex-direction:column; z-index:100; }
+        .sidebar-logo { display:flex; align-items:center; gap:8px; padding:18px 16px; border-bottom:1px solid var(--border); }
+        .sidebar-logo-icon { width:28px; height:28px; background:var(--indigo); border-radius:7px; display:flex; align-items:center; justify-content:center; color:white; }
+        .sidebar-logo-text { font-family:'Fraunces',serif; font-size:17px; font-weight:600; color:var(--indigo); }
+        .nav-section { padding:14px 10px; flex:1; overflow-y:auto; }
+        .nav-label { font-size:10px; font-weight:500; letter-spacing:1.2px; text-transform:uppercase; color:var(--muted); padding:0 8px; margin-bottom:4px; margin-top:14px; }
+        .nav-label:first-child { margin-top:0; }
+        .nav-link { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; color:var(--muted); font-size:13.5px; font-weight:400; transition:all 0.15s; margin-bottom:1px; }
+        .nav-link:hover, .nav-link.active { background:var(--indigo-light); color:var(--indigo); font-weight:500; }
+        .sidebar-footer { padding:12px 14px; border-top:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+        .user-avatar-sm { width:32px; height:32px; background:linear-gradient(135deg,var(--indigo),#818cf8); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-family:'Fraunces',serif; font-size:13px; font-weight:600; flex-shrink:0; }
+        .user-info h4 { font-size:12.5px; font-weight:500; }
+        .user-info p { font-size:11px; color:var(--muted); }
+        .logout-btn { margin-left:auto; background:none; border:none; cursor:pointer; color:var(--muted); padding:3px; border-radius:5px; transition:color 0.2s; display:flex; }
+        .logout-btn:hover { color:var(--rose); }
+
+        /* Main */
+        .main { margin-left:220px; flex:1; display:flex; flex-direction:column; }
+        .topbar { background:rgba(245,247,252,0.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); padding:11px 28px; display:flex; align-items:center; gap:16px; position:sticky; top:0; z-index:50; }
+        .topbar-title { font-family:'Fraunces',serif; font-size:1.15rem; font-weight:600; color:var(--indigo); }
+        .page { padding:24px 28px; }
+
+        /* Buttons */
+        .btn { padding:9px 16px; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; cursor:pointer; border:none; display:inline-flex; align-items:center; gap:6px; transition:all 0.18s; text-decoration:none; }
+        .btn-primary { background:var(--indigo); color:white; }
+        .btn-primary:hover { background:var(--indigo-dark); box-shadow:0 3px 10px rgba(79,70,229,.22); }
+        .btn-ghost { background:transparent; border:1px solid var(--border); color:var(--muted); }
+        .btn-ghost:hover { border-color:var(--indigo); color:var(--indigo); background:var(--indigo-light); }
+        .btn-danger { background:var(--rose-light); color:var(--rose); border:1px solid #fecaca; }
+        .btn-sm { padding:6px 12px; font-size:12px; }
+
+        /* Session cards */
+        .sessions-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px,1fr)); gap:16px; margin-top:20px; }
+        .session-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; transition:all 0.2s; }
+        .session-card:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.08); border-color:#c7d2fe; }
+        .card-mode-bar { height:4px; }
+        .mode-online { background:linear-gradient(90deg,#4f46e5,#818cf8); }
+        .mode-inperson { background:linear-gradient(90deg,#10b981,#34d399); }
+        .card-body { padding:18px; }
+        .card-header-row { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+        .skill-badge { background:var(--indigo-light); color:var(--indigo); padding:3px 10px; border-radius:20px; font-size:12px; font-weight:600; }
+        .mode-chip { padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+        .chip-online { background:var(--indigo-light); color:var(--indigo); }
+        .chip-inperson { background:var(--green-light); color:#047857; }
+        .mentor-row { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+        .mentor-avatar { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,var(--indigo),#818cf8); display:flex; align-items:center; justify-content:center; color:white; font-family:'Fraunces',serif; font-size:14px; font-weight:600; flex-shrink:0; }
+        .mentor-name { font-weight:600; font-size:14px; }
+        .mentor-email { font-size:11px; color:var(--muted); }
+        .session-meta { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px; font-size:12px; color:var(--muted); }
+        .meta-item { display:flex; align-items:center; gap:4px; }
+        .session-desc { font-size:13px; color:var(--muted); line-height:1.5; margin-bottom:12px; }
+        .tools-box { background:#f8faff; border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:14px; font-size:12px; }
+        .tools-box strong { display:block; margin-bottom:4px; color:var(--text); }
+        .spots-bar { margin-bottom:14px; }
+        .spots-label { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:4px; }
+        .progress-track { height:5px; background:#e2e8f0; border-radius:10px; overflow:hidden; }
+        .progress-fill { height:100%; background:var(--indigo); border-radius:10px; transition:width 0.3s; }
+        .card-foot { padding:12px 18px; border-top:1px solid var(--border); display:flex; gap:8px; }
+        .full-badge { background:var(--amber-light); color:#92400e; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+
+        /* Tabs */
+        .tab-bar { display:flex; gap:8px; margin-bottom:6px; border-bottom:2px solid var(--border); }
+        .tab-btn { padding:10px 18px; background:none; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:500; color:var(--muted); border-bottom:2px solid transparent; margin-bottom:-2px; transition:all 0.2s; }
+        .tab-btn.active { color:var(--indigo); border-bottom-color:var(--indigo); }
+        .tab-content { display:none; }
+        .tab-content.active { display:block; }
+
+        /* Modal */
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:2000; align-items:center; justify-content:center; }
+        .modal-overlay.open { display:flex; }
+        .modal-box { background:white; width:90%; max-width:540px; border-radius:16px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.2); max-height:90vh; overflow-y:auto; }
+        .modal-head { background:linear-gradient(135deg,#4f46e5,#818cf8); padding:22px 26px; }
+        .modal-head h3 { color:white; margin:0; font-family:'Fraunces',serif; font-size:18px; }
+        .modal-head p { color:#c7d2fe; margin:4px 0 0; font-size:13px; }
+        .modal-body { padding:24px 26px; }
+        .modal-foot { padding:16px 26px; border-top:1px solid var(--border); display:flex; gap:10px; justify-content:flex-end; }
+        .field { margin-bottom:16px; }
+        .field label { display:block; font-size:13px; font-weight:500; color:#374151; margin-bottom:6px; }
+        .field input, .field select, .field textarea { width:100%; padding:10px 13px; font-family:'DM Sans',sans-serif; font-size:14px; color:var(--text); border:1px solid var(--border); border-radius:9px; outline:none; transition:border-color 0.2s; background:white; resize:vertical; }
+        .field input:focus, .field select:focus, .field textarea:focus { border-color:var(--indigo); box-shadow:0 0 0 3px rgba(79,70,229,0.1); }
+        .field-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .mode-toggle { display:flex; gap:0; border:1px solid var(--border); border-radius:9px; overflow:hidden; }
+        .mode-opt { flex:1; padding:10px; text-align:center; cursor:pointer; font-size:13px; font-weight:500; color:var(--muted); background:white; border:none; transition:all 0.2s; }
+        .mode-opt.selected-online { background:var(--indigo); color:white; }
+        .mode-opt.selected-inperson { background:var(--green); color:white; }
+        .conditional-field { display:none; }
+        .conditional-field.visible { display:block; }
+        .empty-state { text-align:center; padding:52px 20px; }
+        .empty-state i { font-size:2.5rem; color:var(--border); display:block; margin-bottom:12px; }
+        .empty-state h3 { font-family:'Fraunces',serif; font-size:1.1rem; margin-bottom:6px; }
+        .empty-state p { color:var(--muted); font-size:13px; }
+
+        /* Toast */
+        #_toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(10px); background:#0f172a; color:#fff; padding:10px 20px; border-radius:8px; box-shadow:0 4px 16px rgba(0,0,0,.18); z-index:5000; font-size:13px; font-weight:500; opacity:0; transition:opacity .2s,transform .2s; white-space:nowrap; }
+
+        /* Star rating selector */
+        .star-selector { display:flex; gap:6px; margin-bottom:4px; }
+        .star-btn { font-size:28px; background:none; border:none; cursor:pointer; color:#d1d5db; padding:2px 4px; transition:color 0.12s; line-height:1; }
+        .star-btn.lit { color:#f59e0b; }
+        .star-btn:hover { color:#f59e0b; }
+
+        /* History session card review area */
+        .review-submitted { display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:var(--green); }
+        .char-counter { font-size:11px; color:var(--muted); text-align:right; margin-top:3px; }
+
+        /* AI Summary block */
+        .ai-summary-box { background:#f0f4ff; border:1px solid #c7d2fe; border-radius:10px; padding:12px 14px; margin:10px 0 4px; }
+        .ai-summary-label { font-size:11px; font-weight:600; color:var(--indigo); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+        .ai-summary-text { font-size:13px; color:var(--text); line-height:1.6; margin:0; }
+        .ai-summary-unavailable { background:#f8fafc; border-color:var(--border); }
+        .ai-summary-unavailable .ai-summary-label { color:var(--muted); }
+        .ai-summary-unavailable .ai-summary-text { color:var(--muted); }
+
+        @media (max-width:900px) {
+            .sidebar { width:52px; }
+            .sidebar-logo-text, .nav-link span, .nav-label, .user-info, .logout-btn { display:none; }
+            .nav-link { justify-content:center; padding:8px; }
+            .main { margin-left:52px; }
+            .sessions-grid { grid-template-columns:1fr; }
+            .field-row { grid-template-columns:1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <a href="/dashboard.html" class="sidebar-logo">
+        <div class="sidebar-logo-icon">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        </div>
+        <span class="sidebar-logo-text">SkillSwap</span>
+    </a>
+    <nav class="nav-section">
+        <p class="nav-label">Main</p>
+        <a href="/dashboard.html" class="nav-link"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span>Dashboard</span></a>
+        <a href="/userProfile.html" class="nav-link"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></a>
+        <p class="nav-label">Discover</p>
+        <a href="/ai-matching.html" class="nav-link"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg><span>AI Matching</span></a>
+        <a href="/browse-skills.html" class="nav-link"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>Browse Skills</span></a>
+        <a href="/sessions.html" class="nav-link active"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span>Sessions</span></a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-avatar-sm" id="sidebarAvatar">U</div>
+        <div class="user-info">
+            <h4 id="sidebarName">User</h4>
+            <p id="sidebarRole">Member</p>
+        </div>
+        <button class="logout-btn" id="logoutBtn" title="Log out">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        </button>
+    </div>
+</aside>
+
+<div class="main">
+    <header class="topbar">
+        <span class="topbar-title">Sessions</span>
+        <div style="margin-left:auto;display:flex;gap:10px;align-items:center;">
+            <input type="text" id="searchInput" placeholder="Search skill or mentor…"
+                   style="padding:8px 14px;border:1px solid var(--border);border-radius:20px;font-size:13px;
+                          outline:none;font-family:'DM Sans',sans-serif;width:220px;"
+                   oninput="filterSessions(this.value)">
+            <button class="btn btn-primary" onclick="openCreateModal()">
+                <i class="fas fa-plus"></i> Create Session
+            </button>
+        </div>
+    </header>
+
+    <div class="page">
+        <!-- Tabs -->
+        <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('browse', this)">
+                <i class="fas fa-search" style="margin-right:5px;"></i>Browse Sessions
+            </button>
+            <button class="tab-btn" onclick="switchTab('mine', this)">
+                <i class="fas fa-chalkboard-teacher" style="margin-right:5px;"></i>My Sessions
+            </button>
+            <button class="tab-btn" onclick="switchTab('history', this)">
+                <i class="fas fa-history" style="margin-right:5px;"></i>My History
+            </button>
+        </div>
+
+        <!-- Browse Tab -->
+        <div class="tab-content active" id="tab-browse">
+            <div id="browseGrid" class="sessions-grid"></div>
+        </div>
+
+        <!-- My Sessions Tab -->
+        <div class="tab-content" id="tab-mine">
+            <div id="myGrid" class="sessions-grid"></div>
+        </div>
+
+        <!-- History Tab -->
+        <div class="tab-content" id="tab-history">
+            <div id="historyGrid" class="sessions-grid"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ─── CREATE SESSION MODAL ─── -->
+<div class="modal-overlay" id="createModal">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h3>Create a Session</h3>
+            <p>Set up a session for others to join</p>
+        </div>
+        <div class="modal-body">
+            <div id="createAlert" style="display:none;padding:10px 14px;border-radius:8px;
+                 font-size:13px;margin-bottom:16px;background:#fef2f2;border:1px solid #fecaca;color:#dc2626;"></div>
+
+            <!-- Skill -->
+            <div class="field">
+                <label>Skill you'll teach *</label>
+                <select id="skillSelect">
+                    <option value="">Loading your skills…</option>
+                </select>
+            </div>
+
+            <!-- Mode toggle -->
+            <div class="field">
+                <label>Session Format *</label>
+                <div class="mode-toggle">
+                    <button class="mode-opt selected-online" id="modeOnlineBtn"
+                            onclick="selectMode('ONLINE')">
+                        💻 Online
+                    </button>
+                    <button class="mode-opt" id="modeInPersonBtn"
+                            onclick="selectMode('IN_PERSON')">
+                        📍 In-Person
+                    </button>
+                </div>
+            </div>
+
+            <!-- Online only -->
+            <div class="conditional-field visible" id="meetingLinkField">
+                <div class="field">
+                    <label>Meeting Link *</label>
+                    <input type="url" id="meetingLink"
+                           placeholder="https://zoom.us/j/... or https://meet.google.com/... or any video call link">
+                    <div style="font-size:11px;color:var(--muted);margin-top:4px;">
+                        Paste any video call link (Zoom, Teams, Google Meet, etc.)
+                    </div>
+                </div>
+            </div>
+
+            <!-- In-person only -->
+            <div class="conditional-field" id="locationField">
+                <div class="field">
+                    <label>Location / Venue *</label>
+                    <input type="text" id="location"
+                           placeholder="e.g. ADU Library, Room 204, Sharjah">
+                </div>
+            </div>
+
+            <!-- Time + Duration -->
+            <div class="field-row">
+                <div class="field">
+                    <label>Date & Time *</label>
+                    <input type="datetime-local" id="scheduledTime">
+                </div>
+                <div class="field">
+                    <label>Duration</label>
+                    <select id="duration">
+                        <option value="30">30 minutes</option>
+                        <option value="60" selected>1 hour</option>
+                        <option value="90">1.5 hours</option>
+                        <option value="120">2 hours</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Max learners -->
+            <div class="field">
+                <label>Max Participants</label>
+                <select id="maxLearners">
+                    <option value="1">1 (1-on-1)</option>
+                    <option value="3">Up to 3</option>
+                    <option value="5">Up to 5</option>
+                    <option value="10">Up to 10</option>
+                </select>
+            </div>
+
+            <!-- Description -->
+            <div class="field">
+                <label>What will you cover?</label>
+                <textarea id="description" rows="3"
+                          placeholder="Briefly describe what participants will learn in this session…"></textarea>
+            </div>
+
+            <!-- Tools needed -->
+            <div class="field">
+                <label>What should participants bring / prepare?</label>
+                <textarea id="toolsNeeded" rows="2"
+                          placeholder="e.g. Laptop, notebook, VS Code installed, Python 3 installed…"></textarea>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn btn-ghost" onclick="closeCreateModal()">Cancel</button>
+            <button class="btn btn-primary" id="createBtn" onclick="submitCreateSession()">
+                <i class="fas fa-rocket"></i> Publish Session
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ─── SESSION DETAIL MODAL (view before joining) ─── -->
+<div class="modal-overlay" id="detailModal">
+    <div class="modal-box">
+        <div class="modal-head" id="detailHead">
+            <h3>Session Details</h3>
+            <p>Review before joining</p>
+        </div>
+        <div class="modal-body" id="detailBody"></div>
+        <div class="modal-foot">
+            <button class="btn btn-ghost" onclick="closeDetailModal()">Close</button>
+            <button class="btn btn-primary" id="joinBtn" onclick="confirmJoin()">
+                ✅ Join Session
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ─── REVIEW MODAL ─── -->
+<div class="modal-overlay" id="reviewModal">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h3>Leave a Review</h3>
+            <p id="reviewModalSubtitle">Share your experience</p>
+        </div>
+        <div class="modal-body">
+            <div id="reviewAlert" style="display:none;padding:10px 14px;border-radius:8px;
+                 font-size:13px;margin-bottom:16px;background:#fef2f2;border:1px solid #fecaca;color:#dc2626;"></div>
+
+            <div class="field">
+                <label>Rating <span style="color:#ef4444;">*</span></label>
+                <div class="star-selector" id="starSelector">
+                    <button class="star-btn" data-v="1" type="button">★</button>
+                    <button class="star-btn" data-v="2" type="button">★</button>
+                    <button class="star-btn" data-v="3" type="button">★</button>
+                    <button class="star-btn" data-v="4" type="button">★</button>
+                    <button class="star-btn" data-v="5" type="button">★</button>
+                </div>
+                <div style="font-size:12px;color:var(--muted);margin-top:2px;" id="starHint">Select a rating to enable submission</div>
+            </div>
+
+            <div class="field">
+                <label>Comment <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
+                <textarea id="reviewComment" rows="4" maxlength="1000"
+                          placeholder="Share what you learnt, how the session went…"
+                          oninput="updateCharCounter()"></textarea>
+                <div class="char-counter" id="charCounter">1000 characters remaining</div>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn btn-ghost" onclick="closeReviewModal()">Cancel</button>
+            <button class="btn btn-primary" id="submitReviewBtn" onclick="submitReview()" disabled>
+                <i class="fas fa-star"></i> Submit Review
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="_toast"></div>
+
+<script>
+    const API = '/api/public-sessions';
+    let currentMode = 'ONLINE';
+    let selectedSessionId = null;
+    let allSessions = [];
+    let mySkills = [];
+    let currentUserEmail = null;
+
+    // ── Review state ─────────────────────────────────────────────
+    let reviewSessionId = null;
+    let selectedRating = 0;
+
+    // ── Auth ─────────────────────────────────────────────────────
+    function getToken() { return localStorage.getItem('jwtToken'); }
+
+    async function authFetch(url, options = {}) {
+        const token = getToken();
+        if (!token) { window.location.href = '/login.html'; throw new Error('Not authenticated'); }
+        options.headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers };
+        const res = await fetch(url, options);
+        if (res.status === 401) { window.location.href = '/login.html'; throw new Error('Session expired'); }
+        return res;
+    }
+
+    // ── Pending assessment redirect (learner) ─────────────────────
+    async function checkPendingAssessment() {
+        try {
+            const res = await authFetch('/api/sessions/me/pending-assessment');
+            if (res.status === 200) {
+                const data = await res.json();
+                if (data && data.skillId) {
+                    window.location.href = `/assessment.html?skillId=${encodeURIComponent(data.skillId)}&skillName=${encodeURIComponent(data.skillName || 'Skill')}&fromSession=true`;
+                    return true;
+                }
+            }
+        } catch(e) { /* non-blocking */ }
+        return false;
+    }
+
+    // ── Init ─────────────────────────────────────────────────────
+    async function init() {
+        if (!getToken()) { window.location.href = '/login.html'; return; }
+        const cached = localStorage.getItem('user');
+        if (cached) {
+            const u = JSON.parse(cached);
+            document.getElementById('sidebarAvatar').textContent = (u.name || 'U').charAt(0).toUpperCase();
+            document.getElementById('sidebarName').textContent = (u.name || 'User').split(' ')[0];
+            document.getElementById('sidebarRole').textContent = u.role || 'Member';
+            currentUserEmail = u.email || null;
+        }
+        // Fetch current user email if not in cache
+        if (!currentUserEmail) {
+            try {
+                const res = await authFetch('/api/users/me');
+                if (res.ok) { const u = await res.json(); currentUserEmail = u.email || null; }
+            } catch(e) { /* continue without email */ }
+        }
+        if (await checkPendingAssessment()) return;
+        await Promise.all([loadAvailableSessions(), loadMySkills()]);
+    }
+
+    // ── Load available sessions ───────────────────────────────────
+    async function loadAvailableSessions() {
+        const grid = document.getElementById('browseGrid');
+        grid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px;">Loading sessions…</p>';
+        try {
+            const res = await authFetch(`${API}/available`);
+            allSessions = await res.json();
+            renderBrowseGrid(allSessions);
+        } catch(e) {
+            grid.innerHTML = '<p style="color:var(--rose);text-align:center;padding:40px;">Failed to load sessions.</p>';
+        }
+    }
+
+    function filterSessions(q) {
+        if (!q.trim()) { renderBrowseGrid(allSessions); return; }
+        const lower = q.toLowerCase();
+        const filtered = allSessions.filter(s =>
+            (s.skillName || '').toLowerCase().includes(lower) ||
+            (s.mentorName || '').toLowerCase().includes(lower) ||
+            (s.description || '').toLowerCase().includes(lower)
+        );
+        renderBrowseGrid(filtered);
+    }
+
+    function renderBrowseGrid(sessions) {
+        const grid = document.getElementById('browseGrid');
+        if (!sessions.length) {
+            grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+                <i class="fas fa-calendar-times"></i>
+                <h3>No sessions available</h3>
+                <p>Be the first to create one!</p>
+                <button class="btn btn-primary" style="margin-top:14px;" onclick="openCreateModal()">
+                    <i class="fas fa-plus"></i> Create Session
+                </button>
+            </div>`;
+            return;
+        }
+        grid.innerHTML = sessions.map(s => sessionCard(s, false)).join('');
+    }
+
+    // ── Load my sessions ─────────────────────────────────────────
+    async function loadMySessions() {
+        const grid = document.getElementById('myGrid');
+        grid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px;">Loading…</p>';
+        try {
+            const res = await authFetch(`${API}/my-sessions`);
+            const sessions = await res.json();
+            // Completed sessions belong in History — only show active ones here
+            const active = sessions.filter(s => s.status !== 'COMPLETED');
+            if (!active.length) {
+                grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <h3>No active sessions</h3>
+                    <p>Create a session to start teaching, or check History for completed ones.</p>
+                    <button class="btn btn-primary" style="margin-top:14px;" onclick="openCreateModal()">
+                        <i class="fas fa-plus"></i> Create Session
+                    </button>
+                </div>`;
+            } else {
+                grid.innerHTML = active.map(s => sessionCard(s, true)).join('');
+            }
+        } catch(e) {
+            grid.innerHTML = '<p style="color:var(--rose);text-align:center;padding:40px;">Failed to load.</p>';
+        }
+    }
+
+    function sessionCard(s, isMine) {
+        const isOnline = s.mode === 'ONLINE';
+        const dateStr = s.scheduledTime
+            ? new Date(s.scheduledTime).toLocaleDateString('en-AE', { weekday:'short', day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })
+            : 'TBD';
+        const spotsLeft = s.maxLearners - s.currentLearners;
+        const pct = Math.round((s.currentLearners / s.maxLearners) * 100);
+        const isFull = spotsLeft <= 0;
+
+        const isMentor = isMine && currentUserEmail && s.mentorEmail === currentUserEmail;
+        const canComplete = isMentor && (s.status === 'SCHEDULED' || s.status === 'PENDING' || s.status === 'OPEN');
+
+        const footerBtns = isMine
+            ? `${canComplete ? `<button class="btn btn-primary btn-sm" onclick="markComplete(${s.id})">
+                   <i class="fas fa-check"></i> Mark Complete
+               </button>` : ''}
+               <button class="btn btn-danger btn-sm" onclick="deleteSession(${s.id})">
+                   <i class="fas fa-trash"></i> Delete
+               </button>
+               <span class="mode-chip ${isOnline ? 'chip-online' : 'chip-inperson'}" style="margin-left:auto;padding:6px 12px;">
+                   ${s.status || 'OPEN'}
+               </span>`
+            : isFull
+            ? `<span class="full-badge">Full</span>
+               <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="viewSession(${s.id})">View Details</button>`
+            : `<button class="btn btn-primary" style="flex:1;" onclick="viewSession(${s.id})">
+                   <i class="fas fa-eye"></i> View & Join
+               </button>`;
+
+        return `
+        <div class="session-card">
+            <div class="card-mode-bar ${isOnline ? 'mode-online' : 'mode-inperson'}"></div>
+            <div class="card-body">
+                <div class="card-header-row">
+                    <span class="skill-badge">${escapeHtml(s.skillName || 'Session')}</span>
+                    <span class="mode-chip ${isOnline ? 'chip-online' : 'chip-inperson'}">
+                        ${isOnline ? '💻 Online' : '📍 In-Person'}
+                    </span>
+                </div>
+                <div class="mentor-row">
+                    <div class="mentor-avatar">${(s.mentorName || 'M').charAt(0).toUpperCase()}</div>
+                    <div>
+                        <div class="mentor-name">${escapeHtml(s.mentorName || 'Mentor')}</div>
+                        <div class="mentor-email">${escapeHtml(s.mentorEmail || '')}</div>
+                    </div>
+                </div>
+                <div class="session-meta">
+                    <span class="meta-item"><i class="fas fa-calendar-alt"></i> ${dateStr}</span>
+                    <span class="meta-item"><i class="fas fa-clock"></i> ${s.durationMinutes} min</span>
+                    ${!isOnline ? `<span class="meta-item"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(s.location || 'TBD')}</span>` : ''}
+                </div>
+                ${s.description ? `<div class="session-desc">${escapeHtml(s.description)}</div>` : ''}
+                <div class="spots-bar">
+                    <div class="spots-label">
+                        <span>Spots filled</span>
+                        <span>${s.currentLearners} / ${s.maxLearners}</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width:${pct}%;background:${isFull ? '#f59e0b' : 'var(--indigo)'};"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-foot">${footerBtns}</div>
+        </div>`;
+    }
+
+    // ── View session detail modal ─────────────────────────────────
+    function viewSession(id) {
+        const s = allSessions.find(x => x.id === id);
+        if (!s) return;
+        selectedSessionId = id;
+
+        const isOnline = s.mode === 'ONLINE';
+        const dateStr = s.scheduledTime
+            ? new Date(s.scheduledTime).toLocaleDateString('en-AE', { weekday:'long', day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })
+            : 'TBD';
+
+        const modeSection = isOnline
+            ? `<div style="background:#eef2ff;border-radius:10px;padding:14px;margin-bottom:14px;">
+                   <strong style="color:#4f46e5;">💻 Online Session</strong>
+                   <p style="font-size:13px;color:var(--muted);margin:6px 0 0;">
+                       A meeting link will be included in your confirmation email after joining.
+                   </p>
+               </div>`
+            : `<div style="background:#f0fdf4;border-radius:10px;padding:14px;margin-bottom:14px;">
+                   <strong style="color:#047857;">📍 In-Person Session</strong>
+                   <p style="font-size:13px;color:var(--muted);margin:4px 0 0;">
+                       <i class="fas fa-map-marker-alt"></i> ${escapeHtml(s.location || 'Location TBD')}
+                   </p>
+               </div>`;
+
+        const toolsSection = s.toolsNeeded
+            ? `<div class="tools-box">
+                   <strong>✅ What to bring / prepare:</strong>
+                   <div style="color:var(--muted);margin-top:4px;font-size:13px;line-height:1.6;">
+                       ${escapeHtml(s.toolsNeeded).replace(/\n/g, '<br>')}
+                   </div>
+               </div>`
+            : '';
+
+        document.getElementById('detailBody').innerHTML = `
+            <table style="width:100%;font-size:13px;border-collapse:collapse;margin-bottom:16px;">
+                <tr>
+                    <td style="padding:7px 0;border-bottom:1px solid #f1f5f9;color:var(--muted);width:38%">Skill</td>
+                    <td style="padding:7px 0;border-bottom:1px solid #f1f5f9;font-weight:600;">${escapeHtml(s.skillName)}</td>
+                </tr>
+                <tr>
+                    <td style="padding:7px 0;border-bottom:1px solid #f1f5f9;color:var(--muted);">Mentor</td>
+                    <td style="padding:7px 0;border-bottom:1px solid #f1f5f9;">${escapeHtml(s.mentorName)}</td>
+                </tr>
+                <tr>
+                    <td style="padding:7px 0;border-bottom:1px solid #f1f5f9;color:var(--muted);">Date & Time</td>
+                    <td style="padding:7px 0;border-bottom:1px solid #f1f5f9;">${dateStr}</td>
+                </tr>
+                <tr>
+                    <td style="padding:7px 0;border-bottom:1px solid #f1f5f9;color:var(--muted);">Duration</td>
+                    <td style="padding:7px 0;border-bottom:1px solid #f1f5f9;">${s.durationMinutes} minutes</td>
+                </tr>
+                <tr>
+                    <td style="padding:7px 0;color:var(--muted);">Spots left</td>
+                    <td style="padding:7px 0;">${s.maxLearners - s.currentLearners} of ${s.maxLearners}</td>
+                </tr>
+            </table>
+            ${modeSection}
+            ${s.description ? `<div style="margin-bottom:14px;font-size:13px;color:var(--muted);line-height:1.6;">${escapeHtml(s.description)}</div>` : ''}
+            ${toolsSection}
+            <p style="font-size:12px;color:#94a3b8;text-align:center;margin-top:10px;">
+                <i class="fas fa-envelope"></i> A confirmation email will be sent to your registered address after joining.
+            </p>`;
+
+        document.getElementById('detailModal').classList.add('open');
+    }
+
+    function closeDetailModal() {
+        document.getElementById('detailModal').classList.remove('open');
+        selectedSessionId = null;
+    }
+
+    async function confirmJoin() {
+        if (!selectedSessionId) return;
+        const btn = document.getElementById('joinBtn');
+        btn.textContent = 'Joining…';
+        btn.disabled = true;
+
+        try {
+            const res = await authFetch(`${API}/${selectedSessionId}/join`, { method: 'POST' });
+            const data = await res.json();
+            if (res.ok) {
+                closeDetailModal();
+                showToast('🎉 Joined! Check your email for confirmation.');
+                await loadAvailableSessions();
+            } else {
+                showToast('❌ ' + (data.error || 'Could not join session.'));
+            }
+        } catch(e) {
+            showToast('❌ Network error. Please try again.');
+        } finally {
+            btn.innerHTML = '✅ Join Session';
+            btn.disabled = false;
+        }
+    }
+
+    // ── Create session ────────────────────────────────────────────
+    async function loadMySkills() {
+        try {
+            const res = await authFetch('/api/users/me/skills');
+            const data = await res.json();
+            const teach = data.teach || [];
+            mySkills = teach;
+            const sel = document.getElementById('skillSelect');
+            if (!teach.length) {
+                sel.innerHTML = '<option value="">No mentor skills found — add skills to your profile first</option>';
+            } else {
+                sel.innerHTML = '<option value="">Select a skill…</option>' +
+                    teach.map(s => `<option value="${s.skillId}">${escapeHtml(s.skillName)}</option>`).join('');
+            }
+        } catch(e) {
+            console.error('Failed to load skills', e);
+        }
+    }
+
+    function selectMode(mode) {
+        currentMode = mode;
+        const onBtn = document.getElementById('modeOnlineBtn');
+        const inBtn = document.getElementById('modeInPersonBtn');
+        const linkField = document.getElementById('meetingLinkField');
+        const locField = document.getElementById('locationField');
+
+        if (mode === 'ONLINE') {
+            onBtn.className = 'mode-opt selected-online';
+            inBtn.className = 'mode-opt';
+            linkField.classList.add('visible');
+            locField.classList.remove('visible');
+        } else {
+            inBtn.className = 'mode-opt selected-inperson';
+            onBtn.className = 'mode-opt';
+            locField.classList.add('visible');
+            linkField.classList.remove('visible');
+        }
+    }
+
+    function openCreateModal() {
+        // Set minimum datetime to now
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('scheduledTime').min = now.toISOString().slice(0,16);
+        document.getElementById('createAlert').style.display = 'none';
+        document.getElementById('createModal').classList.add('open');
+    }
+
+    function closeCreateModal() {
+        document.getElementById('createModal').classList.remove('open');
+    }
+
+    async function submitCreateSession() {
+        const alertEl = document.getElementById('createAlert');
+        alertEl.style.display = 'none';
+
+        const skillId = document.getElementById('skillSelect').value;
+        const scheduledTime = document.getElementById('scheduledTime').value;
+        const description = document.getElementById('description').value.trim();
+        const toolsNeeded = document.getElementById('toolsNeeded').value.trim();
+        const duration = parseInt(document.getElementById('duration').value);
+        const maxLearners = parseInt(document.getElementById('maxLearners').value);
+        const meetingLink = document.getElementById('meetingLink').value.trim();
+        const location = document.getElementById('location').value.trim();
+
+        if (!skillId) { showError(alertEl, 'Please select a skill.'); return; }
+        if (!scheduledTime) { showError(alertEl, 'Please set a date and time.'); return; }
+        if (currentMode === 'ONLINE' && !meetingLink) { showError(alertEl, 'Please add a meeting link for the online session.'); return; }
+        if (currentMode === 'IN_PERSON' && !location) { showError(alertEl, 'Please enter the session location.'); return; }
+
+        const btn = document.getElementById('createBtn');
+        btn.textContent = 'Publishing…';
+        btn.disabled = true;
+
+        try {
+            const res = await authFetch(`${API}/create`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    skillId: parseInt(skillId),
+                    mode: currentMode,
+                    meetingLink: currentMode === 'ONLINE' ? meetingLink : null,
+                    location: currentMode === 'IN_PERSON' ? location : null,
+                    description,
+                    toolsNeeded,
+                    durationMinutes: duration,
+                    maxLearners,
+                    scheduledTime
+                })
+            });
+
+            const data = await res.json();
+            console.log('Server response:', res.status, data); // ← ADD THIS
+            if (res.ok) {
+                closeCreateModal();
+                showToast('🚀 Session published! Others can now see and join it.');
+                await loadAvailableSessions();
+                // Clear form
+                document.getElementById('skillSelect').value = '';
+                document.getElementById('scheduledTime').value = '';
+                document.getElementById('description').value = '';
+                document.getElementById('toolsNeeded').value = '';
+                document.getElementById('meetingLink').value = '';
+                document.getElementById('location').value = '';
+            } else {
+                showError(alertEl, data.error || 'Failed to create session.');
+            }
+        } catch(e) {
+            showError(alertEl, 'Network error. Please try again.');
+        } finally {
+            btn.innerHTML = '<i class="fas fa-rocket"></i> Publish Session';
+            btn.disabled = false;
+        }
+    }
+
+    // ── Delete session ────────────────────────────────────────────
+    async function deleteSession(id) {
+        if (!confirm('Delete this session? This cannot be undone.')) return;
+        try {
+            const res = await authFetch(`${API}/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                showToast('Session deleted.');
+                await loadMySessions();
+                await loadAvailableSessions();
+            } else {
+                showToast('❌ Could not delete session.');
+            }
+        } catch(e) {
+            showToast('❌ Network error.');
+        }
+    }
+
+    // ── Mark session complete ─────────────────────────────────────
+    async function markComplete(id) {
+        if (!confirm('Mark this session as complete? An AI summary will be generated.')) return;
+        try {
+            const res = await authFetch(`/api/sessions/${id}/complete`, { method: 'PUT' });
+            if (res.ok) {
+                showToast('✅ Session completed! Switch to History to see the summary and leave reviews.');
+                await loadMySessions();
+            } else {
+                const data = await res.json().catch(() => ({}));
+                showToast('❌ ' + (data.error || 'Could not complete session.'));
+            }
+        } catch(e) {
+            showToast('❌ Network error. Please try again.');
+        }
+    }
+
+    // ── Tab switching ─────────────────────────────────────────────
+    function switchTab(tab, btn) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        if (tab === 'mine') loadMySessions();
+        if (tab === 'history') loadHistorySessions();
+    }
+
+    // ── History tab ───────────────────────────────────────────────
+    async function loadHistorySessions() {
+        const grid = document.getElementById('historyGrid');
+        grid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px;">Loading history…</p>';
+        try {
+            const res = await authFetch('/api/sessions/me/history');
+            const sessions = await res.json();
+            if (!sessions.length) {
+                grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+                    <i class="fas fa-history"></i>
+                    <h3>No completed sessions yet</h3>
+                    <p>Your completed sessions will appear here once they're marked as finished.</p>
+                </div>`;
+                return;
+            }
+            // Fetch can-review status for all sessions in parallel
+            const reviewChecks = await Promise.all(
+                sessions.map(s => authFetch(`/api/reviews/can-review/${s.id}`)
+                    .then(r => r.json())
+                    .catch(() => ({ canReview: false, reason: 'error' })))
+            );
+            grid.innerHTML = sessions.map((s, i) => historyCard(s, reviewChecks[i])).join('');
+        } catch(e) {
+            grid.innerHTML = '<p style="color:var(--rose);text-align:center;padding:40px;">Failed to load history.</p>';
+        }
+    }
+
+    function historyCard(s, reviewStatus) {
+        const isOnline = s.mode === 'ONLINE';
+        const dateStr = s.scheduledTime
+            ? new Date(s.scheduledTime).toLocaleDateString('en-AE', { weekday:'short', day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })
+            : 'TBD';
+        const isMentor = currentUserEmail && s.mentorEmail === currentUserEmail;
+        const otherName  = isMentor ? (s.learnerName  || 'Learner') : (s.mentorName  || 'Mentor');
+        const otherEmail = isMentor ? (s.learnerEmail || '')         : (s.mentorEmail || '');
+        const roleLabel  = isMentor ? 'as learner' : 'as mentor';
+
+        let reviewSection;
+        if (reviewStatus.canReview) {
+            const skillLabel = escapeHtml(s.skillName || 'Session');
+            const otherLabel = escapeHtml(otherName);
+            reviewSection = `<button class="btn btn-primary btn-sm" style="flex:1;"
+                onclick="openReviewModal(${s.id}, '${otherLabel}', '${skillLabel}')">
+                <i class="fas fa-star"></i> Leave a Review
+            </button>`;
+        } else if (reviewStatus.reason === 'already_reviewed') {
+            reviewSection = `<span class="review-submitted">
+                <i class="fas fa-check-circle"></i> Review Submitted
+            </span>`;
+        } else {
+            reviewSection = '';
+        }
+
+        const hasSummary = s.aiSummary && s.aiSummary.trim().length > 0;
+        const summarySection = hasSummary
+            ? `<div class="ai-summary-box">
+                   <div class="ai-summary-label"><i class="fas fa-robot"></i> AI Session Summary</div>
+                   <p class="ai-summary-text">${escapeHtml(s.aiSummary)}</p>
+               </div>`
+            : `<div class="ai-summary-box ai-summary-unavailable">
+                   <div class="ai-summary-label"><i class="fas fa-robot"></i> AI Session Summary</div>
+                   <p class="ai-summary-text">Summary unavailable</p>
+               </div>`;
+
+        return `
+        <div class="session-card">
+            <div class="card-mode-bar ${isOnline ? 'mode-online' : 'mode-inperson'}"></div>
+            <div class="card-body">
+                <div class="card-header-row">
+                    <span class="skill-badge">${escapeHtml(s.skillName || 'Session')}</span>
+                    <span class="mode-chip ${isOnline ? 'chip-online' : 'chip-inperson'}">
+                        ${isOnline ? '💻 Online' : '📍 In-Person'}
+                    </span>
+                </div>
+                <div class="mentor-row">
+                    <div class="mentor-avatar">${(otherName).charAt(0).toUpperCase()}</div>
+                    <div>
+                        <div class="mentor-name">${escapeHtml(otherName)}</div>
+                        <div class="mentor-email">${escapeHtml(otherEmail)} <span style="color:var(--muted);font-size:11px;">${roleLabel}</span></div>
+                    </div>
+                </div>
+                <div class="session-meta">
+                    <span class="meta-item"><i class="fas fa-calendar-alt"></i> ${dateStr}</span>
+                    <span class="meta-item"><i class="fas fa-clock"></i> ${s.durationMinutes} min</span>
+                </div>
+                <span style="display:inline-block;background:var(--green-light);color:#047857;
+                             padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;margin-bottom:4px;">
+                    ✅ COMPLETED
+                </span>
+                ${summarySection}
+            </div>
+            <div class="card-foot" id="review-foot-${s.id}">${reviewSection}</div>
+        </div>`;
+    }
+
+    // ── Review modal ──────────────────────────────────────────────
+    function openReviewModal(sessionId, otherName, skillName) {
+        reviewSessionId = sessionId;
+        selectedRating = 0;
+        document.getElementById('reviewModalSubtitle').textContent =
+            `for ${skillName} with ${otherName}`;
+        document.getElementById('reviewComment').value = '';
+        document.getElementById('charCounter').textContent = '1000 characters remaining';
+        document.getElementById('reviewAlert').style.display = 'none';
+        document.getElementById('submitReviewBtn').disabled = true;
+        document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('lit'));
+        document.getElementById('starHint').textContent = 'Select a rating to enable submission';
+        document.getElementById('reviewModal').classList.add('open');
+    }
+
+    function closeReviewModal() {
+        document.getElementById('reviewModal').classList.remove('open');
+        reviewSessionId = null;
+        selectedRating = 0;
+    }
+
+    function setRating(value) {
+        selectedRating = value;
+        document.querySelectorAll('.star-btn').forEach(b => {
+            b.classList.toggle('lit', parseInt(b.dataset.v) <= value);
+        });
+        document.getElementById('submitReviewBtn').disabled = false;
+        document.getElementById('starHint').textContent = `${value} star${value > 1 ? 's' : ''} selected`;
+    }
+
+    function updateCharCounter() {
+        const len = document.getElementById('reviewComment').value.length;
+        document.getElementById('charCounter').textContent = `${1000 - len} characters remaining`;
+    }
+
+    async function submitReview() {
+        if (!reviewSessionId || selectedRating === 0) return;
+        const alertEl = document.getElementById('reviewAlert');
+        alertEl.style.display = 'none';
+        const btn = document.getElementById('submitReviewBtn');
+        btn.textContent = 'Submitting…';
+        btn.disabled = true;
+
+        const comment = document.getElementById('reviewComment').value.trim();
+        try {
+            const res = await authFetch('/api/reviews/submit', {
+                method: 'POST',
+                body: JSON.stringify({ sessionId: reviewSessionId, rating: selectedRating, comment: comment || null })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                closeReviewModal();
+                showToast('✅ Review submitted! Thank you.');
+                // Replace the button in the card with "Review Submitted ✓"
+                const foot = document.getElementById(`review-foot-${reviewSessionId}`);
+                if (foot) {
+                    foot.innerHTML = `<span class="review-submitted"><i class="fas fa-check-circle"></i> Review Submitted</span>`;
+                }
+            } else {
+                alertEl.textContent = data.error || 'Could not submit review.';
+                alertEl.style.display = 'block';
+                btn.innerHTML = '<i class="fas fa-star"></i> Submit Review';
+                btn.disabled = false;
+            }
+        } catch(e) {
+            alertEl.textContent = 'Network error. Please try again.';
+            alertEl.style.display = 'block';
+            btn.innerHTML = '<i class="fas fa-star"></i> Submit Review';
+            btn.disabled = false;
+        }
+    }
+
+    // Wire star button clicks
+    document.querySelectorAll('.star-btn').forEach(btn => {
+        btn.addEventListener('click', () => setRating(parseInt(btn.dataset.v)));
+    });
+
+    // ── Helpers ───────────────────────────────────────────────────
+    function showError(el, msg) {
+        el.textContent = msg;
+        el.style.display = 'block';
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('_toast');
+        t.textContent = msg;
+        t.style.opacity = '1';
+        t.style.transform = 'translateX(-50%) translateY(0)';
+        t.style.left = '50%';
+        t.style.position = 'fixed';
+        t.style.bottom = '28px';
+        t.style.cssText += ';opacity:1;transform:translateX(-50%) translateY(0);';
+        setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(10px)'; }, 3000);
+    }
+
+    // Close modals on backdrop click
+    document.getElementById('createModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeCreateModal(); });
+    document.getElementById('detailModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeDetailModal(); });
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.removeItem('jwtToken'); localStorage.removeItem('user');
+        window.location.href = '/login.html';
+    });
+
+    init();
+</script>
+</body>
+</html>

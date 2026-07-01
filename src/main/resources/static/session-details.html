@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap – Session Details</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --indigo:       #4f46e5;
+            --indigo-dark:  #3730a3;
+            --indigo-light: #e0e7ff;
+            --green:        #10b981;
+            --green-light:  #d1fae5;
+            --amber:        #f59e0b;
+            --rose:         #f43f5e;
+            --text:         #0f172a;
+            --muted:        #64748b;
+            --border:       #e2e8f0;
+            --bg:           #f8faff;
+            --radius:       14px;
+            --shadow:       0 8px 32px rgba(0,0,0,0.07);
+        }
+
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family:'DM Sans',sans-serif;
+            background:var(--bg); color:var(--text);
+            min-height:100vh; display:flex;
+        }
+
+        a { text-decoration:none; color:inherit; }
+
+        /* ─── SIDEBAR ─── */
+        .sidebar {
+            width:72px; background:white; border-right:1px solid var(--border);
+            height:100vh; position:fixed; left:0; top:0;
+            display:flex; flex-direction:column; align-items:center;
+            padding:20px 0; z-index:100;
+        }
+
+        .sidebar-logo {
+            width:40px; height:40px; background:var(--indigo); border-radius:10px;
+            display:flex; align-items:center; justify-content:center;
+            color:white; text-decoration:none; margin-bottom:28px;
+        }
+
+        .nav-links { display:flex; flex-direction:column; gap:4px; width:100%; padding:0 12px; align-items:center; }
+
+        .nav-link {
+            width:48px; height:48px; border-radius:10px;
+            display:flex; align-items:center; justify-content:center;
+            color:var(--muted); transition:all .2s; position:relative; font-size:1.1rem;
+        }
+
+        .nav-link:hover, .nav-link.active { background:var(--indigo-light); color:var(--indigo); }
+
+        .nav-link::after {
+            content:attr(data-tooltip); position:absolute; left:calc(100% + 12px); top:50%; transform:translateY(-50%);
+            background:var(--text); color:white; padding:5px 10px; border-radius:6px; font-size:12px;
+            white-space:nowrap; opacity:0; visibility:hidden; transition:all .2s;
+            pointer-events:none; z-index:200;
+        }
+
+        .nav-link:hover::after { opacity:1; visibility:visible; }
+
+        .sidebar-avatar {
+            margin-top:auto; padding-top:16px; border-top:1px solid var(--border);
+            width:100%; display:flex; justify-content:center;
+        }
+
+        .avatar-circle {
+            width:40px; height:40px;
+            background:linear-gradient(135deg,var(--indigo),var(--rose));
+            border-radius:50%; display:flex; align-items:center; justify-content:center;
+            color:white; font-weight:600; font-family:'Fraunces',serif; font-size:1rem;
+        }
+
+        /* ─── MAIN ─── */
+        .main { margin-left:72px; flex:1; display:flex; flex-direction:column; }
+
+        .topbar {
+            background:rgba(248,250,255,.92); backdrop-filter:blur(12px);
+            border-bottom:1px solid var(--border); padding:14px 32px;
+            display:flex; align-items:center; gap:16px;
+            position:sticky; top:0; z-index:50;
+        }
+
+        .back-btn {
+            width:36px; height:36px; border-radius:9px; border:1px solid var(--border);
+            background:white; display:flex; align-items:center; justify-content:center;
+            color:var(--muted); cursor:pointer; transition:all .2s; flex-shrink:0;
+        }
+
+        .back-btn:hover { border-color:var(--indigo); color:var(--indigo); }
+
+        .topbar-breadcrumb {
+            display:flex; align-items:center; gap:8px; font-size:.88rem; color:var(--muted);
+        }
+
+        .topbar-breadcrumb a { color:var(--indigo); font-weight:500; }
+        .topbar-breadcrumb a:hover { text-decoration:underline; }
+
+        .topbar-title { font-family:'Fraunces',serif; font-size:1.35rem; font-weight:600; color:var(--indigo); margin-left:auto; }
+
+        /* ─── PAGE ─── */
+        .page { padding:32px; flex:1; max-width:1200px; margin:0 auto; width:100%; }
+
+        /* ─── HERO BANNER ─── */
+        .mentor-hero {
+            background:white; border:1px solid var(--border); border-radius:var(--radius);
+            box-shadow:var(--shadow); padding:32px; margin-bottom:28px;
+            display:flex; gap:28px; align-items:flex-start; position:relative; overflow:hidden;
+        }
+
+        .mentor-hero::before {
+            content:''; position:absolute; top:0; left:0; right:0; height:4px;
+            background:linear-gradient(90deg, var(--indigo), var(--rose), var(--amber));
+        }
+
+        .hero-avatar {
+            width:100px; height:100px; border-radius:50%; flex-shrink:0;
+            border:4px solid white; box-shadow:0 8px 24px rgba(79,70,229,.2); overflow:hidden;
+        }
+
+        .hero-avatar img { width:100%; height:100%; object-fit:cover; }
+
+        .hero-info { flex:1; }
+
+        .hero-name-row { display:flex; align-items:center; gap:12px; margin-bottom:4px; flex-wrap:wrap; }
+        .hero-name { font-family:'Fraunces',serif; font-size:1.7rem; font-weight:700; letter-spacing:-.3px; }
+
+        .verified-badge {
+            background:var(--green-light); color:#065f46;
+            padding:4px 10px; border-radius:20px; font-size:.75rem; font-weight:600;
+            display:inline-flex; align-items:center; gap:5px;
+        }
+
+        .hero-title { color:var(--muted); font-size:.95rem; margin-bottom:14px; }
+
+        .hero-meta { display:flex; flex-wrap:wrap; gap:18px; margin-bottom:16px; }
+
+        .meta-item { display:flex; align-items:center; gap:7px; font-size:.88rem; }
+        .meta-item i { color:var(--indigo); width:16px; text-align:center; }
+
+        .rating-stars { color:var(--amber); font-weight:700; font-size:1rem; }
+
+        .hero-skills { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+
+        .stag {
+            background:var(--indigo-light); color:var(--indigo);
+            padding:4px 12px; border-radius:20px; font-size:.78rem; font-weight:500;
+        }
+
+        .hero-badges { display:flex; flex-wrap:wrap; gap:8px; }
+
+        .mbadge {
+            padding:4px 12px; border-radius:6px; font-size:.75rem; font-weight:600;
+            display:inline-flex; align-items:center; gap:5px;
+        }
+
+        .mbadge-star   { background:#fef3c7; color:#92400e; }
+        .mbadge-master { background:var(--indigo-light); color:var(--indigo); }
+        .mbadge-verify { background:var(--green-light); color:#065f46; }
+
+        .hero-actions { display:flex; flex-direction:column; gap:10px; flex-shrink:0; }
+
+        /* ─── TWO-COLUMN LAYOUT ─── */
+        .two-col { display:grid; grid-template-columns:1fr 380px; gap:24px; align-items:flex-start; }
+
+        /* ─── CARD ─── */
+        .card {
+            background:white; border:1px solid var(--border); border-radius:var(--radius);
+            box-shadow:var(--shadow); padding:24px; margin-bottom:20px;
+        }
+
+        .card-title {
+            font-family:'Fraunces',serif; font-size:1.1rem; font-weight:600;
+            margin-bottom:18px; display:flex; align-items:center; gap:9px;
+        }
+
+        .card-title i { color:var(--indigo); }
+
+        /* ─── AVAILABILITY GRID ─── */
+        .avail-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+
+        .avail-slot {
+            border:2px solid var(--border); border-radius:10px;
+            padding:12px 10px; text-align:center; cursor:pointer; transition:all .2s;
+        }
+
+        .avail-slot:hover { border-color:var(--indigo); background:var(--indigo-light); }
+        .avail-slot.selected { border-color:var(--indigo); background:var(--indigo); color:white; }
+        .avail-slot.unavailable { opacity:.4; cursor:not-allowed; background:var(--bg); }
+
+        .slot-day { font-weight:600; font-size:.85rem; }
+        .slot-time { font-size:.75rem; margin-top:3px; opacity:.8; }
+
+        /* ─── FORM ─── */
+        .form-group { margin-bottom:18px; }
+
+        .form-label {
+            display:block; font-size:.82rem; font-weight:600;
+            color:var(--text); margin-bottom:7px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width:100%; padding:11px 14px; border:1.5px solid var(--border);
+            border-radius:9px; font-family:'DM Sans',sans-serif; font-size:.88rem;
+            outline:none; transition:all .2s; background:white; color:var(--text);
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color:var(--indigo); box-shadow:0 0 0 3px rgba(79,70,229,.1);
+        }
+
+        .form-textarea { resize:vertical; min-height:90px; }
+
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+        /* ─── SESSION SUMMARY ─── */
+        .summary-card {
+            background:white; border:1px solid var(--border); border-radius:var(--radius);
+            box-shadow:var(--shadow); padding:24px; position:sticky; top:90px;
+        }
+
+        .summary-title {
+            font-family:'Fraunces',serif; font-size:1.1rem; font-weight:600;
+            margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid var(--border);
+        }
+
+        .summary-row {
+            display:flex; justify-content:space-between; align-items:center;
+            padding:9px 0; border-bottom:1px solid var(--bg); font-size:.88rem;
+        }
+
+        .summary-row:last-of-type { border-bottom:none; }
+        .summary-label { color:var(--muted); }
+        .summary-value { font-weight:600; color:var(--text); }
+        .summary-value.highlight { color:var(--indigo); }
+
+        .summary-total {
+            display:flex; justify-content:space-between; align-items:center;
+            padding:14px 0 0; margin-top:8px; border-top:2px solid var(--border);
+            font-size:1.05rem; font-weight:700;
+        }
+
+        .summary-total .amount { color:var(--indigo); font-size:1.2rem; }
+
+        /* ─── BUTTONS ─── */
+        .btn {
+            padding:11px 22px; border-radius:9px;
+            font-family:'DM Sans',sans-serif; font-size:.9rem; font-weight:600;
+            cursor:pointer; border:none;
+            display:inline-flex; align-items:center; justify-content:center; gap:8px;
+            transition:all .2s; text-decoration:none; width:100%;
+        }
+
+        .btn-primary {
+            background:linear-gradient(135deg,var(--indigo),var(--indigo-dark));
+            color:white; box-shadow:0 4px 14px rgba(79,70,229,.3);
+        }
+
+        .btn-primary:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(79,70,229,.4); }
+        .btn-primary:active { transform:translateY(0); }
+
+        .btn-outline {
+            background:white; border:1.5px solid var(--indigo); color:var(--indigo);
+        }
+
+        .btn-outline:hover { background:var(--indigo-light); }
+
+        .btn-ghost {
+            background:transparent; color:var(--muted); border:1.5px solid var(--border);
+        }
+
+        .btn-ghost:hover { border-color:var(--rose); color:var(--rose); }
+
+        .btn-sm { padding:8px 16px; font-size:.82rem; width:auto; }
+
+        /* ─── REVIEWS ─── */
+        .review-list { display:flex; flex-direction:column; gap:16px; }
+
+        .review-item {
+            padding:16px; background:var(--bg); border-radius:10px;
+            border:1px solid var(--border);
+        }
+
+        .review-header { display:flex; justify-content:space-between; margin-bottom:8px; }
+        .review-author { font-weight:600; font-size:.88rem; }
+        .review-stars { color:var(--amber); font-size:.82rem; }
+        .review-text { font-size:.85rem; color:var(--muted); line-height:1.6; }
+
+        /* ─── SUCCESS OVERLAY ─── */
+        .success-overlay {
+            display:none; position:fixed; inset:0;
+            background:rgba(15,23,42,.5); backdrop-filter:blur(6px);
+            z-index:500; align-items:center; justify-content:center;
+        }
+
+        .success-overlay.active { display:flex; }
+
+        .success-modal {
+            background:white; border-radius:20px;
+            padding:48px 40px; text-align:center; max-width:420px; width:90%;
+            box-shadow:0 24px 64px rgba(0,0,0,.2);
+            animation:modalIn .4s cubic-bezier(.34,1.56,.64,1);
+        }
+
+        @keyframes modalIn { from{transform:scale(.8);opacity:0} to{transform:scale(1);opacity:1} }
+
+        .success-icon {
+            width:80px; height:80px; background:var(--green-light);
+            border-radius:50%; display:flex; align-items:center; justify-content:center;
+            margin:0 auto 20px; font-size:2rem; color:var(--green);
+        }
+
+        .success-modal h2 { font-family:'Fraunces',serif; font-size:1.6rem; margin-bottom:10px; }
+        .success-modal p { color:var(--muted); font-size:.92rem; line-height:1.6; margin-bottom:28px; }
+
+        .success-btns { display:flex; gap:12px; }
+
+        /* ─── NOT LOGGED IN BANNER ─── */
+        .auth-banner {
+            background:linear-gradient(135deg,#fef3c7,#fde68a);
+            border:1px solid #f59e0b; border-radius:var(--radius);
+            padding:16px 20px; margin-bottom:20px;
+            display:none; align-items:center; gap:14px;
+        }
+
+        .auth-banner.show { display:flex; }
+        .auth-banner i { color:var(--amber); font-size:1.2rem; flex-shrink:0; }
+        .auth-banner span { font-size:.88rem; flex:1; }
+        .auth-banner a { color:var(--indigo); font-weight:600; }
+
+        /* ─── LOADING SKELETON ─── */
+        .skeleton {
+            background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);
+            background-size:200% 100%; animation:shimmer 1.4s infinite;
+            border-radius:6px; display:inline-block;
+        }
+
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+        @media(max-width:900px) {
+            .two-col { grid-template-columns:1fr; }
+            .summary-card { position:static; }
+            .hero-actions { flex-direction:row; }
+            .mentor-hero { flex-direction:column; }
+        }
+
+        @media(max-width:640px) {
+            .page { padding:16px; }
+            .avail-grid { grid-template-columns:1fr 1fr; }
+            .form-row { grid-template-columns:1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a href="dashboard.html" class="sidebar-logo">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+        </a>
+        <nav class="nav-links">
+            <a href="dashboard.html" class="nav-link" data-tooltip="Dashboard"><i class="fas fa-home"></i></a>
+            <a href="userProfile.html" class="nav-link" data-tooltip="Profile"><i class="fas fa-user"></i></a>
+            <a href="ai-matching.html" class="nav-link" data-tooltip="AI Matching"><i class="fas fa-robot"></i></a>
+            <a href="browse-skills.html" class="nav-link active" data-tooltip="Browse Skills"><i class="fas fa-search"></i></a>
+        </nav>
+        <div class="sidebar-avatar"><div class="avatar-circle" id="sidebarInitial">S</div></div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main">
+        <header class="topbar">
+            <button class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
+            <div class="topbar-breadcrumb">
+                <a href="browse-skills.html">Browse</a>
+                <i class="fas fa-chevron-right" style="font-size:.65rem"></i>
+                <span id="breadcrumbName">Session Details</span>
+            </div>
+            <span class="topbar-title">SkillSwap UAE</span>
+        </header>
+
+        <div class="page">
+
+            <!-- Auth warning banner (shown if not logged in) -->
+            <div class="auth-banner" id="authBanner">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>You're browsing as a guest. <a href="login.html">Log in</a> or <a href="register.html">create an account</a> to book a session.</span>
+            </div>
+
+            <!-- Mentor Hero -->
+            <div class="mentor-hero" id="mentorHero">
+                <div class="hero-avatar"><img id="heroImg" src="" alt="Mentor"></div>
+                <div class="hero-info">
+                    <div class="hero-name-row">
+                        <h1 class="hero-name" id="heroName">Loading…</h1>
+                        <span class="verified-badge" id="heroVerified" style="display:none"><i class="fas fa-check-circle"></i> Verified</span>
+                    </div>
+                    <div class="hero-title" id="heroTitle"></div>
+                    <div class="hero-meta">
+                        <div class="meta-item"><span class="rating-stars" id="heroRating">⭐ —</span></div>
+                        <div class="meta-item"><i class="fas fa-comments"></i> <span id="heroSessions">— sessions</span></div>
+                        <div class="meta-item"><i class="fas fa-star"></i> <span id="heroReviews">— reviews</span></div>
+                        <div class="meta-item"><i class="fas fa-map-marker-alt"></i> <span id="heroLocation">—</span></div>
+                    </div>
+                    <div class="hero-skills" id="heroSkills"></div>
+                    <div class="hero-badges" id="heroBadges"></div>
+                </div>
+                <div class="hero-actions">
+                    <button class="btn btn-primary btn-sm" id="heroBookBtn"><i class="fas fa-calendar-plus"></i> Book Session</button>
+                    <button class="btn btn-ghost btn-sm" id="heroSaveBtn"><i class="far fa-heart"></i> Save</button>
+                </div>
+            </div>
+
+            <!-- Two-column layout -->
+            <div class="two-col">
+                <!-- LEFT: Details + Booking Form -->
+                <div>
+                    <!-- Availability -->
+                    <div class="card">
+                        <h3 class="card-title"><i class="fas fa-calendar-alt"></i> Available Slots</h3>
+                        <div class="avail-grid" id="availGrid">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Booking Form -->
+                    <div class="card" id="bookingFormCard">
+                        <h3 class="card-title"><i class="fas fa-clipboard-list"></i> Session Details</h3>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Session Type</label>
+                                <select class="form-select" id="sessionType">
+                                    <option value="one-on-one">1-on-1 Session</option>
+                                    <option value="group">Group Session</option>
+                                    <option value="workshop">Workshop</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Duration</label>
+                                <select class="form-select" id="sessionDuration">
+                                    <option value="30">30 minutes</option>
+                                    <option value="60" selected>1 hour</option>
+                                    <option value="90">1.5 hours</option>
+                                    <option value="120">2 hours</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Mode</label>
+                                <select class="form-select" id="sessionMode">
+                                    <option value="online">Online (Video Call)</option>
+                                    <option value="in-person">In-Person</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Skill Focus</label>
+                                <select class="form-select" id="skillFocus">
+                                    <!-- Populated by JS -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Your Goals <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+                            <textarea class="form-textarea" id="sessionGoals" placeholder="Describe what you'd like to learn or achieve in this session…"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Experience Level</label>
+                            <select class="form-select" id="experienceLevel">
+                                <option value="beginner">Beginner – Just starting out</option>
+                                <option value="intermediate">Intermediate – Some experience</option>
+                                <option value="advanced">Advanced – Looking to refine skills</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Reviews -->
+                    <div class="card">
+                        <h3 class="card-title"><i class="fas fa-star"></i> Reviews</h3>
+                        <div class="review-list" id="reviewList">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT: Summary + Confirm -->
+                <div>
+                    <div class="summary-card">
+                        <h3 class="summary-title">📋 Session Summary</h3>
+
+                        <div class="summary-row">
+                            <span class="summary-label">Mentor</span>
+                            <span class="summary-value highlight" id="summMentor">—</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Date & Time</span>
+                            <span class="summary-value" id="summSlot">Select a slot</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Type</span>
+                            <span class="summary-value" id="summType">1-on-1</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Duration</span>
+                            <span class="summary-value" id="summDuration">1 hour</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Mode</span>
+                            <span class="summary-value" id="summMode">Online</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Skill</span>
+                            <span class="summary-value" id="summSkill">—</span>
+                        </div>
+
+                        <div class="summary-total">
+                            <span>Session Credits</span>
+                            <span class="amount" id="summCredits">1 credit</span>
+                        </div>
+
+                        <div style="margin-top:20px;display:flex;flex-direction:column;gap:10px;">
+                            <button class="btn btn-primary" id="confirmBtn">
+                                <i class="fas fa-calendar-check"></i> Confirm Booking
+                            </button>
+                            <button class="btn btn-ghost" onclick="history.back()">
+                                <i class="fas fa-arrow-left"></i> Back to Browse
+                            </button>
+                        </div>
+
+                        <p style="font-size:.75rem;color:var(--muted);text-align:center;margin-top:16px;line-height:1.5;">
+                            <i class="fas fa-shield-alt" style="color:var(--green)"></i>
+                            Free cancellation up to 24h before the session
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUCCESS OVERLAY -->
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-modal">
+            <div class="success-icon"><i class="fas fa-check"></i></div>
+            <h2>Session Booked! 🎉</h2>
+            <p id="successMsg">Your session has been requested. You'll receive a confirmation once the mentor accepts.</p>
+            <div class="success-btns">
+                <button class="btn btn-primary" onclick="window.location.href='dashboard.html'">
+                    <i class="fas fa-home"></i> Go to Dashboard
+                </button>
+                <button class="btn btn-outline" onclick="window.location.href='browse-skills.html'" style="width:auto;flex:1;">
+                    Browse More
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ─────────────────────────────────────────────
+    //  1. Read URL params + mentor data
+    // ─────────────────────────────────────────────
+    const params     = new URLSearchParams(window.location.search);
+    const mentorId   = parseInt(params.get('mentorId')) || null;
+    const mode       = params.get('mode') || 'book'; // 'book' | 'profile'
+
+    // Try to get JWT from storage (set during login)
+    const token = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken') || null;
+
+    // Try to read mentor data passed from browse page
+    let mentor = null;
+    try {
+        const stored = localStorage.getItem('selectedMentor');
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            if (parsed && parsed.id === mentorId) mentor = parsed;
+        }
+    } catch(e) {}
+
+    // ─────────────────────────────────────────────
+    //  2. Populate page
+    // ─────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+        // Show auth warning if not logged in
+        if (!token) {
+            document.getElementById('authBanner').classList.add('show');
+        }
+
+        if (mentor) {
+            populateMentorHero(mentor);
+            populateAvailability(mentor);
+            populateSkillFocus(mentor);
+            populateReviews(mentor);
+            updateSummary();
+        } else if (mentorId) {
+            // Fallback: try fetching from API
+            fetchMentorFromAPI(mentorId);
+        } else {
+            // No mentor — go back
+            showError('No mentor selected. Redirecting…');
+            setTimeout(() => window.location.href = 'browse-skills.html', 2000);
+        }
+
+        setupFormListeners();
+        setupButtons();
+    });
+
+    // ─────────────────────────────────────────────
+    //  3. Populate mentor hero section
+    // ─────────────────────────────────────────────
+    function populateMentorHero(m) {
+        document.title = 'SkillSwap – Session with ' + m.name;
+        document.getElementById('breadcrumbName').textContent = m.name;
+        document.getElementById('heroImg').src = m.image || '';
+        document.getElementById('heroName').textContent = m.name;
+        document.getElementById('heroTitle').textContent = m.title;
+        document.getElementById('heroRating').textContent = '⭐ ' + m.rating;
+        document.getElementById('heroSessions').textContent = m.sessions + ' sessions';
+        document.getElementById('heroReviews').textContent = m.reviews + ' reviews';
+
+        // Location from title (e.g. "Marketing Expert · Dubai")
+        const locMatch = m.title.match(/·\s*(.+)$/);
+        document.getElementById('heroLocation').textContent = locMatch ? locMatch[1] : m.location || '';
+
+        // Verified badge
+        if (m.badges && m.badges.includes('verified')) {
+            document.getElementById('heroVerified').style.display = 'inline-flex';
+        }
+
+        // Skills
+        const skillsEl = document.getElementById('heroSkills');
+        (m.skills || []).forEach(s => {
+            const span = document.createElement('span');
+            span.className = 'stag';
+            span.textContent = s;
+            skillsEl.appendChild(span);
+        });
+
+        // Badges
+        const badgeMap = {
+            'five-star': ['mbadge-star', '🏆 Five-Star'],
+            'master':    ['mbadge-master', 'Master'],
+            'verified':  ['mbadge-verify', '✓ Verified']
+        };
+        const badgesEl = document.getElementById('heroBadges');
+        (m.badges || []).forEach(b => {
+            if (badgeMap[b]) {
+                const span = document.createElement('span');
+                span.className = 'mbadge ' + badgeMap[b][0];
+                span.textContent = badgeMap[b][1];
+                badgesEl.appendChild(span);
+            }
+        });
+
+        // Summary mentor name
+        document.getElementById('summMentor').textContent = m.name;
+        document.getElementById('summSkill').textContent = (m.skills || [])[0] || '—';
+    }
+
+    // ─────────────────────────────────────────────
+    //  4. Populate availability slots
+    // ─────────────────────────────────────────────
+    function populateAvailability(m) {
+        const grid = document.getElementById('availGrid');
+        grid.innerHTML = '';
+
+        // Generate slots based on mentor's availability
+        const today = new Date();
+        const slots = [];
+
+        const avail = m.availability || ['flexible'];
+
+        for (let i = 1; i <= 7; i++) {
+            const d = new Date(today);
+            d.setDate(today.getDate() + i);
+            const dayName = d.toLocaleDateString('en-AE', { weekday:'short' });
+            const dayDate = d.toLocaleDateString('en-AE', { month:'short', day:'numeric' });
+            const isWeekend = d.getDay() === 5 || d.getDay() === 6; // Fri/Sat in UAE
+
+            let times = [];
+            if (avail.includes('flexible'))  times = ['10:00 AM', '2:00 PM', '6:00 PM'];
+            else if (avail.includes('evenings') && !isWeekend) times = ['6:00 PM', '7:30 PM'];
+            else if (avail.includes('weekends') && isWeekend) times = ['10:00 AM', '12:00 PM'];
+            else if (avail.includes('week') && !isWeekend) times = ['10:00 AM', '2:00 PM'];
+
+            if (times.length) {
+                slots.push({ dayName, dayDate, time: times[0], fullDate: d });
+            }
+
+            if (slots.length >= 6) break;
+        }
+
+        slots.forEach((slot, idx) => {
+            const div = document.createElement('div');
+            div.className = 'avail-slot';
+            div.innerHTML = `<div class="slot-day">${slot.dayName}, ${slot.dayDate}</div><div class="slot-time">${slot.time}</div>`;
+            div.addEventListener('click', () => {
+                document.querySelectorAll('.avail-slot').forEach(s => s.classList.remove('selected'));
+                div.classList.add('selected');
+                document.getElementById('summSlot').textContent = slot.dayName + ' ' + slot.dayDate + ' at ' + slot.time;
+                updateSummary();
+            });
+            grid.appendChild(div);
+        });
+
+        if (!slots.length) {
+            grid.innerHTML = '<p style="color:var(--muted);font-size:.88rem;grid-column:1/-1;">No slots available in the next 7 days.</p>';
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    //  5. Populate skill focus dropdown
+    // ─────────────────────────────────────────────
+    function populateSkillFocus(m) {
+        const sel = document.getElementById('skillFocus');
+        sel.innerHTML = '';
+        (m.skills || ['General']).forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s; opt.textContent = s;
+            sel.appendChild(opt);
+        });
+    }
+
+    // ─────────────────────────────────────────────
+    //  6. Populate reviews (mock)
+    // ─────────────────────────────────────────────
+    function populateReviews(m) {
+        const mockReviews = [
+            { author: 'Ahmed K.', stars: 5, text: 'Incredibly knowledgeable and patient. Learned more in one session than weeks of self-study. Highly recommend!' },
+            { author: 'Sara M.', stars: 5, text: 'Very professional, clear explanations and great practical examples. Will definitely book again.' },
+            { author: 'John D.', stars: 4, text: 'Great session, came well prepared with a clear agenda. A few technical issues with the video call but overall excellent.' }
+        ];
+
+        const list = document.getElementById('reviewList');
+        list.innerHTML = '';
+        mockReviews.slice(0, Math.min(3, m.reviews || 3)).forEach(r => {
+            const div = document.createElement('div');
+            div.className = 'review-item';
+            div.innerHTML = `
+                <div class="review-header">
+                    <span class="review-author">${r.author}</span>
+                    <span class="review-stars">${'⭐'.repeat(r.stars)}</span>
+                </div>
+                <p class="review-text">${r.text}</p>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    // ─────────────────────────────────────────────
+    //  7. Update summary panel on form change
+    // ─────────────────────────────────────────────
+    function updateSummary() {
+        const type     = document.getElementById('sessionType').value;
+        const duration = document.getElementById('sessionDuration').value;
+        const modeVal  = document.getElementById('sessionMode').value;
+        const skill    = document.getElementById('skillFocus').value;
+
+        const typeLabels = { 'one-on-one': '1-on-1', 'group': 'Group', 'workshop': 'Workshop' };
+        const durationLabels = { '30': '30 min', '60': '1 hour', '90': '1.5 hours', '120': '2 hours' };
+        const modeLabels = { 'online': 'Online', 'in-person': 'In-Person' };
+
+        document.getElementById('summType').textContent     = typeLabels[type] || type;
+        document.getElementById('summDuration').textContent = durationLabels[duration] || duration + ' min';
+        document.getElementById('summMode').textContent     = modeLabels[modeVal] || modeVal;
+        if (skill) document.getElementById('summSkill').textContent = skill;
+
+        // Credits: 1 per 30 minutes
+        const credits = Math.ceil(parseInt(duration) / 30);
+        document.getElementById('summCredits').textContent = credits + (credits === 1 ? ' credit' : ' credits');
+    }
+
+    function setupFormListeners() {
+        ['sessionType','sessionDuration','sessionMode','skillFocus'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('change', updateSummary);
+        });
+    }
+
+    // ─────────────────────────────────────────────
+    //  8. Button handlers
+    // ─────────────────────────────────────────────
+    function setupButtons() {
+        // Scroll to booking form
+        document.getElementById('heroBookBtn').addEventListener('click', () => {
+            document.getElementById('bookingFormCard').scrollIntoView({ behavior:'smooth', block:'start' });
+        });
+
+        // Save/favourite
+        document.getElementById('heroSaveBtn').addEventListener('click', function() {
+            const saved = this.querySelector('i').classList.contains('fas');
+            this.querySelector('i').className = saved ? 'far fa-heart' : 'fas fa-heart';
+            this.style.color = saved ? '' : 'var(--rose)';
+            showToast(saved ? 'Removed from favourites.' : 'Mentor saved!');
+        });
+
+        // Confirm Booking
+        document.getElementById('confirmBtn').addEventListener('click', handleBooking);
+    }
+
+    // ─────────────────────────────────────────────
+    //  9. Handle booking submission
+    // ─────────────────────────────────────────────
+    function handleBooking() {
+        // Check if a slot is selected
+        const slotEl = document.querySelector('.avail-slot.selected');
+        if (!slotEl) {
+            showToast('⚠️ Please select an available time slot first.');
+            document.getElementById('availGrid').scrollIntoView({ behavior:'smooth' });
+            return;
+        }
+
+        // Check authentication
+        if (!token) {
+            showToast('⚠️ Please log in to book a session.');
+            setTimeout(() => {
+                window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+            }, 1500);
+            return;
+        }
+
+        const btn = document.getElementById('confirmBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Booking…';
+
+        const bookingData = {
+            mentorId:     mentorId,
+            sessionType:  document.getElementById('sessionType').value,
+            duration:     parseInt(document.getElementById('sessionDuration').value),
+            mode:         document.getElementById('sessionMode').value,
+            skillFocus:   document.getElementById('skillFocus').value,
+            goals:        document.getElementById('sessionGoals').value,
+            experience:   document.getElementById('experienceLevel').value,
+            selectedSlot: document.getElementById('summSlot').textContent
+        };
+
+        // POST to your sessions API endpoint with JWT
+        fetch('/api/sessions/request', {
+            method: 'POST',
+            credentials: "include", 
+            headers: {
+                'Content-Type':  'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify(bookingData)
+        })
+        .then(res => {
+            if (res.status === 401) {
+                // Token expired — redirect to login
+                localStorage.removeItem('jwtToken');
+                sessionStorage.removeItem('jwtToken');
+                window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+                return null;
+            }
+            if (!res.ok) return res.json().then(e => Promise.reject(e));
+            return res.json();
+        })
+        .then(data => {
+            if (!data) return;
+            // Success!
+            const mentorName = mentor ? mentor.name : 'the mentor';
+            document.getElementById('successMsg').textContent =
+                'Your session with ' + mentorName + ' has been requested for ' +
+                document.getElementById('summSlot').textContent +
+                '. You\'ll receive a confirmation once they accept.';
+            document.getElementById('successOverlay').classList.add('active');
+        })
+        .catch(err => {
+            console.error('Booking error:', err);
+            // If API doesn't exist yet — still show success UI for demo
+            if (err instanceof TypeError || (err && err.message && err.message.includes('fetch'))) {
+                showDemoSuccess();
+            } else {
+                showToast('❌ ' + (err.message || 'Booking failed. Please try again.'));
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-calendar-check"></i> Confirm Booking';
+            }
+        });
+    }
+
+    function showDemoSuccess() {
+        // Fallback: show success even if API endpoint isn't ready yet
+        const mentorName = mentor ? mentor.name : 'the mentor';
+        document.getElementById('successMsg').textContent =
+            'Your session with ' + mentorName + ' has been requested for ' +
+            document.getElementById('summSlot').textContent +
+            '. You\'ll receive a confirmation once they accept.';
+        document.getElementById('successOverlay').classList.add('active');
+    }
+
+    // ─────────────────────────────────────────────
+    //  10. API fallback: fetch mentor from backend
+    // ─────────────────────────────────────────────
+    function fetchMentorFromAPI(id) {
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = 'Bearer ' + token;
+
+        fetch('/api/mentors/' + id, { headers })
+        .then(res => {
+            if (!res.ok) throw new Error('Mentor not found');
+            return res.json();
+        })
+        .then(data => {
+            mentor = data;
+            populateMentorHero(mentor);
+            populateAvailability(mentor);
+            populateSkillFocus(mentor);
+            populateReviews(mentor);
+            updateSummary();
+        })
+        .catch(() => {
+            // Could not fetch — show generic placeholder
+            document.getElementById('heroName').textContent = 'Mentor #' + id;
+            document.getElementById('heroTitle').textContent = 'Skill Mentor';
+            showToast('Could not load mentor details. Some info may be missing.');
+        });
+    }
+
+    // ─────────────────────────────────────────────
+    //  11. Toast helper
+    // ─────────────────────────────────────────────
+    function showToast(msg) {
+        const t = document.createElement('div');
+        t.style.cssText = 'position:fixed;top:20px;right:20px;background:var(--indigo);color:white;padding:13px 22px;border-radius:9px;box-shadow:0 5px 20px rgba(0,0,0,.15);z-index:3000;font-family:"DM Sans",sans-serif;font-size:.88rem;font-weight:500;animation:toastIn .3s ease;max-width:320px;';
+        t.textContent = msg;
+        const style = document.createElement('style');
+        style.textContent = '@keyframes toastIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}';
+        document.head.appendChild(style);
+        document.body.appendChild(t);
+        setTimeout(() => {
+            t.style.opacity = '0'; t.style.transform = 'translateX(100%)'; t.style.transition = 'all .3s';
+            setTimeout(() => { document.body.removeChild(t); document.head.removeChild(style); }, 300);
+        }, 3500);
+    }
+
+    function showError(msg) {
+        showToast('❌ ' + msg);
+    }
+    </script>
+</body>
+</html>

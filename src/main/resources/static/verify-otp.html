@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap – Verify Email</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --indigo: #4f46e5;
+            --indigo-dark: #3730a3;
+            --indigo-light: #e0e7ff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --bg: #f8faff;
+        }
+
+        *, *::before, *::after {
+            margin: 0; padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Noise overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.4;
+        }
+
+        /* ─── NAV ─── */
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(248, 250, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            animation: slideDown 0.5s ease forwards;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to   { transform: translateY(0); opacity: 1; }
+        }
+
+        .nav-container {
+            max-width: 1100px;
+            margin: auto;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 34px; height: 34px;
+            background: var(--indigo);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-family: 'Fraunces', serif;
+            font-size: 21px;
+            font-weight: 600;
+            color: var(--indigo);
+            letter-spacing: -0.3px;
+        }
+
+        .nav-buttons { display: flex; gap: 10px; align-items: center; }
+
+        .btn {
+            padding: 9px 20px;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+        }
+        .btn-ghost:hover {
+            background: white;
+            border-color: #c7d2fe;
+            color: var(--indigo);
+        }
+
+        .btn-primary {
+            background: var(--indigo);
+            color: white;
+            box-shadow: 0 1px 3px rgba(79,70,229,0.25);
+        }
+        .btn-primary:hover {
+            background: var(--indigo-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(79,70,229,0.35);
+        }
+
+        /* ─── PAGE LAYOUT ─── */
+        .page-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 68px);
+            padding: 48px 24px;
+            overflow: hidden;
+        }
+
+        /* Blobs */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.45;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .blob-1 {
+            width: 420px; height: 420px;
+            background: radial-gradient(circle, #c7d2fe, #a5b4fc, transparent 75%);
+            top: -80px; right: -60px;
+        }
+        .blob-2 {
+            width: 340px; height: 340px;
+            background: radial-gradient(circle, #fce7f3, #fbcfe8, transparent 75%);
+            bottom: 0; left: -60px;
+        }
+        .blob-3 {
+            width: 320px; height: 320px;
+            background: radial-gradient(circle, #d1fae5, #a7f3d0, transparent 75%);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* ─── FORM CARD ─── */
+        .form-wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+            background: rgba(255, 255, 255, 0.92);
+            padding: 40px;
+            border-radius: 16px;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,0.6) inset;
+            border: 1px solid rgba(255,255,255,0.7);
+            animation: fadeUp 0.5s ease 0.1s both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── FORM HEADER ─── */
+        .form-logo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 6px;
+        }
+
+        .form-logo-icon {
+            width: 36px; height: 36px;
+            background: var(--indigo);
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+        }
+
+        .form-logo-text {
+            font-family: 'Fraunces', serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--indigo);
+        }
+
+        /* Email icon badge */
+        .otp-icon-wrap {
+            width: 56px; height: 56px;
+            background: var(--indigo-light);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 16px auto 0;
+            color: var(--indigo);
+        }
+
+        .form-title {
+            font-family: 'Fraunces', serif;
+            text-align: center;
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text);
+            margin-top: 12px;
+            margin-bottom: 6px;
+            letter-spacing: -0.4px;
+        }
+
+        .form-subtitle {
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+
+        .form-subtitle strong {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        /* ─── ALERT ─── */
+        .alert {
+            padding: 11px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+        }
+
+        .alert-success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+        }
+
+        /* ─── INPUTS ─── */
+        .field {
+            margin-bottom: 16px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 11px 14px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: white;
+            color: var(--text);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        .field input::placeholder { color: #b0bac5; }
+
+        .field input:focus {
+            border-color: var(--indigo);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        /* ─── OTP BOXES ─── */
+        .otp-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 6px;
+        }
+
+        .otp-box {
+            width: 52px;
+            height: 56px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 600;
+            font-family: 'Fraunces', serif;
+            letter-spacing: 0;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            background: white;
+            color: var(--indigo);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            caret-color: var(--indigo);
+        }
+
+        .otp-box:focus {
+            border-color: var(--indigo);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+        }
+
+        .otp-box.filled {
+            border-color: var(--indigo);
+            background: var(--indigo-light);
+        }
+
+        /* ─── RESEND ─── */
+        .resend-wrap {
+            text-align: center;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .resend-btn {
+            background: none;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--indigo);
+            cursor: pointer;
+            padding: 0;
+            transition: opacity 0.2s;
+        }
+
+        .resend-btn:disabled {
+            color: var(--muted);
+            cursor: not-allowed;
+        }
+
+        .resend-btn:not(:disabled):hover { text-decoration: underline; }
+
+        /* ─── SUBMIT ─── */
+        .submit-btn {
+            width: 100%;
+            padding: 13px;
+            background: var(--indigo);
+            border: none;
+            color: white;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: var(--indigo-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(79,70,229,0.35);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            width: 16px; height: 16px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ─── DIVIDER ─── */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 4px 0 18px;
+        }
+
+        /* ─── FOOTER ─── */
+        .footer-text {
+            font-size: 13px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .footer-text a {
+            color: var(--indigo);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .footer-text a:hover { text-decoration: underline; }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            color: var(--muted);
+            text-decoration: none;
+            transition: color 0.2s;
+            margin-bottom: 20px;
+        }
+        .back-link:hover { color: var(--indigo); }
+
+        @media (max-width: 480px) {
+            .form-wrapper { padding: 28px 20px; }
+            .otp-box { width: 44px; height: 50px; font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAV -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <div class="logo-icon">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+                <span class="logo-text">SkillSwap</span>
+            </a>
+            <div class="nav-buttons">
+                <a href="login.html" class="btn btn-ghost">Log in</a>
+                <a href="register.html" class="btn btn-primary">Sign up</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-container">
+        <!-- Blobs -->
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+
+        <div class="form-wrapper">
+
+            <!-- Back link -->
+            <a href="login.html" class="back-link">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                Back to Login
+            </a>
+
+            <!-- Logo -->
+            <div class="form-logo">
+                <div class="form-logo-icon">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+                <span class="form-logo-text">SkillSwap</span>
+            </div>
+
+            <!-- Email icon badge -->
+            <div class="otp-icon-wrap">
+                <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <rect x="2" y="4" width="20" height="16" rx="3"/>
+                    <path d="M2 7l10 7 10-7"/>
+                </svg>
+            </div>
+
+            <h2 class="form-title">Check your email</h2>
+            <p class="form-subtitle">
+                We sent a 6-digit code to<br>
+                <strong id="emailDisplay">your email address</strong>
+            </p>
+
+            <!-- Alerts -->
+            <div class="alert alert-error" id="alertError"></div>
+            <div class="alert alert-success" id="alertSuccess"></div>
+
+            <form id="verifyForm" novalidate>
+
+                <!-- Hidden email field -->
+                <input type="hidden" id="email" value="">
+
+                <!-- OTP boxes -->
+                <div class="field">
+                    <label style="text-align:center; display:block; margin-bottom: 12px;">Enter verification code</label>
+                    <div class="otp-row">
+                        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" id="otp0">
+                        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" id="otp1">
+                        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" id="otp2">
+                        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" id="otp3">
+                        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" id="otp4">
+                        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" id="otp5">
+                    </div>
+                </div>
+
+                <!-- Resend -->
+                <div class="resend-wrap">
+                    Didn't receive it?&nbsp;
+                    <button type="button" class="resend-btn" id="resendBtn" disabled>
+                        Resend in <span id="countdown">60</span>s
+                    </button>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <div class="spinner" id="spinner"></div>
+                    <span id="btnText">Verify Email</span>
+                </button>
+
+                <div class="divider"></div>
+
+                <div class="footer-text">
+                    Wrong email? <a href="register.html">Sign up again</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ─── PRE-FILL EMAIL FROM URL PARAMS OR localStorage ───
+        const params = new URLSearchParams(window.location.search);
+        const emailParam = params.get('email') || localStorage.getItem('pendingEmail') || '';
+        document.getElementById('email').value = emailParam;
+        if (emailParam) {
+            document.getElementById('emailDisplay').textContent = emailParam;
+        }
+
+        // ─── OTP BOX LOGIC ───
+        const boxes = Array.from({ length: 6 }, (_, i) => document.getElementById('otp' + i));
+
+        boxes.forEach((box, i) => {
+            box.addEventListener('input', (e) => {
+                const val = e.target.value.replace(/\D/g, '');
+                box.value = val.slice(-1);
+                box.classList.toggle('filled', box.value !== '');
+                if (val && i < 5) boxes[i + 1].focus();
+            });
+
+            box.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !box.value && i > 0) {
+                    boxes[i - 1].focus();
+                    boxes[i - 1].value = '';
+                    boxes[i - 1].classList.remove('filled');
+                }
+                if (e.key === 'ArrowLeft' && i > 0) boxes[i - 1].focus();
+                if (e.key === 'ArrowRight' && i < 5) boxes[i + 1].focus();
+            });
+
+            // Handle paste on first box
+            box.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+                pasted.split('').slice(0, 6).forEach((ch, idx) => {
+                    if (boxes[idx]) {
+                        boxes[idx].value = ch;
+                        boxes[idx].classList.add('filled');
+                    }
+                });
+                const next = Math.min(pasted.length, 5);
+                boxes[next].focus();
+            });
+        });
+
+        function getOTP() {
+            return boxes.map(b => b.value).join('');
+        }
+
+        // ─── COUNTDOWN RESEND ───
+        let timer;
+        let seconds = 60;
+
+        function startCountdown() {
+            const btn = document.getElementById('resendBtn');
+            const cd  = document.getElementById('countdown');
+            btn.disabled = true;
+            seconds = 60;
+            cd.textContent = seconds;
+            timer = setInterval(() => {
+                seconds--;
+                cd.textContent = seconds;
+                if (seconds <= 0) {
+                    clearInterval(timer);
+                    btn.disabled = false;
+                    btn.textContent = 'Resend code';
+                }
+            }, 1000);
+        }
+
+        startCountdown();
+
+        document.getElementById('resendBtn').addEventListener('click', async () => {
+            const email = document.getElementById('email').value.trim();
+            if (!email) return showError('No email address found. Please register again.');
+
+            try {
+                const response = await fetch('/api/auth/resend-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showSuccess('A new code has been sent to your email.');
+                    boxes.forEach(b => { b.value = ''; b.classList.remove('filled'); });
+                    boxes[0].focus();
+                    startCountdown();
+                } else {
+                    showError(data.error || 'Could not resend code. Try again.');
+                }
+            } catch {
+                showError('Could not connect to the server. Please try again.');
+            }
+        });
+
+        // ─── ALERT HELPERS ───
+        function showError(msg) {
+            const el = document.getElementById('alertError');
+            el.textContent = msg;
+            el.style.display = 'flex';
+            document.getElementById('alertSuccess').style.display = 'none';
+        }
+
+        function showSuccess(msg) {
+            const el = document.getElementById('alertSuccess');
+            el.textContent = msg;
+            el.style.display = 'flex';
+            document.getElementById('alertError').style.display = 'none';
+        }
+
+        function clearAlerts() {
+            document.getElementById('alertError').style.display = 'none';
+            document.getElementById('alertSuccess').style.display = 'none';
+        }
+
+        // ─── FORM SUBMIT ───
+        document.getElementById('verifyForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            clearAlerts();
+
+            const email = document.getElementById('email').value.trim();
+            const otp   = getOTP();
+
+            if (!email)         return showError('Email address not found. Please register again.');
+            if (otp.length < 6) return showError('Please enter the complete 6-digit code.');
+
+            const btn     = document.getElementById('submitBtn');
+            const spinner = document.getElementById('spinner');
+            const btnText = document.getElementById('btnText');
+            btn.disabled          = true;
+            spinner.style.display = 'block';
+            btnText.textContent   = 'Verifying…';
+
+            try {
+                const response = await fetch('/api/auth/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('Email verified! Redirecting…');
+                    localStorage.removeItem('pendingEmail');
+                    setTimeout(() => window.location.href = '/login.html', 1200);
+                } else {
+                    showError(data.message || data.error || 'Invalid or expired code. Please try again.');
+                    boxes.forEach(b => { b.value = ''; b.classList.remove('filled'); });
+                    boxes[0].focus();
+                }
+            } catch (err) {
+                console.error(err);
+                showError('Could not connect to the server. Please try again.');
+            } finally {
+                btn.disabled          = false;
+                spinner.style.display = 'none';
+                btnText.textContent   = 'Verify Email';
+            }
+        });
+
+        // Focus first box on load
+        boxes[0].focus();
+    </script>
+</body>
+</html>

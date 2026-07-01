@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap – AI Matching</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --indigo:       #4f46e5;
+            --indigo-dark:  #3730a3;
+            --indigo-light: #e0e7ff;
+            --green:        #10b981;
+            --amber:        #f59e0b;
+            --rose:         #f43f5e;
+            --text:         #0f172a;
+            --muted:        #64748b;
+            --border:       #e2e8f0;
+            --bg:           #f8faff;
+            --radius:       14px;
+            --shadow:       0 8px 32px rgba(0,0,0,0.07);
+        }
+
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family:'DM Sans',sans-serif;
+            background:var(--bg); color:var(--text);
+            min-height:100vh; display:flex;
+        }
+
+        body::before {
+            content:''; position:fixed; inset:0;
+            background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events:none; z-index:9999; opacity:.4;
+        }
+
+        /* ─── SIDEBAR ─── */
+        .sidebar {
+            width:240px; background:white;
+            border-right:1px solid var(--border);
+            height:100vh; position:fixed; left:0; top:0;
+            display:flex; flex-direction:column; z-index:50;
+            animation:slideInLeft .4s ease forwards;
+        }
+
+        @keyframes slideInLeft {
+            from { transform:translateX(-100%); opacity:0; }
+            to   { transform:translateX(0);     opacity:1; }
+        }
+
+        .sidebar-logo {
+            display:flex; align-items:center; gap:9px;
+            text-decoration:none; padding:22px 20px;
+            border-bottom:1px solid var(--border);
+        }
+
+        .sidebar-logo-icon {
+            width:32px; height:32px; background:var(--indigo);
+            border-radius:8px; display:flex; align-items:center;
+            justify-content:center; color:white; flex-shrink:0;
+        }
+
+        .sidebar-logo-text {
+            font-family:'Fraunces',serif; font-size:19px;
+            font-weight:600; color:var(--indigo); letter-spacing:-.3px;
+        }
+
+        .nav-section { padding:20px 12px; flex:1; overflow-y:auto; }
+
+        .nav-label {
+            font-size:10px; font-weight:500; letter-spacing:1.5px;
+            text-transform:uppercase; color:var(--muted);
+            padding:0 10px; margin-bottom:8px; margin-top:16px;
+        }
+        .nav-label:first-child { margin-top:0; }
+
+        .nav-link {
+            display:flex; align-items:center; gap:10px;
+            padding:10px 12px; border-radius:9px;
+            text-decoration:none; color:var(--muted);
+            font-size:14px; font-weight:500;
+            transition:all .18s ease; margin-bottom:2px;
+        }
+        .nav-link:hover,.nav-link.active { background:var(--indigo-light); color:var(--indigo); }
+        .nav-link svg { flex-shrink:0; opacity:.7; }
+        .nav-link.active svg,.nav-link:hover svg { opacity:1; }
+
+        .sidebar-user {
+            padding:16px 20px; border-top:1px solid var(--border);
+            display:flex; align-items:center; gap:10px;
+        }
+
+        .user-avatar-sm {
+            width:36px; height:36px;
+            background:linear-gradient(135deg,var(--indigo),#818cf8);
+            border-radius:50%; display:flex; align-items:center;
+            justify-content:center; color:white;
+            font-family:'Fraunces',serif; font-size:14px;
+            font-weight:600; flex-shrink:0;
+        }
+
+        .user-details h4 { font-size:13px; font-weight:500; color:var(--text); margin-bottom:1px; }
+        .user-details p  { font-size:11px; color:var(--muted); }
+
+        .logout-btn {
+            margin-left:auto; background:none; border:none;
+            cursor:pointer; color:var(--muted); padding:4px;
+            border-radius:5px; transition:color .2s; display:flex;
+        }
+        .logout-btn:hover { color:var(--rose); }
+
+        /* ─── MAIN ─── */
+        .main { margin-left:240px; flex:1; display:flex; flex-direction:column; min-width:0; }
+
+        .topbar {
+            background:rgba(248,250,255,.88); backdrop-filter:blur(12px);
+            border-bottom:1px solid var(--border); padding:14px 32px;
+            display:flex; align-items:center; justify-content:space-between;
+            position:sticky; top:0; z-index:50;
+        }
+
+        .topbar-title { font-family:'Fraunces',serif; font-size:1.35rem; font-weight:600; color:var(--indigo); letter-spacing:-.3px; }
+
+        /* ─── PAGE ─── */
+        .page { padding:32px; max-width:860px; }
+
+        /* ─── MATCHING CARD ─── */
+        .match-card {
+            background:white; border:1px solid var(--border);
+            border-radius:var(--radius); box-shadow:var(--shadow); padding:36px;
+        }
+
+        /* ─── STEP INDICATOR ─── */
+        .step-track {
+            display:flex; justify-content:space-between;
+            position:relative; margin-bottom:36px;
+        }
+
+        .step-track::before {
+            content:''; position:absolute; top:19px; left:40px; right:40px;
+            height:2px; background:var(--border); z-index:0;
+        }
+
+        .step-item { display:flex; flex-direction:column; align-items:center; position:relative; z-index:1; }
+
+        .step-num {
+            width:38px; height:38px; border-radius:50%;
+            background:white; border:2px solid var(--border);
+            display:flex; align-items:center; justify-content:center;
+            font-weight:700; font-size:.9rem; color:var(--muted);
+            margin-bottom:8px; transition:all .2s;
+        }
+
+        .step-item.active .step-num { border-color:var(--indigo); background:var(--indigo); color:white; }
+        .step-item.done   .step-num { border-color:var(--green);  background:var(--green);  color:white; }
+
+        .step-lbl { font-size:.76rem; color:var(--muted); font-weight:500; }
+        .step-item.active .step-lbl { color:var(--indigo); }
+
+        /* ─── STEP CONTENT ─── */
+        .step-content { display:none; }
+        .step-content.active { display:block; }
+
+        .step-title { font-family:'Fraunces',serif; font-size:1.35rem; font-weight:600; margin-bottom:22px; letter-spacing:-.3px; }
+
+        /* ─── FORM ELEMENTS ─── */
+        .form-group { margin-bottom:22px; }
+        .form-label { display:block; margin-bottom:9px; font-size:.88rem; font-weight:600; color:var(--text); }
+
+        .form-textarea {
+            width:100%; padding:11px 14px; font-family:'DM Sans',sans-serif; font-size:.9rem;
+            border:1px solid var(--border); border-radius:9px; background:white; color:var(--text);
+            outline:none; min-height:96px; resize:vertical; transition:border-color .2s;
+        }
+        .form-textarea:focus { border-color:var(--indigo); box-shadow:0 0 0 3px rgba(79,70,229,.1); }
+
+        /* Radio groups */
+        .radio-row { display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; }
+
+        .radio-pill {
+            display:flex; align-items:center; gap:7px;
+            padding:8px 16px; border-radius:30px; border:1.5px solid var(--border);
+            cursor:pointer; font-size:.85rem; transition:all .2s; font-family:'DM Sans',sans-serif;
+        }
+        .radio-pill input { accent-color:var(--indigo); }
+        .radio-pill:has(input:checked) { border-color:var(--indigo); background:var(--indigo-light); color:var(--indigo); }
+
+        /* Checkbox row */
+        .check-row { display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; }
+
+        .check-pill {
+            display:flex; align-items:center; gap:7px;
+            padding:8px 16px; border-radius:30px; border:1.5px solid var(--border);
+            cursor:pointer; font-size:.85rem; transition:all .2s; font-family:'DM Sans',sans-serif;
+        }
+        .check-pill input { accent-color:var(--indigo); }
+        .check-pill:has(input:checked) { border-color:var(--indigo); background:var(--indigo-light); color:var(--indigo); }
+
+        /* Option cards */
+        .options-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:14px; margin-top:10px; }
+
+        .option-card {
+            border:2px solid var(--border); border-radius:12px; padding:22px 16px;
+            text-align:center; cursor:pointer; transition:all .2s;
+        }
+        .option-card:hover { border-color:#a5b4fc; transform:translateY(-3px); }
+        .option-card.selected { border-color:var(--indigo); background:var(--indigo-light); }
+        .option-card.selected .option-icon { color:var(--indigo); }
+
+        .option-icon  { font-size:1.8rem; margin-bottom:12px; color:var(--muted); }
+        .option-title { font-weight:600; font-size:.88rem; margin-bottom:5px; }
+        .option-desc  { font-size:.75rem; color:var(--muted); line-height:1.4; }
+
+        /* Skill tag input */
+        .skill-search {
+            width:100%; padding:11px 16px; font-family:'DM Sans',sans-serif; font-size:.9rem;
+            border:1px solid var(--border); border-radius:9px; background:white; color:var(--text);
+            outline:none; transition:border-color .2s, box-shadow .2s;
+        }
+        .skill-search:focus { border-color:var(--indigo); box-shadow:0 0 0 3px rgba(79,70,229,.1); }
+
+        .skill-dropdown {
+            border:1px solid var(--border); border-radius:9px; background:white;
+            max-height:180px; overflow-y:auto; margin-top:4px; display:none;
+            box-shadow:0 4px 12px rgba(0,0,0,.08);
+        }
+        .skill-dropdown.open { display:block; }
+
+        .skill-opt {
+            padding:9px 14px; cursor:pointer; font-size:.88rem;
+            transition:background .15s;
+        }
+        .skill-opt:hover { background:var(--indigo-light); color:var(--indigo); }
+
+        .selected-skills { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+
+        .stag {
+            background:var(--indigo-light); color:var(--indigo);
+            padding:6px 13px; border-radius:30px; font-size:.82rem;
+            font-weight:500; display:inline-flex; align-items:center; gap:6px;
+        }
+        .stag-remove { cursor:pointer; font-size:.9rem; margin-left:2px; opacity:.7; }
+        .stag-remove:hover { opacity:1; }
+
+        /* Navigation */
+        .step-nav {
+            display:flex; justify-content:space-between; align-items:center;
+            margin-top:32px; padding-top:24px; border-top:1px solid var(--border);
+        }
+
+        .btn {
+            padding:11px 24px; border-radius:9px;
+            font-family:'DM Sans',sans-serif; font-size:.9rem; font-weight:500;
+            cursor:pointer; border:none;
+            display:inline-flex; align-items:center; gap:8px; transition:all .2s;
+        }
+        .btn-primary   { background:var(--indigo); color:white; }
+        .btn-primary:hover   { background:var(--indigo-dark); transform:translateY(-1px); box-shadow:0 4px 14px rgba(79,70,229,.3); }
+        .btn-secondary { background:white; color:var(--text); border:1px solid var(--border); }
+        .btn-secondary:hover { background:var(--bg); border-color:#c7d2fe; }
+        .btn-green     { background:var(--green); color:white; }
+        .btn-green:hover     { background:#0da271; transform:translateY(-1px); box-shadow:0 4px 14px rgba(16,185,129,.25); }
+
+        /* ─── AI PROCESSING ─── */
+        .ai-processing { text-align:center; padding:48px 32px; }
+
+        .ai-icon { font-size:5rem; color:var(--indigo); margin-bottom:24px; animation:aiPulse 2s infinite; }
+        @keyframes aiPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+
+        .ai-steps-list { max-width:520px; margin:28px auto; text-align:left; }
+
+        .ai-step-row {
+            display:flex; align-items:center; gap:14px;
+            padding:14px 16px; background:var(--indigo-light);
+            border-radius:10px; margin-bottom:10px;
+        }
+        .ai-step-row i { color:var(--indigo); font-size:1.1rem; flex-shrink:0; }
+        .ai-step-row span { font-size:.88rem; }
+
+        .progress-track {
+            width:100%; height:10px; background:var(--border);
+            border-radius:99px; overflow:hidden;
+            margin:32px auto 10px; max-width:520px;
+        }
+        .progress-fill {
+            height:100%; background:linear-gradient(90deg,var(--indigo),#818cf8);
+            border-radius:99px; width:0%; transition:width .6s ease;
+        }
+        .progress-pct { color:var(--indigo); font-weight:600; font-size:.9rem; }
+
+        .ai-tip { margin-top:24px; color:var(--muted); font-size:.85rem; font-style:italic; max-width:520px; margin-left:auto; margin-right:auto; }
+
+        /* ─── MATCH RESULTS ─── */
+        .results-head {
+            display:flex; justify-content:space-between; align-items:center;
+            margin-bottom:24px; padding-bottom:18px; border-bottom:1px solid var(--border);
+        }
+        .match-found { color:var(--green); font-weight:600; font-size:.95rem; }
+
+        /* Top match */
+        .top-match {
+            background:linear-gradient(135deg,rgba(79,70,229,.06),rgba(129,140,248,.06));
+            border:2px solid var(--indigo); border-radius:var(--radius);
+            padding:28px; margin-bottom:28px; position:relative; overflow:hidden;
+        }
+        .top-match::before {
+            content:'⭐ TOP MATCH';
+            position:absolute; top:14px; right:-28px;
+            background:var(--indigo); color:white;
+            padding:7px 40px; font-weight:700; font-size:.72rem;
+            transform:rotate(45deg); letter-spacing:.5px;
+        }
+        .match-score {
+            font-family:'Fraunces',serif; font-size:2.8rem;
+            font-weight:700; color:var(--indigo); margin-bottom:6px;
+        }
+        .top-match h3 { font-size:1.2rem; font-weight:700; margin-bottom:4px; }
+        .mentor-location { color:var(--muted); font-size:.85rem; margin-bottom:14px; }
+
+        .match-tags { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:16px; }
+        .match-stag { background:var(--indigo-light); color:var(--indigo); padding:4px 11px; border-radius:20px; font-size:.78rem; font-weight:500; }
+
+        .mentor-meta { display:flex; align-items:center; gap:16px; margin-bottom:16px; font-size:.85rem; color:var(--muted); }
+        .mentor-meta .stars { color:var(--amber); }
+        .badge-list { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px; }
+        .badge-chip { background:#fef3c7; color:#92400e; padding:3px 10px; border-radius:20px; font-size:.75rem; font-weight:500; }
+
+        .match-actions { display:flex; gap:8px; flex-wrap:wrap; }
+        .action-btn {
+            padding:8px 18px; border-radius:8px; font-family:'DM Sans',sans-serif;
+            font-size:.85rem; font-weight:500; cursor:pointer; transition:all .2s; border:none;
+            display:inline-flex; align-items:center; gap:6px;
+        }
+        .btn-req  { background:var(--indigo); color:white; }
+        .btn-req:hover  { background:var(--indigo-dark); }
+        .btn-prof { background:white; color:var(--indigo); border:1px solid var(--indigo); }
+        .btn-prof:hover { background:var(--indigo-light); }
+
+        /* Other matches */
+        .other-title { font-family:'Fraunces',serif; font-size:1.1rem; font-weight:600; margin:28px 0 16px; }
+
+        .result-card {
+            background:white; border:1px solid var(--border);
+            border-radius:12px; padding:22px; margin-bottom:14px;
+            box-shadow:var(--shadow); transition:all .2s;
+        }
+        .result-card:hover { transform:translateY(-3px); box-shadow:0 10px 28px rgba(0,0,0,.08); }
+        .result-card:last-child { margin-bottom:0; }
+
+        .rc-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; flex-wrap:wrap; gap:10px; }
+        .rc-name  { font-weight:700; font-size:1rem; margin-bottom:2px; }
+        .rc-loc   { color:var(--muted); font-size:.8rem; margin-bottom:3px; }
+        .rc-score { color:var(--green); font-weight:700; font-size:.9rem; }
+        .rc-tags  { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+        .rc-tag   { background:var(--indigo-light); color:var(--indigo); padding:3px 10px; border-radius:20px; font-size:.75rem; font-weight:500; }
+        .rc-meta  { display:flex; align-items:center; gap:12px; font-size:.82rem; color:var(--muted); margin-top:8px; }
+        .rc-meta .stars { color:var(--amber); }
+
+        /* Empty state */
+        .empty-state { text-align:center; padding:48px 24px; color:var(--muted); }
+        .empty-state i { font-size:3rem; margin-bottom:16px; display:block; }
+
+        .restart-row { text-align:center; margin-top:28px; }
+
+        @media(max-width:768px) {
+            .sidebar { width:60px; }
+            .sidebar-logo-text,.nav-link span,.nav-label,.user-details,.logout-btn { display:none; }
+            .nav-link { justify-content:center; padding:10px; }
+            .main { margin-left:60px; }
+        }
+
+        @media(max-width:640px) {
+            .page { padding:20px; }
+            .match-card { padding:20px; }
+            .step-track::before { display:none; }
+            .options-grid { grid-template-columns:1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ─── SIDEBAR ─── -->
+    <aside class="sidebar">
+        <a href="/dashboard.html" class="sidebar-logo">
+            <div class="sidebar-logo-icon">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+            </div>
+            <span class="sidebar-logo-text">SkillSwap</span>
+        </a>
+
+        <nav class="nav-section">
+            <p class="nav-label">Main</p>
+            <a href="/dashboard.html" class="nav-link">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="/userProfile.html" class="nav-link">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>Profile</span>
+            </a>
+            <p class="nav-label">Discover</p>
+            <a href="/ai-matching.html" class="nav-link active">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                <span>AI Matching</span>
+            </a>
+            <a href="/browse-skills.html" class="nav-link">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <span>Browse Skills</span>
+            </a>
+            <a href="/sessions.html" class="nav-link">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                <span>Sessions</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-user">
+            <div class="user-avatar-sm" id="sidebarAvatar">S</div>
+            <div class="user-details">
+                <h4 id="sidebarName">User</h4>
+                <p id="sidebarRole">Member</p>
+            </div>
+            <button class="logout-btn" id="logoutBtn" title="Log out">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+                </svg>
+            </button>
+        </div>
+    </aside>
+
+    <!-- ─── MAIN ─── -->
+    <div class="main">
+        <header class="topbar">
+            <span class="topbar-title">AI‑Powered Skill Matching</span>
+        </header>
+
+        <div class="page">
+            <div class="match-card">
+
+                <!-- STEP TRACK -->
+                <div class="step-track">
+                    <div class="step-item active" data-step="1"><div class="step-num">1</div><div class="step-lbl">Goal Setting</div></div>
+                    <div class="step-item"         data-step="2"><div class="step-num">2</div><div class="step-lbl">Your Level</div></div>
+                    <div class="step-item"         data-step="3"><div class="step-num">3</div><div class="step-lbl">Availability</div></div>
+                    <div class="step-item"         data-step="4"><div class="step-num">4</div><div class="step-lbl">Skills</div></div>
+                </div>
+
+                <!-- ── STEP 1: Learning Goals ── -->
+                <div class="step-content active" id="step1">
+                    <h2 class="step-title">What do you want to achieve?</h2>
+
+                    <div class="form-group">
+                        <label class="form-label">Describe your learning goals</label>
+                        <textarea class="form-textarea" id="learningGoals"
+                            placeholder="e.g. I want to switch careers into data science, learn Python for automation, improve my public speaking for work presentations…"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Why are you learning this?</label>
+                        <div class="radio-row">
+                            <label class="radio-pill"><input type="radio" name="goal" value="career" checked> Career advancement</label>
+                            <label class="radio-pill"><input type="radio" name="goal" value="interest"> Personal interest</label>
+                            <label class="radio-pill"><input type="radio" name="goal" value="academic"> Academic</label>
+                            <label class="radio-pill"><input type="radio" name="goal" value="business"> Business</label>
+                        </div>
+                    </div>
+
+                    <div class="step-nav">
+                        <div></div>
+                        <button class="btn btn-primary" id="next1">Next: Your Level <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- ── STEP 2: Level + Learning Style ── -->
+                <div class="step-content" id="step2">
+                    <h2 class="step-title">What is your current level?</h2>
+
+                    <div class="form-group">
+                        <label class="form-label">Select your experience level</label>
+                        <div class="radio-row">
+                            <label class="radio-pill"><input type="radio" name="currentLevel" value="BEGINNER" checked> Beginner</label>
+                            <label class="radio-pill"><input type="radio" name="currentLevel" value="INTERMEDIATE"> Intermediate</label>
+                            <label class="radio-pill"><input type="radio" name="currentLevel" value="EXPERT"> Expert</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Preferred learning style</label>
+                        <div class="options-grid">
+                            <div class="option-card" data-style="visual"><div class="option-icon">👀</div><div class="option-title">VISUAL</div><div class="option-desc">Videos, Diagrams, Presentations</div></div>
+                            <div class="option-card selected" data-style="hands-on"><div class="option-icon">✋</div><div class="option-title">HANDS-ON</div><div class="option-desc">Practice, Projects, Exercises</div></div>
+                            <div class="option-card" data-style="reading"><div class="option-icon">📖</div><div class="option-title">READING</div><div class="option-desc">Articles, Books, Docs</div></div>
+                            <div class="option-card" data-style="discussion"><div class="option-icon">💬</div><div class="option-title">DISCUSSION</div><div class="option-desc">Conversation, Q&amp;A</div></div>
+                        </div>
+                    </div>
+
+                    <div class="step-nav">
+                        <button class="btn btn-secondary" id="back2"><i class="fas fa-arrow-left"></i> Back</button>
+                        <button class="btn btn-primary"   id="next2">Next: Availability <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- ── STEP 3: Schedule ── -->
+                <div class="step-content" id="step3">
+                    <h2 class="step-title">When are you available?</h2>
+
+                    <div class="form-group">
+                        <label class="form-label">Select your preferred schedule</label>
+                        <div class="check-row">
+                            <label class="check-pill"><input type="checkbox" name="schedule" value="Weekday mornings"> Weekday mornings</label>
+                            <label class="check-pill"><input type="checkbox" name="schedule" value="Weekday evenings"> Weekday evenings</label>
+                            <label class="check-pill"><input type="checkbox" name="schedule" value="Weekends"> Weekends</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">How soon do you want to start?</label>
+                        <div class="radio-row">
+                            <label class="radio-pill"><input type="radio" name="startTime" value="week" checked> This week</label>
+                            <label class="radio-pill"><input type="radio" name="startTime" value="2weeks"> Within 2 weeks</label>
+                            <label class="radio-pill"><input type="radio" name="startTime" value="month"> This month</label>
+                        </div>
+                    </div>
+
+                    <div class="step-nav">
+                        <button class="btn btn-secondary" id="back3"><i class="fas fa-arrow-left"></i> Back</button>
+                        <button class="btn btn-primary"   id="next3">Next: Skills <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- ── STEP 4: Desired Skills ── -->
+                <div class="step-content" id="step4">
+                    <h2 class="step-title">What skills do you want to learn?</h2>
+
+                    <div class="form-group">
+                        <label class="form-label">Search and add skills</label>
+                        <input type="text" class="skill-search" id="skillSearch"
+                            placeholder="🔍 Type a skill name…" autocomplete="off">
+                        <div class="skill-dropdown" id="skillDropdown"></div>
+                        <div class="selected-skills" id="selectedSkills"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Preferred session mode</label>
+                        <div class="radio-row">
+                            <label class="radio-pill"><input type="radio" name="sessMode" value="online" checked> Online (video)</label>
+                            <label class="radio-pill"><input type="radio" name="sessMode" value="inperson"> In-Person</label>
+                            <label class="radio-pill"><input type="radio" name="sessMode" value="any"> No preference</label>
+                        </div>
+                    </div>
+
+                    <div class="step-nav">
+                        <button class="btn btn-secondary" id="back4"><i class="fas fa-arrow-left"></i> Back</button>
+                        <button class="btn btn-green" id="findMatches"><i class="fas fa-robot"></i> Find My Matches!</button>
+                    </div>
+                </div>
+
+                <!-- ── AI PROCESSING ── -->
+                <div class="step-content" id="aiProcessing">
+                    <div class="ai-processing">
+                        <div class="ai-icon"><i class="fas fa-brain"></i></div>
+                        <h2 class="step-title" style="font-family:'Fraunces',serif">Finding your best matches with AI…</h2>
+
+                        <div class="ai-steps-list">
+                            <div class="ai-step-row"><i class="fas fa-bolt"></i><span>Analysing your goals and preferences…</span></div>
+                            <div class="ai-step-row"><i class="fas fa-search"></i><span>Querying mentors in our community…</span></div>
+                            <div class="ai-step-row"><i class="fas fa-calculator"></i><span>Calculating compatibility with Gemini AI…</span></div>
+                            <div class="ai-step-row"><i class="fas fa-bullseye"></i><span>Ranking your best matches…</span></div>
+                        </div>
+
+                        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+                        <div class="progress-pct" id="progressPct">0%</div>
+
+                        <p class="ai-tip"><i class="fas fa-lightbulb"></i> Users matched by AI have higher session completion rates!</p>
+                    </div>
+                </div>
+
+                <!-- ── MATCH RESULTS ── -->
+                <div class="step-content" id="matchResults">
+                    <div class="results-head">
+                        <h2 class="step-title" style="margin:0">Your AI Matches</h2>
+                        <div class="match-found" id="matchCount"></div>
+                    </div>
+                    <p style="color:var(--muted);font-size:.88rem;margin-bottom:24px;">
+                        These mentors are highly compatible with your goals and preferences.
+                    </p>
+
+                    <div id="topMatchContainer"></div>
+                    <div id="otherMatchesContainer"></div>
+
+                    <div class="restart-row">
+                        <button class="btn btn-secondary" id="searchAgainBtn">
+                            <i class="fas fa-redo"></i> Search Again
+                        </button>
+                    </div>
+                </div>
+
+            </div><!-- /.match-card -->
+        </div><!-- /.page -->
+    </div><!-- /.main -->
+
+    <script>
+        // ── Auth helpers ──────────────────────────────────────────────────────
+        function getToken() { return localStorage.getItem('jwtToken'); }
+
+        async function authFetch(url, options = {}) {
+            const token = getToken();
+            if (!token) { window.location.href = '/login.html'; throw new Error('Not authenticated'); }
+            options.headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            const res = await fetch(url, options);
+            if (res.status === 401) {
+                localStorage.removeItem('jwtToken');
+                localStorage.removeItem('user');
+                window.location.href = '/login.html';
+                throw new Error('Session expired');
+            }
+            return res;
+        }
+
+        // ── Sidebar ───────────────────────────────────────────────────────────
+        async function loadUserData() {
+            let user = null;
+            try { user = JSON.parse(localStorage.getItem('user') || 'null'); } catch(e) {}
+            if (!user) {
+                try {
+                    const r = await authFetch('/api/users/me');
+                    if (r.ok) { user = await r.json(); localStorage.setItem('user', JSON.stringify(user)); }
+                } catch(e) {}
+            }
+            if (!user) { window.location.href = '/login.html'; return; }
+            const name = user.name || user.email.split('@')[0];
+            document.getElementById('sidebarAvatar').textContent = name.charAt(0).toUpperCase();
+            document.getElementById('sidebarName').textContent   = name.split(' ')[0];
+            document.getElementById('sidebarRole').textContent   = user.role || 'Member';
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('jwtToken');
+            localStorage.removeItem('user');
+            window.location.href = '/login.html';
+        });
+
+        // ── Step navigation ───────────────────────────────────────────────────
+        const stepItems    = document.querySelectorAll('.step-item');
+        const stepContents = document.querySelectorAll('.step-content');
+        let currentStep = 1;
+
+        function goTo(n) {
+            stepContents.forEach(c => c.classList.remove('active'));
+            const target = document.getElementById('step' + n);
+            if (target) target.classList.add('active');
+            stepItems.forEach(s => {
+                const sn = parseInt(s.dataset.step);
+                s.classList.remove('active', 'done');
+                if (sn === n) s.classList.add('active');
+                else if (sn < n) s.classList.add('done');
+            });
+            currentStep = n;
+        }
+
+        document.getElementById('next1').addEventListener('click', () => goTo(2));
+        document.getElementById('next2').addEventListener('click', () => goTo(3));
+        document.getElementById('next3').addEventListener('click', () => goTo(4));
+        document.getElementById('back2').addEventListener('click', () => goTo(1));
+        document.getElementById('back3').addEventListener('click', () => goTo(2));
+        document.getElementById('back4').addEventListener('click', () => goTo(3));
+
+        // Option cards (learning style — UX only)
+        document.querySelectorAll('.option-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        // ── Skill tag input ───────────────────────────────────────────────────
+        let allSkills = [];      // [{id, name}] loaded from API
+        const selectedSkillNames = new Set();
+
+        async function loadSkills() {
+            try {
+                const r = await authFetch('/api/browse/skills?sort=name');
+                if (r.ok) allSkills = await r.json();
+            } catch(e) {
+                console.warn('Could not load skills from API:', e);
+            }
+        }
+
+        const skillSearchEl   = document.getElementById('skillSearch');
+        const skillDropdownEl = document.getElementById('skillDropdown');
+        const selectedSkillsEl = document.getElementById('selectedSkills');
+
+        skillSearchEl.addEventListener('input', function() {
+            const q = this.value.trim().toLowerCase();
+            if (q.length === 0) { skillDropdownEl.classList.remove('open'); return; }
+
+            const matches = allSkills
+                .filter(s => s.name.toLowerCase().includes(q) && !selectedSkillNames.has(s.name))
+                .slice(0, 10);
+
+            if (matches.length === 0) { skillDropdownEl.classList.remove('open'); return; }
+
+            skillDropdownEl.innerHTML = matches.map(s =>
+                `<div class="skill-opt" data-name="${escapeHtml(s.name)}">${escapeHtml(s.name)}</div>`
+            ).join('');
+            skillDropdownEl.classList.add('open');
+        });
+
+        skillDropdownEl.addEventListener('click', function(e) {
+            const opt = e.target.closest('.skill-opt');
+            if (!opt) return;
+            addSkillTag(opt.dataset.name);
+            skillSearchEl.value = '';
+            skillDropdownEl.classList.remove('open');
+        });
+
+        // Also allow pressing Enter to add typed skill
+        skillSearchEl.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const val = this.value.trim();
+                if (val) { addSkillTag(val); this.value = ''; skillDropdownEl.classList.remove('open'); }
+                e.preventDefault();
+            }
+            if (e.key === 'Escape') { skillDropdownEl.classList.remove('open'); }
+        });
+
+        document.addEventListener('click', e => {
+            if (!skillSearchEl.contains(e.target) && !skillDropdownEl.contains(e.target)) {
+                skillDropdownEl.classList.remove('open');
+            }
+        });
+
+        function addSkillTag(name) {
+            if (selectedSkillNames.has(name)) return;
+            selectedSkillNames.add(name);
+            const tag = document.createElement('span');
+            tag.className = 'stag';
+            tag.dataset.skill = name;
+            tag.innerHTML = escapeHtml(name) + ' <span class="stag-remove">×</span>';
+            tag.querySelector('.stag-remove').addEventListener('click', () => {
+                selectedSkillNames.delete(name);
+                tag.remove();
+            });
+            selectedSkillsEl.appendChild(tag);
+        }
+
+        // ── Collect form values ───────────────────────────────────────────────
+        function collectFormData() {
+            const learningGoals = document.getElementById('learningGoals').value.trim();
+            const currentLevel  = document.querySelector('input[name="currentLevel"]:checked')?.value || 'BEGINNER';
+
+            const scheduleChecked = [...document.querySelectorAll('input[name="schedule"]:checked')]
+                .map(cb => cb.value);
+            const preferredSchedule = scheduleChecked.join(', ');
+
+            const desiredSkills = [...selectedSkillNames];
+
+            return { learningGoals, currentLevel, preferredSchedule, desiredSkills };
+        }
+
+        // ── Submit: POST /api/recommendations/match ───────────────────────────
+        document.getElementById('findMatches').addEventListener('click', async function() {
+            const data = collectFormData();
+
+            // Show loading
+            stepContents.forEach(c => c.classList.remove('active'));
+            document.getElementById('aiProcessing').classList.add('active');
+            stepItems.forEach(s => s.classList.add('done'));
+
+            // Animate progress bar while request runs
+            let pct = 0;
+            const fill   = document.getElementById('progressFill');
+            const pctEl  = document.getElementById('progressPct');
+            const ticker = setInterval(() => {
+                pct = Math.min(pct + Math.random() * 8, 90);
+                fill.style.width = pct + '%';
+                pctEl.textContent = Math.floor(pct) + '%';
+            }, 250);
+
+            try {
+                const res = await authFetch('/api/recommendations/match', {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+
+                clearInterval(ticker);
+                fill.style.width = '100%';
+                pctEl.textContent = '100%';
+
+                if (!res.ok) throw new Error('API error ' + res.status);
+
+                const mentors = await res.json();
+
+                setTimeout(() => {
+                    document.getElementById('aiProcessing').classList.remove('active');
+                    renderResults(mentors);
+                    document.getElementById('matchResults').classList.add('active');
+                }, 600);
+
+            } catch(err) {
+                clearInterval(ticker);
+                console.error('Matching failed:', err);
+                document.getElementById('aiProcessing').classList.remove('active');
+                renderResults([]);
+                document.getElementById('matchResults').classList.add('active');
+            }
+        });
+
+        // ── Render results ────────────────────────────────────────────────────
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+        }
+
+        function stars(rating) {
+            const full  = Math.floor(rating);
+            const half  = rating - full >= 0.5 ? 1 : 0;
+            const empty = 5 - full - half;
+            return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty);
+        }
+
+        function skillPills(skillArray) {
+            return skillArray.map(s => `<span class="match-stag">${escapeHtml(s)}</span>`).join('');
+        }
+
+        function badgeChips(badgeArray) {
+            if (!badgeArray || badgeArray.length === 0) return '';
+            return '<div class="badge-list">' +
+                badgeArray.map(b => `<span class="badge-chip">🏅 ${escapeHtml(b)}</span>`).join('') +
+                '</div>';
+        }
+
+        function renderResults(mentors) {
+            const topEl   = document.getElementById('topMatchContainer');
+            const otherEl = document.getElementById('otherMatchesContainer');
+            const countEl = document.getElementById('matchCount');
+            topEl.innerHTML   = '';
+            otherEl.innerHTML = '';
+
+            if (!mentors || mentors.length === 0) {
+                countEl.textContent = '';
+                topEl.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search-minus" style="color:var(--muted)"></i>
+                        <p>No mentors found matching your profile yet.<br>
+                        Check back as more mentors join the platform.</p>
+                    </div>`;
+                return;
+            }
+
+            const n = mentors.length;
+            countEl.textContent = `✅ Found ${n} excellent match${n !== 1 ? 'es' : ''}!`;
+
+            // Top match
+            const top = mentors[0];
+            topEl.innerHTML = `
+                <div class="top-match">
+                    <div class="match-score">${top.matchPercentage}%</div>
+                    <h3>${escapeHtml(top.name)}</h3>
+                    <div class="mentor-location"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(top.location || 'Location not set')}</div>
+                    <div class="match-tags">${skillPills(top.skills || [])}</div>
+                    <div class="mentor-meta">
+                        <span class="stars">${stars(top.averageRating)}</span>
+                        <span>${top.averageRating.toFixed(1)} rating</span>
+                        <span>·</span>
+                        <span>${top.totalSessions} sessions</span>
+                    </div>
+                    ${badgeChips(top.badges)}
+                    <div class="match-actions">
+                        <button class="action-btn btn-req" onclick="window.location.href='/sessions.html?mentor=${top.userId}'">
+                            <i class="fas fa-calendar-plus"></i> Request Session
+                        </button>
+                        <button class="action-btn btn-prof" onclick="window.location.href='/user-profile-view.html?id=${top.userId}'">
+                            View Profile
+                        </button>
+                    </div>
+                </div>`;
+
+            // Other matches
+            if (mentors.length > 1) {
+                const otherTitle = document.createElement('h3');
+                otherTitle.className = 'other-title';
+                otherTitle.textContent = 'Other Great Matches';
+                otherEl.appendChild(otherTitle);
+
+                mentors.slice(1).forEach(m => {
+                    const card = document.createElement('div');
+                    card.className = 'result-card';
+                    card.innerHTML = `
+                        <div class="rc-head">
+                            <div>
+                                <div class="rc-name">${escapeHtml(m.name)}</div>
+                                <div class="rc-loc"><i class="fas fa-map-marker-alt" style="font-size:.75rem"></i> ${escapeHtml(m.location || 'Location not set')}</div>
+                                <div class="rc-score">${m.matchPercentage}% Match</div>
+                            </div>
+                            <div class="match-actions">
+                                <button class="action-btn btn-req" onclick="window.location.href='/sessions.html?mentor=${m.userId}'">Request</button>
+                                <button class="action-btn btn-prof" onclick="window.location.href='/user-profile-view.html?id=${m.userId}'">Profile</button>
+                            </div>
+                        </div>
+                        <div class="rc-meta">
+                            <span class="stars">${stars(m.averageRating)}</span>
+                            <span>${m.averageRating.toFixed(1)}</span>
+                            <span>·</span>
+                            <span>${m.totalSessions} sessions</span>
+                        </div>
+                        <div class="rc-tags">${(m.skills || []).map(s => `<span class="rc-tag">${escapeHtml(s)}</span>`).join('')}</div>`;
+                    otherEl.appendChild(card);
+                });
+            }
+        }
+
+        // ── Search Again button ───────────────────────────────────────────────
+        document.getElementById('searchAgainBtn').addEventListener('click', () => {
+            // Clear results
+            document.getElementById('topMatchContainer').innerHTML  = '';
+            document.getElementById('otherMatchesContainer').innerHTML = '';
+            document.getElementById('matchCount').textContent = '';
+            // Reset progress bar
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('progressPct').textContent = '0%';
+            // Go back to step 1
+            goTo(1);
+        });
+
+        // ── Init ──────────────────────────────────────────────────────────────
+        async function init() {
+            if (!getToken()) { window.location.href = '/login.html'; return; }
+            await loadUserData();
+            await loadSkills();
+        }
+
+        init();
+    </script>
+</body>
+</html>

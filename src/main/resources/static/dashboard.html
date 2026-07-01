@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap – Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --indigo:       #4f46e5;
+            --indigo-dark:  #3730a3;
+            --indigo-light: #e0e7ff;
+            --green:        #10b981;
+            --amber:        #f59e0b;
+            --rose:         #f43f5e;
+            --text:         #0f172a;
+            --muted:        #64748b;
+            --border:       #e2e8f0;
+            --bg:           #f8faff;
+            --radius:       14px;
+            --shadow:       0 8px 32px rgba(0,0,0,0.07);
+        }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+        }
+        body::before {
+            content:'';
+            position:fixed; inset:0;
+            background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events:none; z-index:9999; opacity:.4;
+        }
+        .sidebar {
+            width: 240px;
+            background: white;
+            border-right: 1px solid var(--border);
+            height: 100vh;
+            position: fixed;
+            left: 0; top: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 50;
+            animation: slideInLeft 0.4s ease forwards;
+        }
+        @keyframes slideInLeft {
+            from { transform: translateX(-100%); opacity: 0; }
+            to   { transform: translateX(0); opacity: 1; }
+        }
+        .sidebar-logo {
+            display: flex; align-items: center; gap: 9px;
+            text-decoration: none;
+            padding: 22px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .sidebar-logo-icon {
+            width: 32px; height: 32px;
+            background: var(--indigo); border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; flex-shrink: 0;
+        }
+        .sidebar-logo-text {
+            font-family: 'Fraunces', serif;
+            font-size: 19px; font-weight: 600;
+            color: var(--indigo); letter-spacing: -0.3px;
+        }
+        .nav-section { padding: 20px 12px; flex: 1; overflow-y: auto; }
+        .nav-label {
+            font-size: 10px; font-weight: 500;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            color: var(--muted); padding: 0 10px;
+            margin-bottom: 8px; margin-top: 16px;
+        }
+        .nav-label:first-child { margin-top: 0; }
+        .nav-link {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px; border-radius: 9px;
+            text-decoration: none; color: var(--muted);
+            font-size: 14px; font-weight: 500;
+            transition: all 0.18s ease; margin-bottom: 2px;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: var(--indigo-light); color: var(--indigo);
+        }
+        .nav-link svg { flex-shrink: 0; opacity: 0.7; }
+        .nav-link.active svg, .nav-link:hover svg { opacity: 1; }
+        .sidebar-user {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .user-avatar-sm {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--indigo), #818cf8);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-family: 'Fraunces', serif;
+            font-size: 14px; font-weight: 600; flex-shrink: 0;
+        }
+        .user-details h4 { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 1px; }
+        .user-details p  { font-size: 11px; color: var(--muted); }
+        .logout-btn {
+            margin-left: auto; background: none; border: none;
+            cursor: pointer; color: var(--muted);
+            padding: 4px; border-radius: 5px;
+            transition: color 0.2s; display: flex;
+        }
+        .logout-btn:hover { color: var(--rose); }
+        .main {
+            margin-left: 240px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+        .topbar {
+            background: rgba(248,250,255,0.88);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .topbar-title {
+            font-family: 'Fraunces', serif;
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: var(--indigo);
+            letter-spacing: -0.3px;
+        }
+        .topbar-right { display: flex; align-items: center; gap: 14px; }
+        .page {
+            padding: 32px;
+            flex: 1;
+            max-width: 1200px;
+        }
+        .welcome-row { margin-bottom: 28px; }
+        .welcome-row h1 {
+            font-family: 'Fraunces', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+        .welcome-row p { color: var(--muted); font-size: 0.95rem; }
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: var(--shadow);
+            transition: all 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.1); }
+        .stat-icon {
+            width: 44px; height: 44px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; color: white; flex-shrink: 0;
+        }
+        .si-indigo { background: var(--indigo); }
+        .si-green  { background: var(--green); }
+        .si-amber  { background: var(--amber); }
+        .si-purple { background: #8b5cf6; }
+        .stat-info h4 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.6rem; font-weight: 700;
+            letter-spacing: -0.5px; margin-bottom: 2px;
+        }
+        .stat-info p { font-size: 0.8rem; color: var(--muted); }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 24px;
+        }
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .card:last-child { margin-bottom: 0; }
+        .card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .card-head h3 {
+            font-size: 1rem; font-weight: 600;
+            display: flex; align-items: center; gap: 9px;
+        }
+        .card-head h3 i { color: var(--indigo); }
+        .card-head a {
+            font-size: 0.82rem; color: var(--indigo);
+            text-decoration: none; font-weight: 500;
+        }
+        .card-head a:hover { text-decoration: underline; }
+        .session-item {
+            padding: 16px;
+            border-radius: 10px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+        .session-item:last-child { margin-bottom: 0; }
+        .session-item:hover { border-color: var(--indigo); transform: translateY(-1px); }
+        .session-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .session-title { font-size: 0.95rem; font-weight: 600; }
+        .session-date { font-size: 0.82rem; font-weight: 600; color: var(--indigo); }
+        .session-meta {
+            display: flex; gap: 16px;
+            margin-bottom: 14px; flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex; align-items: center;
+            gap: 6px; color: var(--muted); font-size: 0.82rem;
+        }
+        .meeting-link {
+            background: #e6f7e6;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .meeting-link a { color: var(--green); text-decoration: none; }
+        .meeting-link a:hover { text-decoration: underline; }
+        .session-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn {
+            padding: 8px 16px; border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem; font-weight: 500;
+            cursor: pointer; border: none;
+            display: inline-flex; align-items: center; gap: 6px;
+            transition: all 0.2s; text-decoration: none;
+        }
+        .btn-primary { background: var(--indigo); color: white; }
+        .btn-primary:hover { background: var(--indigo-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79,70,229,0.3); }
+        .btn-green { background: var(--green); color: white; }
+        .btn-green:hover { background: #0da271; transform: translateY(-1px); }
+        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text); }
+        .btn-outline:hover { border-color: var(--indigo); background: var(--indigo-light); color: var(--indigo); }
+        .btn-danger { background: var(--rose); color: white; }
+        .btn-danger:hover { background: #e11d48; transform: translateY(-1px); }
+        .btn-block { width: 100%; justify-content: center; margin-bottom: 8px; }
+        .btn-block:last-child { margin-bottom: 0; }
+        .skill-tags { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 4px; }
+        .stag {
+            padding: 5px 12px; border-radius: 20px;
+            font-size: 0.78rem; font-weight: 500;
+            display: inline-flex; align-items: center; gap: 5px;
+        }
+        .stag-teach { background: #d1fae5; color: #065f46; }
+        .stag-learn { background: #fef3c7; color: #92400e; }
+        .ai-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .ai-card .card-head { border-bottom-color: rgba(186,230,253,0.5); }
+        .rec-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 9px;
+            border: 1px solid rgba(186,230,253,0.5);
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+        .rec-item:last-child { margin-bottom: 0; }
+        .rec-item:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        .rec-icon {
+            width: 38px; height: 38px;
+            background: var(--indigo-light);
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--indigo); flex-shrink: 0;
+        }
+        .rec-info h4 { font-size: 0.9rem; margin-bottom: 3px; }
+        .rec-info p  { font-size: 0.78rem; color: var(--muted); }
+        .rec-match { margin-left: auto; font-weight: 600; color: var(--indigo); font-size: 0.82rem; }
+        .review-item {
+            padding: 14px; border-radius: 10px;
+            background: var(--bg); border: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+        .review-item:last-child { margin-bottom: 0; }
+        .review-header {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 8px;
+        }
+        .reviewer { display: flex; align-items: center; gap: 9px; }
+        .reviewer-av {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: var(--indigo); color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.78rem; font-weight: 600;
+        }
+        .reviewer-name { font-size: 0.88rem; font-weight: 500; }
+        .review-stars { color: var(--amber); font-size: 0.82rem; font-weight: 600; }
+        .review-text { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            max-width: 500px;
+            width: 90%;
+            border-radius: 28px;
+            padding: 28px;
+        }
+        .form-group { margin-bottom: 16px; }
+        label { font-weight: 500; display: block; margin-bottom: 6px; }
+        select, input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            font-family: inherit;
+        }
+        .credits-banner {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            border-radius: var(--radius);
+            padding: 22px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            color: white;
+            box-shadow: 0 8px 32px rgba(79,70,229,0.25);
+            position: relative;
+            overflow: hidden;
+        }
+        .credits-banner::after {
+            content:'';
+            position:absolute; right:-40px; top:-40px;
+            width:160px; height:160px;
+            border-radius:50%;
+            background: rgba(255,255,255,0.07);
+        }
+        .credits-left h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 2.4rem; font-weight: 700;
+            letter-spacing: -1px; margin-bottom: 4px;
+        }
+        .credits-left p { font-size: 0.9rem; opacity: 0.85; }
+        .credits-actions { display: flex; gap: 10px; z-index:1; }
+        .btn-white {
+            background: white; color: var(--indigo);
+            font-weight: 600;
+        }
+        .btn-white:hover { background: #e0e7ff; transform: translateY(-1px); }
+        .btn-ghost {
+            background: rgba(255,255,255,0.15); color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .btn-ghost:hover { background: rgba(255,255,255,0.25); transform: translateY(-1px); }
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 12px;
+            padding-top: 4px;
+        }
+        .badge-item {
+            display: flex; flex-direction: column;
+            align-items: center; gap: 7px;
+            padding: 14px 8px;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            background: var(--bg);
+            transition: all 0.2s;
+            cursor: default;
+        }
+        .badge-item.earned {
+            border-color: #fbbf24;
+            background: #fffbeb;
+        }
+        .badge-item:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+        .badge-icon {
+            font-size: 1.6rem;
+            filter: grayscale(1) opacity(0.4);
+        }
+        .badge-item.earned .badge-icon { filter: none; }
+        .badge-name { font-size: 0.7rem; font-weight: 600; color: var(--muted); text-align: center; }
+        .badge-item.earned .badge-name { color: #92400e; }
+        .badge-progress-bar {
+            width: 100%;
+            height: 5px;
+            background: var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 2px;
+        }
+        .badge-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--indigo), #818cf8);
+            border-radius: 10px;
+            transition: width 0.8s ease;
+        }
+        .next-badge-hint {
+            font-size: 0.78rem; color: var(--muted);
+            margin-top: 10px; padding: 10px;
+            background: var(--indigo-light);
+            border-radius: 9px;
+            text-align: center;
+        }
+        .next-badge-hint strong { color: var(--indigo); }
+        .earnings-row {
+            display: flex; gap: 16px; margin-bottom: 20px;
+        }
+        .earnings-stat {
+            flex: 1; background: var(--bg); border: 1px solid var(--border);
+            border-radius: 10px; padding: 14px; text-align: center;
+        }
+        .earnings-stat .e-num {
+            font-family: 'Fraunces', serif;
+            font-size: 1.5rem; font-weight: 700;
+            color: var(--green); letter-spacing: -0.5px;
+        }
+        .earnings-stat .e-label { font-size: 0.73rem; color: var(--muted); margin-top: 2px; }
+        .earnings-bar-row {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 8px; font-size: 0.8rem;
+        }
+        .earnings-bar-label { width: 70px; color: var(--muted); flex-shrink: 0; }
+        .earnings-bar-wrap { flex: 1; background: var(--border); border-radius: 10px; height: 7px; overflow: hidden; }
+        .earnings-bar-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--green), #34d399); transition: width 0.8s ease; }
+        .earnings-bar-val { font-weight: 600; color: var(--text); width: 32px; text-align: right; }
+        .history-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 14px;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+        .history-item:hover { border-color: #c7d2fe; }
+        .history-icon {
+            width: 36px; height: 36px; border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.9rem; flex-shrink: 0;
+        }
+        .hi-completed { background: #d1fae5; color: #065f46; }
+        .hi-cancelled { background: #fee2e2; color: #991b1b; }
+        .history-info h4 { font-size: 0.88rem; font-weight: 600; margin-bottom: 2px; }
+        .history-info p  { font-size: 0.75rem; color: var(--muted); }
+        .history-pts {
+            margin-left: auto; font-weight: 700;
+            font-size: 0.85rem;
+        }
+        .history-pts.earned { color: var(--green); }
+        .history-pts.spent  { color: var(--rose); }
+        .role-tabs {
+            display: inline-flex;
+            background: var(--indigo-light);
+            border-radius: 10px;
+            padding: 4px;
+            gap: 4px;
+            margin-bottom: 28px;
+        }
+        .role-tab {
+            padding: 7px 16px; border-radius: 7px;
+            border: none; cursor: pointer;
+            font-family: inherit; font-size: 0.82rem; font-weight: 500;
+            color: var(--muted); background: none;
+            transition: all 0.18s;
+        }
+        .role-tab.active {
+            background: white; color: var(--indigo);
+            box-shadow: 0 2px 8px rgba(79,70,229,0.15);
+        }
+        @media (max-width: 1024px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .stats-bar { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .sidebar { width: 60px; }
+            .sidebar-logo-text, .nav-link span, .nav-label,
+            .user-details, .logout-btn { display: none; }
+            .sidebar-logo { justify-content: center; padding: 18px 0; }
+            .nav-link { justify-content: center; padding: 10px; }
+            .sidebar-user { justify-content: center; padding: 16px 0; }
+            .main { margin-left: 60px; }
+        }
+        @media (max-width: 640px) {
+            .page { padding: 20px; }
+            .stats-bar { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <a href="dashboard.html" class="sidebar-logo">
+        <div class="sidebar-logo-icon">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+        </div>
+        <span class="sidebar-logo-text">SkillSwap</span>
+    </a>
+    <nav class="nav-section">
+        <p class="nav-label">Main</p>
+        <a href="dashboard.html" class="nav-link active">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+            </svg>
+            <span>Dashboard</span>
+        </a>
+        <a href="userProfile.html" class="nav-link">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span>Profile</span>
+        </a>
+        <p class="nav-label">Discover</p>
+        <a href="ai-matching.html" class="nav-link">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+            </svg>
+            <span>AI Matching</span>
+        </a>
+        <a href="browse-skills.html" class="nav-link">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <span>Browse Skills</span>
+        </a>
+        <a href="sessions.html" class="nav-link">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+            </svg>
+            <span>Sessions</span>
+        </a>
+    </nav>
+    <div class="sidebar-user">
+        <div class="user-avatar-sm" id="avatarInitial">S</div>
+        <div class="user-details">
+            <h4 id="userName">...</h4>
+            <p id="userRole">Learner & Mentor</p>
+        </div>
+        <button class="logout-btn" id="logoutBtn" title="Log out">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+            </svg>
+        </button>
+    </div>
+</aside>
+
+<div class="main">
+    <header class="topbar">
+        <span class="topbar-title">SkillSwap UAE</span>
+    </header>
+
+    <div class="page">
+        <div class="welcome-row">
+            <h1 id="welcomeMsg">Welcome back ✨</h1>
+            <p>Track your progress, manage sessions, and grow your skills.</p>
+        </div>
+
+        <div class="credits-banner">
+            <div class="credits-left">
+                <h2><i class="fas fa-coins" style="font-size:1.6rem;margin-right:10px;opacity:0.9;"></i><span id="creditsBalance">0</span> Credits</h2>
+            </div>            
+            <div class="credits-actions">
+                <button class="btn btn-white" id="creditUseBtn"><i class="fas fa-plus"></i> Use Credits</button>
+                <button class="btn btn-ghost" onclick="window.location.href='browse-skills.html'"><i class="fas fa-search"></i> Browse Skills</button>
+            </div>
+
+        </div>
+
+        <div class="role-tabs" id="roleTabs">
+            <button class="role-tab active" data-view="learner"><i class="fas fa-graduation-cap"></i> Learner</button>
+            <button class="role-tab" data-view="mentor"><i class="fas fa-chalkboard-teacher"></i> Mentor</button>
+        </div>
+
+        <div class="stats-bar" id="statsBar"></div>
+
+        <!-- LEARNER VIEW -->
+        <div id="viewLearner" class="dashboard-grid">
+            <div>
+                <div class="card">
+                    <div class="card-head"><h3><i class="fas fa-calendar-alt"></i> Upcoming & Scheduled Sessions</h3><a href="#" id="viewAllSessionsLink">View all</a></div>
+                    <div id="upcomingSessionsContainer"></div>
+                </div>
+                <div class="card">
+                    <div class="card-head"><h3><i class="fas fa-tools"></i> Skills Showcase</h3><a href="userProfile.html">Edit Profile</a></div>
+                    <div id="skillsContainer"></div>
+                </div>
+                <div class="card">
+                    <div class="card-head"><h3><i class="fas fa-history"></i> Session History</h3><a href="sessions.html">View all</a></div>
+                    <div id="sessionHistoryContainer"><p style="color:var(--muted);">Loading history...</p></div>
+                </div>
+                                <div class="ai-card">
+                    <div class="card-head"><h3><i class="fas fa-robot"></i> AI Recommendations</h3><a href="#" id="refreshRecsLink">refresh</a></div>
+                    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:14px;">Based on your skills and interests</p>
+                    <div id="recommendationsContainer"></div>
+                </div>
+                <div class="card">
+                    <div class="card-head"><h3><i class="fas fa-star"></i> Recent Reviews</h3><a href="#">View all</a></div>
+                    <div id="reviewsContainer"></div>
+                </div>
+            </div>
+            <div>
+                <div class="card">
+                    <div class="card-head"><h3><i class="fas fa-medal"></i> Badges & Rewards</h3><a href="badges.html">View All Badges →</a></div>
+                    <div class="badges-grid" id="badgesGrid"></div>
+                    <div class="next-badge-hint" id="nextBadgeHint" style="display:none;"></div>
+                </div>
+                <div class="card">
+                    <div class="card-head"><h3><i class="fas fa-bolt"></i> Quick Actions</h3></div>
+                    <button class="btn btn-primary btn-block" id="requestSessionBtn"><i class="fas fa-plus"></i> Request Session</button>
+                    <button class="btn btn-green btn-block" id="completeFirstSessionBtn"><i class="fas fa-check-circle"></i> Complete First Pending</button>
+                    <button class="btn btn-outline btn-block" onclick="window.location.href='userProfile.html'"><i class="fas fa-edit"></i> Edit Profile</button>
+                    <button class="btn btn-outline btn-block" onclick="window.location.href='browse-skills.html'"><i class="fas fa-search"></i> Browse Skills</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MENTOR VIEW -->
+        <div id="viewMentor" style="display:none;">
+            <div class="dashboard-grid">
+                <div>
+                    <div class="card">
+                        <div class="card-head"><h3><i class="fas fa-calendar-alt"></i> My Upcoming Sessions</h3></div>
+                        <div id="mentorUpcomingContainer"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-head"><h3><i class="fas fa-plus-circle"></i> Create a Session</h3></div>
+                        <div id="createSessionMsg" style="display:none;margin-bottom:12px;padding:10px 14px;border-radius:8px;font-size:13px;"></div>
+                        <div class="form-group" style="margin-bottom:12px;">
+                            <label style="font-size:13px;font-weight:500;color:var(--muted);display:block;margin-bottom:4px;">Skill</label>
+                            <select id="createSkillSelect" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;"></select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:12px;">
+                            <label style="font-size:13px;font-weight:500;color:var(--muted);display:block;margin-bottom:4px;">Date &amp; Time</label>
+                            <input type="datetime-local" id="createScheduledTime" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;">
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                            <div>
+                                <label style="font-size:13px;font-weight:500;color:var(--muted);display:block;margin-bottom:4px;">Duration (mins)</label>
+                                <input type="number" id="createDuration" value="60" min="15" max="480" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;">
+                            </div>
+                            <div>
+                                <label style="font-size:13px;font-weight:500;color:var(--muted);display:block;margin-bottom:4px;">Max Learners</label>
+                                <input type="number" id="createMaxLearners" value="1" min="1" max="50" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;">
+                            </div>
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <label style="font-size:13px;font-weight:500;color:var(--muted);display:block;margin-bottom:6px;">Mode</label>
+                            <div style="display:flex;gap:16px;">
+                                <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+                                    <input type="radio" name="createMode" value="ONLINE" checked id="createModeOnline"> Online
+                                </label>
+                                <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+                                    <input type="radio" name="createMode" value="IN_PERSON" id="createModeInPerson"> In-Person
+                                </label>
+                            </div>
+                        </div>
+                        <div id="createMeetingLinkGroup" style="margin-bottom:12px;">
+                            <label style="font-size:13px;font-weight:500;color:var(--muted);display:block;margin-bottom:4px;">Meeting Link</label>
+                            <input type="url" id="createMeetingLink" placeholder="https://zoom.us/j/... or https://meet.google.com/... or any video call link" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;">
+                        </div>
+                        <div id="createPhysicalLocationGroup" style="display:none;margin-bottom:12px;">
+                            <label style="font-size:13px;font-weight:500;color:var(--muted);display:block;margin-bottom:4px;">Physical Location</label>
+                            <input type="text" id="createPhysicalLocation" placeholder="Building, room, or address" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;">
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <label style="font-size:13px;font-weight:500;color:var(--muted);display:block;margin-bottom:4px;">Description (optional)</label>
+                            <textarea id="createDescription" rows="2" placeholder="What will learners gain from this session?" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;resize:vertical;"></textarea>
+                        </div>
+                        <button class="btn btn-primary btn-block" id="submitCreateSession" style="margin-top:4px;">
+                            <i class="fas fa-paper-plane"></i> Publish Session
+                        </button>
+                    </div>
+                    <div class="card">
+                        <div class="card-head"><h3><i class="fas fa-list-alt"></i> My Created Sessions</h3></div>
+                        <div id="mentorCreatedSessionsContainer"><p style="color:var(--muted);text-align:center;padding:16px;">Loading...</p></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="card">
+                        <div class="card-head"><h3><i class="fas fa-wallet"></i> Earnings Tracker</h3></div>
+                        <div class="earnings-row">
+                            <div class="earnings-stat"><div class="e-num" id="totalEarned">0</div><div class="e-label">Credits Earned</div></div>
+                            <div class="earnings-stat"><div class="e-num" id="thisMonthEarned">0</div><div class="e-label">This Month</div></div>
+                            <div class="earnings-stat"><div class="e-num" id="avgRatingMentor">—</div><div class="e-label">Avg Rating</div></div>
+                        </div>
+                        <div id="earningsBarsContainer"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-head"><h3><i class="fas fa-medal"></i> My Badges</h3><a href="badges.html">View All Badges →</a></div>
+                        <div class="badges-grid" id="mentorBadgesGrid"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-head"><h3><i class="fas fa-star"></i> My Reviews</h3><a href="/reviews-received.html">View All Reviews →</a></div>
+                        <p style="font-size:13px;color:var(--muted);padding:8px 0;">See the feedback learners have left for you.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="requestModal" class="modal">
+    <div class="modal-content">
+        <h3>Request a Session</h3>
+        <div class="form-group"><label>Mentor</label><select id="mentorSelect"></select></div>
+        <div class="form-group"><label>Skill</label><select id="skillSelect"></select></div>
+        <div class="form-group"><label>Scheduled Time</label><input type="datetime-local" id="scheduledTime"></div>
+        <div class="form-group"><label>Duration (minutes)</label><input type="number" id="duration" value="60"></div>
+        <div class="form-group"><label>Mode</label><select id="mode"><option value="ONLINE">Online</option><option value="IN_PERSON">In-person</option></select></div>
+        <div class="form-group"><label>Location</label><input type="text" id="location" placeholder="Address or meeting link"></div>
+        <div style="display:flex; gap:12px; justify-content:flex-end;"><button class="btn btn-outline" id="closeModalBtn">Cancel</button><button class="btn btn-primary" id="confirmRequestBtn">Submit</button></div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = '/api';
+    let token = localStorage.getItem('jwtToken');
+    if (!token) window.location.href = '/login.html';
+
+    async function apiRequest(url, options = {}) {
+        const res = await fetch(API_BASE + url, {
+            ...options,
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...options.headers }
+        });
+        if (res.status === 401) { localStorage.removeItem('jwtToken'); window.location.href = '/login.html'; throw new Error('Unauthorized'); }
+        if (!res.ok) throw new Error(await res.text() || `HTTP ${res.status}`);
+        return res.json();
+    }
+
+    let userProfile = { name: '', email: '', role: '', credits: 0 };
+    let userStats = { points: 0, totalSessions: 0, upcomingSessions: 0, reputation: 0, credits: 0 };
+    let upcomingSessions = [];
+    let sessionHistory = [];
+    let userSkills = { teach: [], learn: [] };
+    let reviews = [];
+    let recommendations = [];
+    let mentorsList = [];
+    let skillsList = [];
+    let badgesData = [];
+    let earningsData = null;
+    let mentorCreatedSessions = [];
+
+    const viewLearner = document.getElementById('viewLearner');
+    const viewMentor = document.getElementById('viewMentor');
+    document.querySelectorAll('.role-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const view = tab.dataset.view;
+            viewLearner.style.display = view === 'learner' ? 'grid' : 'none';
+            viewMentor.style.display = view === 'mentor' ? 'block' : 'none';
+        });
+    });
+
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+    }
+
+    function safeUrl(url) {
+        if (!url) return '';
+        return (url.startsWith('https://') || url.startsWith('http://')) ? url : '#';
+    }
+
+    async function loadDashboard() {
+        try {
+           const [profile, stats, sessions, skills, revs, recs] = await Promise.all([
+			    apiRequest('/users/me').catch(() => null),
+			    apiRequest('/users/me/stats').catch(() => null),
+			    apiRequest('/sessions/me/upcoming').catch(() => []),
+			    apiRequest('/users/me/skills').catch(() => ({ teach: [], learn: [] })),
+			    apiRequest('/reviews/me').catch(() => []),
+			    apiRequest('/recommendations/me').catch(() => [])
+			]);
+			userProfile = profile || { name: 'User', email: '', role: 'LEARNER', credits: 0 };
+            userStats = stats || { points: 0, totalSessions: 0, upcomingSessions: 0, reputation: 0, credits: 0 };
+            upcomingSessions = sessions || [];
+            userSkills = skills || { teach: [], learn: [] };
+            reviews = revs || [];
+            recommendations = recs || [];
+
+            try { sessionHistory = await apiRequest('/sessions/me/history'); } catch(e) { sessionHistory = []; }
+            try { mentorCreatedSessions = await apiRequest('/public-sessions/my-sessions'); } catch(e) { mentorCreatedSessions = []; }
+            try { badgesData = await apiRequest('/users/me/badges'); } catch(e) { badgesData = []; }
+            try { earningsData = await apiRequest('/users/me/earnings'); } catch(e) { earningsData = null; }
+
+            renderDashboard();
+            await loadMentorsAndSkills();
+        } catch (err) {
+            console.error(err);
+            alert('Error loading dashboard: ' + err.message);
+        }
+    }
+
+    async function loadMentorsAndSkills() {
+        try {
+            mentorsList = await apiRequest('/browse/mentors');
+            skillsList = await apiRequest('/skills');
+            populateDropdowns();
+        } catch(e) { console.error(e); }
+    }
+
+    function populateDropdowns() {
+        const mentorSelect = document.getElementById('mentorSelect');
+        mentorSelect.innerHTML = '<option value="">-- Select a mentor --</option>';
+        (mentorsList || []).forEach(m => {
+            const skillsStr = (m.skills || []).map(s => escapeHtml(s.name)).join(', ');
+            mentorSelect.innerHTML += `<option value="${m.id}">${escapeHtml(m.name)} (${skillsStr})</option>`;
+        });
+        const skillSelect = document.getElementById('skillSelect');
+        skillSelect.innerHTML = '<option value="">-- Select a skill --</option>';
+        (skillsList || []).forEach(s => {
+            skillSelect.innerHTML += `<option value="${s.id}">${escapeHtml(s.name)} (${escapeHtml(s.category || '')})</option>`;
+        });
+        // Re-populate the mentor create-session skill dropdown now that skillsList is loaded
+        const createSel = document.getElementById('createSkillSelect');
+        if (createSel) {
+            createSel.innerHTML = '<option value="">-- Select a skill --</option>';
+            (skillsList || []).forEach(s => {
+                createSel.innerHTML += `<option value="${s.id}">${escapeHtml(s.name)}${s.category ? ' (' + escapeHtml(s.category) + ')' : ''}</option>`;
+            });
+        }
+    }
+
+    function renderDashboard() {
+        document.getElementById('welcomeMsg').innerText = `Welcome back, ${userProfile.name || 'User'} ✨`;
+        document.getElementById('userName').innerText = userProfile.name || 'User';
+        const roleText = userProfile.role === 'SPONSOR' ? 'Sponsor' : ((userSkills.teach?.length > 0) ? 'Mentor' : 'Learner');
+        document.getElementById('userRole').innerText = roleText;
+        document.getElementById('avatarInitial').innerText = (userProfile.name?.[0] || 'U').toUpperCase();
+        const credits = userProfile.credits ?? userStats.credits ?? 0;
+        document.getElementById('creditsBalance').innerText = credits;
+
+        const rating = ((userStats.reputation || 0) / 20).toFixed(1);
+        document.getElementById('statsBar').innerHTML = `
+            <div class="stat-card"><div class="stat-icon si-indigo"><i class="fas fa-coins"></i></div><div class="stat-info"><h4>${credits}</h4><p>Credits</p></div></div>
+            <div class="stat-card"><div class="stat-icon si-green"><i class="fas fa-calendar-check"></i></div><div class="stat-info"><h4>${userStats.upcomingSessions || 0}</h4><p>Upcoming Sessions</p></div></div>
+            <div class="stat-card"><div class="stat-icon si-amber"><i class="fas fa-star"></i></div><div class="stat-info"><h4>${rating}</h4><p>Reputation Score</p></div></div>
+            <div class="stat-card"><div class="stat-icon si-purple"><i class="fas fa-tools"></i></div><div class="stat-info"><h4>${(userSkills.teach?.length || 0) + (userSkills.learn?.length || 0)}</h4><p>Skills Showcased</p></div></div>`;
+
+        renderUpcomingSessions();
+        renderSkillsShowcase();
+        renderSessionHistory();
+        renderBadges('badgesGrid', 'nextBadgeHint');
+        renderRecommendations();
+        renderReviews();
+        renderMentorView();
+    }
+
+    function renderUpcomingSessions() {
+        const sessEl = document.getElementById('upcomingSessionsContainer');
+        if (!upcomingSessions.length) {
+            sessEl.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);">✨ No upcoming sessions. Request one!</div>';
+            return;
+        }
+        sessEl.innerHTML = upcomingSessions.map(s => {
+            const isOnline = s.mode === 'ONLINE';
+            const link = s.meetingLink || '';
+            const _lc = link.toLowerCase();
+            const platform = _lc.includes('zoom.us') ? 'Zoom' : _lc.includes('teams.microsoft.com') ? 'Teams' : _lc.includes('meet.google.com') ? 'Meet' : 'Online';
+            const badgeColor = _lc.includes('zoom.us') ? '#0b5cff' : _lc.includes('teams.microsoft.com') ? '#464eb8' : '#4f46e5';
+            const physLoc = s.physicalLocation || '';
+
+            const joinBlock = isOnline
+                ? (link
+                    ? `<div style="display:flex;gap:8px;align-items:center;margin:8px 0 4px;flex-wrap:wrap;">
+                         <span style="background:${badgeColor};color:white;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;">${platform}</span>
+                         <a href="${safeUrl(link)}" target="_blank" class="btn btn-primary" style="padding:5px 14px;font-size:12px;text-decoration:none;">
+                           <i class="fas fa-video"></i> Join Session
+                         </a>
+                         <button class="btn btn-outline copy-link-btn" data-link="${escapeHtml(link)}" style="padding:5px 12px;font-size:12px;">
+                           <i class="fas fa-copy"></i> <span class="copy-label">Copy Link</span>
+                         </button>
+                       </div>`
+                    : `<p style="font-size:12px;color:var(--muted);margin:6px 0;">Meeting link will be provided by mentor.</p>`)
+                : (physLoc
+                    ? `<div style="display:flex;gap:8px;align-items:center;margin:8px 0 4px;flex-wrap:wrap;">
+                         <span style="background:#fef3c7;color:#92400e;font-size:12px;font-weight:500;padding:3px 10px;border-radius:6px;">
+                           📍 ${escapeHtml(physLoc)}
+                         </span>
+                         <button class="btn btn-outline copy-addr-btn" data-addr="${escapeHtml(physLoc)}" style="padding:5px 12px;font-size:12px;">
+                           <i class="fas fa-copy"></i> <span class="copy-label">Copy Address</span>
+                         </button>
+                       </div>`
+                    : '');
+
+            return `<div class="session-item">
+                <div class="session-row"><span class="session-title">${escapeHtml(s.skillName || '')}</span><span class="session-date">${new Date(s.scheduledTime).toLocaleString()}</span></div>
+                <div class="session-meta">
+                    <span class="meta-item"><i class="fas fa-user"></i> ${escapeHtml(s.mentorName || s.learnerName || '')}</span>
+                    <span class="meta-item"><i class="fas fa-clock"></i> ${s.durationMinutes || 60} min</span>
+                    <span class="meta-item"><i class="fas ${isOnline ? 'fa-video' : 'fa-map-marker-alt'}"></i> ${isOnline ? 'Online' : 'In-person'}</span>
+                </div>
+                ${joinBlock}
+                <div class="session-actions">
+                    <button class="btn btn-outline complete-session" data-id="${s.id}">Complete</button>
+                    <button class="btn btn-danger cancel-session" data-id="${s.id}">Cancel</button>
+                </div>
+            </div>`;
+        }).join('');
+        sessEl.querySelectorAll('.complete-session').forEach(btn => btn.addEventListener('click', () => completeSession(btn.dataset.id)));
+        sessEl.querySelectorAll('.cancel-session').forEach(btn => btn.addEventListener('click', () => cancelSession(btn.dataset.id)));
+        sessEl.querySelectorAll('.copy-link-btn').forEach(btn => btn.addEventListener('click', () => {
+            navigator.clipboard.writeText(btn.dataset.link).then(() => {
+                const lbl = btn.querySelector('.copy-label');
+                lbl.textContent = 'Copied!';
+                setTimeout(() => { lbl.textContent = 'Copy Link'; }, 2000);
+            });
+        }));
+        sessEl.querySelectorAll('.copy-addr-btn').forEach(btn => btn.addEventListener('click', () => {
+            navigator.clipboard.writeText(btn.dataset.addr).then(() => {
+                const lbl = btn.querySelector('.copy-label');
+                lbl.textContent = 'Copied!';
+                setTimeout(() => { lbl.textContent = 'Copy Address'; }, 2000);
+            });
+        }));
+    }
+
+    function renderSkillsShowcase() {
+        const teachTags = (userSkills.teach || []).map(s => `<span class="stag stag-teach"><i class="fas fa-chalkboard-teacher"></i> ${escapeHtml(s.skillName)}</span>`).join('');
+        const learnTags = (userSkills.learn || []).map(s => `<span class="stag stag-learn"><i class="fas fa-graduation-cap"></i> ${escapeHtml(s.skillName)}</span>`).join('');
+        document.getElementById('skillsContainer').innerHTML = `<div class="skill-tags">${teachTags} ${learnTags}</div>`;
+    }
+
+    function renderSessionHistory() {
+        const el = document.getElementById('sessionHistoryContainer');
+        if (!sessionHistory.length) {
+            el.innerHTML = '<p style="color:var(--muted);">No completed sessions yet.</p>';
+            return;
+        }
+        el.innerHTML = sessionHistory.slice(0,5).map(s => `
+            <div class="history-item">
+                <div class="history-icon hi-completed"><i class="fas fa-check"></i></div>
+                <div class="history-info"><h4>${escapeHtml(s.skillName)}</h4><p>${escapeHtml(s.mentorName || s.learnerName || '')} · ${new Date(s.scheduledTime).toLocaleDateString()}</p></div>
+                <div class="history-pts earned">+15 pts</div>
+            </div>`).join('');
+    }
+
+    const ALL_BADGES = [
+        { id:'novice', label:'Novice', icon:'🌱', req:1, type:'sessions' },
+        { id:'apprentice', label:'Apprentice', icon:'📚', req:5, type:'sessions' },
+        { id:'adept', label:'Adept', icon:'⚡', req:20, type:'sessions' },
+        { id:'master', label:'Master', icon:'🏆', req:50, type:'sessions' },
+        { id:'fivestar', label:'5-Star Mentor', icon:'⭐', req:10, type:'rating' },
+    ];
+    function renderBadges(gridId, hintId) {
+        const earnedSet = new Set((badgesData || []).map(b => b.id || b.name));
+        const totalSessions = userStats.totalSessions || 0;
+        const grid = document.getElementById(gridId);
+        if (!grid) return;
+        grid.innerHTML = ALL_BADGES.map(b => {
+            const isEarned = earnedSet.has(b.id) || (b.type === 'sessions' && totalSessions >= b.req);
+            return `<div class="badge-item ${isEarned ? 'earned' : ''}"><div class="badge-icon">${b.icon}</div><div class="badge-name">${b.label}</div>${b.type === 'sessions' ? `<div class="badge-progress-bar"><div class="badge-progress-fill" style="width:${Math.min(100, (totalSessions/b.req)*100)}%"></div></div>` : ''}</div>`;
+        }).join('');
+        if (hintId) {
+            const next = ALL_BADGES.find(b => b.type === 'sessions' && totalSessions < b.req);
+            const hintEl = document.getElementById(hintId);
+            if (next && hintEl) {
+                hintEl.style.display = 'block';
+                hintEl.innerHTML = `${totalSessions}/${next.req} sessions to earn <strong>${next.label}</strong> ${next.icon}`;
+            }
+        }
+    }
+
+    function renderRecommendations() {
+        const recsEl = document.getElementById('recommendationsContainer');
+        if (!recommendations.length) {
+            recsEl.innerHTML = '<p style="color:var(--muted);">No recommendations yet.</p>';
+            return;
+        }
+        recsEl.innerHTML = recommendations.map(r => `<div class="rec-item"><div class="rec-icon"><i class="fas fa-code"></i></div><div class="rec-info"><h4>${escapeHtml(r.skillName)}</h4><p>${escapeHtml(r.description || 'Recommended for you')}</p></div><div class="rec-match">${r.matchPercent}%</div></div>`).join('');
+    }
+
+    function renderReviews() {
+        const revEl = document.getElementById('reviewsContainer');
+        if (!reviews.length) {
+            revEl.innerHTML = '<p style="color:var(--muted);">No reviews yet.</p>';
+            return;
+        }
+        revEl.innerHTML = reviews.slice(0,3).map(r => `<div class="review-item"><div class="review-header"><div class="reviewer"><div class="reviewer-av">${escapeHtml(r.reviewerName?.[0] || 'U')}</div><span class="reviewer-name">${escapeHtml(r.reviewerName)}</span></div><span class="review-stars"><i class="fas fa-star"></i> ${r.rating}</span></div><p class="review-text">${escapeHtml(r.comment || '')}</p></div>`).join('');
+    }
+
+    function renderMentorView() {
+        const muEl = document.getElementById('mentorUpcomingContainer');
+        if (!upcomingSessions.length) {
+            muEl.innerHTML = '<p style="color:var(--muted);text-align:center;padding:16px;">No upcoming sessions.</p>';
+        } else {
+            muEl.innerHTML = upcomingSessions.map(s => {
+                const isOnline = s.mode === 'ONLINE';
+                const link = s.meetingLink || '';
+                const physLoc = s.physicalLocation || '';
+                const _lc = link.toLowerCase();
+                const platform = _lc.includes('zoom.us') ? 'Zoom' : _lc.includes('teams.microsoft.com') ? 'Teams' : _lc.includes('meet.google.com') ? 'Meet' : 'Online';
+                const linkOrLoc = isOnline
+                    ? (link
+                        ? `<span style="font-size:12px;color:var(--indigo);">${platform}</span>
+                           <a href="${safeUrl(link)}" target="_blank" style="font-size:11px;color:var(--indigo);margin-left:6px;word-break:break-all;">${escapeHtml(link.length > 40 ? link.slice(0,40)+'…' : link)}</a>
+                           <button class="btn btn-outline copy-mentor-link" data-val="${escapeHtml(link)}" style="padding:2px 8px;font-size:11px;margin-left:6px;">Copy</button>`
+                        : `<span style="font-size:12px;color:var(--muted);">No link set</span>`)
+                    : (physLoc
+                        ? `<span style="font-size:12px;">📍 ${escapeHtml(physLoc)}</span>
+                           <button class="btn btn-outline copy-mentor-link" data-val="${escapeHtml(physLoc)}" style="padding:2px 8px;font-size:11px;margin-left:6px;">Copy</button>`
+                        : `<span style="font-size:12px;color:var(--muted);">No location set</span>`);
+                const learners = `${s.currentLearners ?? 0}/${s.maxLearners ?? 1} learner${(s.maxLearners ?? 1) > 1 ? 's' : ''}`;
+                return `<div class="history-item">
+                    <div class="history-icon hi-completed"><i class="fas fa-calendar"></i></div>
+                    <div class="history-info" style="flex:1;">
+                        <h4>${escapeHtml(s.skillName || '')}</h4>
+                        <p>${new Date(s.scheduledTime).toLocaleString()}</p>
+                        <div style="margin-top:4px;display:flex;align-items:center;flex-wrap:wrap;gap:4px;">${linkOrLoc}</div>
+                    </div>
+                    <div style="text-align:right;font-size:12px;color:var(--muted);white-space:nowrap;">
+                        <div>${isOnline ? 'Online' : 'In-person'}</div>
+                        <div style="color:var(--indigo);margin-top:2px;">${learners}</div>
+                    </div>
+                </div>`;
+            }).join('');
+            muEl.querySelectorAll('.copy-mentor-link').forEach(btn => btn.addEventListener('click', () => {
+                navigator.clipboard.writeText(btn.dataset.val).then(() => {
+                    const orig = btn.textContent;
+                    btn.textContent = 'Copied!';
+                    setTimeout(() => { btn.textContent = orig; }, 2000);
+                });
+            }));
+        }
+        renderMentorCreatedSessions();
+        const ed = earningsData || {};
+        document.getElementById('totalEarned').innerText = ed.totalCreditsEarned ?? 0;
+        document.getElementById('thisMonthEarned').innerText = ed.thisMonthCredits ?? '—';
+        document.getElementById('avgRatingMentor').innerText = ((userStats.reputation || 0)/20).toFixed(1);
+        const barsEl = document.getElementById('earningsBarsContainer');
+        barsEl.innerHTML = '<p style="color:var(--muted);">No earnings data yet.</p>';
+        renderBadges('mentorBadgesGrid', null);
+        initCreateSessionForm();
+    }
+
+    function renderMentorCreatedSessions() {
+        const el = document.getElementById('mentorCreatedSessionsContainer');
+        if (!el) return;
+        if (!mentorCreatedSessions.length) {
+            el.innerHTML = '<p style="color:var(--muted);text-align:center;padding:16px;">No sessions created yet.</p>';
+            return;
+        }
+        el.innerHTML = mentorCreatedSessions.map(s => {
+            const isOnline = s.mode === 'ONLINE' || s.mode?.name === 'ONLINE';
+            const link = s.meetingLink || '';
+            const physLoc = s.physicalLocation || s.location || '';
+            const _lc2 = link.toLowerCase();
+            const platform = _lc2.includes('zoom.us') ? 'Zoom' : _lc2.includes('teams.microsoft.com') ? 'Teams' : _lc2.includes('meet.google.com') ? 'Meet' : 'Online';
+            const badgeColor2 = _lc2.includes('zoom.us') ? '#0b5cff' : _lc2.includes('teams.microsoft.com') ? '#464eb8' : '#4f46e5';
+            const linkOrLoc = isOnline
+                ? (link
+                    ? `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                         <span style="background:${badgeColor2};color:white;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;">${platform}</span>
+                         <a href="${safeUrl(link)}" target="_blank" style="font-size:11px;color:var(--indigo);word-break:break-all;">${escapeHtml(link.length > 44 ? link.slice(0,44)+'…' : link)}</a>
+                         <button class="btn btn-outline copy-created-val" data-val="${escapeHtml(link)}" style="padding:2px 8px;font-size:11px;">Copy</button>
+                       </div>`
+                    : '<span style="font-size:12px;color:var(--muted);">No link</span>')
+                : (physLoc
+                    ? `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                         <span style="font-size:12px;">📍 ${escapeHtml(physLoc)}</span>
+                         <button class="btn btn-outline copy-created-val" data-val="${escapeHtml(physLoc)}" style="padding:2px 8px;font-size:11px;">Copy</button>
+                       </div>`
+                    : '<span style="font-size:12px;color:var(--muted);">No location set</span>');
+            const learners = `${s.currentLearners ?? 0} / ${s.maxLearners ?? 1} learner${(s.maxLearners ?? 1) > 1 ? 's' : ''}`;
+            const statusColor = s.status === 'OPEN' ? 'var(--green)' : s.status === 'SCHEDULED' ? 'var(--indigo)' : 'var(--muted)';
+            return `<div class="history-item" style="align-items:flex-start;">
+                <div class="history-icon hi-completed" style="margin-top:2px;"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div class="history-info" style="flex:1;">
+                    <h4>${escapeHtml(s.skillName || '')}</h4>
+                    <p>${s.scheduledTime ? new Date(s.scheduledTime).toLocaleString() : '—'} · ${s.durationMinutes || 60} min</p>
+                    <div style="margin-top:4px;">${linkOrLoc}</div>
+                </div>
+                <div style="text-align:right;font-size:12px;white-space:nowrap;">
+                    <div style="color:${statusColor};font-weight:600;">${s.status || ''}</div>
+                    <div style="color:var(--indigo);margin-top:2px;">${learners}</div>
+                </div>
+            </div>`;
+        }).join('');
+        el.querySelectorAll('.copy-created-val').forEach(btn => btn.addEventListener('click', () => {
+            navigator.clipboard.writeText(btn.dataset.val).then(() => {
+                const orig = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => { btn.textContent = orig; }, 2000);
+            });
+        }));
+    }
+
+    function initCreateSessionForm() {
+        const sel = document.getElementById('createSkillSelect');
+        if (!sel) return;
+        sel.innerHTML = '<option value="">-- Select a skill --</option>';
+        (skillsList || []).forEach(s => {
+            sel.innerHTML += `<option value="${s.id}">${escapeHtml(s.name)}${s.category ? ' (' + escapeHtml(s.category) + ')' : ''}</option>`;
+        });
+        document.querySelectorAll('input[name="createMode"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                const isOnline = document.getElementById('createModeOnline').checked;
+                document.getElementById('createMeetingLinkGroup').style.display = isOnline ? 'block' : 'none';
+                document.getElementById('createPhysicalLocationGroup').style.display = isOnline ? 'none' : 'block';
+            });
+        });
+        const btn = document.getElementById('submitCreateSession');
+        if (btn._bound) return;
+        btn._bound = true;
+        btn.addEventListener('click', async () => {
+            const msgEl = document.getElementById('createSessionMsg');
+            const showMsg = (text, isError) => {
+                msgEl.textContent = text;
+                msgEl.style.display = 'block';
+                msgEl.style.background = isError ? '#fef2f2' : '#f0fdf4';
+                msgEl.style.color = isError ? '#dc2626' : '#16a34a';
+                msgEl.style.border = `1px solid ${isError ? '#fecaca' : '#bbf7d0'}`;
+            };
+            msgEl.style.display = 'none';
+            const skillId = parseInt(document.getElementById('createSkillSelect').value);
+            const scheduledTime = document.getElementById('createScheduledTime').value;
+            const duration = parseInt(document.getElementById('createDuration').value);
+            const maxLearners = parseInt(document.getElementById('createMaxLearners').value);
+            const isOnline = document.getElementById('createModeOnline').checked;
+            const mode = isOnline ? 'ONLINE' : 'IN_PERSON';
+            const meetingLink = document.getElementById('createMeetingLink').value.trim();
+            const physicalLocation = document.getElementById('createPhysicalLocation').value.trim();
+            const description = document.getElementById('createDescription').value.trim();
+            if (!skillId) { showMsg('Please select a skill.', true); return; }
+            if (!scheduledTime) { showMsg('Please enter a scheduled date and time.', true); return; }
+            if (isNaN(duration) || duration < 15 || duration > 480) { showMsg('Duration must be between 15 and 480 minutes.', true); return; }
+            if (isNaN(maxLearners) || maxLearners < 1 || maxLearners > 50) { showMsg('Max learners must be between 1 and 50.', true); return; }
+            if (isOnline && !meetingLink) { showMsg('A meeting link is required for online sessions.', true); return; }
+            if (!isOnline && !physicalLocation) { showMsg('Physical location is required for in-person sessions.', true); return; }
+            const payload = { skillId, scheduledTime, durationMinutes: duration, maxLearners, mode, description };
+            if (isOnline) payload.meetingLink = meetingLink;
+            else payload.physicalLocation = physicalLocation;
+            btn.disabled = true;
+            btn.textContent = 'Publishing…';
+            try {
+                const resp = await fetch('/api/sessions/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(payload)
+                });
+                const data = await resp.json();
+                if (resp.status === 401) { localStorage.removeItem('jwtToken'); window.location.href = '/login.html'; return; }
+                if (!resp.ok) { showMsg(data.error || 'Failed to create session.', true); return; }
+                showMsg('Session published! Learners can now find and join it.', false);
+                document.getElementById('createSkillSelect').value = '';
+                document.getElementById('createScheduledTime').value = '';
+                document.getElementById('createDuration').value = '60';
+                document.getElementById('createMaxLearners').value = '1';
+                document.getElementById('createModeOnline').checked = true;
+                document.getElementById('createMeetingLinkGroup').style.display = 'block';
+                document.getElementById('createPhysicalLocationGroup').style.display = 'none';
+                document.getElementById('createMeetingLink').value = '';
+                document.getElementById('createPhysicalLocation').value = '';
+                document.getElementById('createDescription').value = '';
+                try { mentorCreatedSessions = await apiRequest('/public-sessions/my-sessions'); } catch(e) { mentorCreatedSessions = []; }
+                renderMentorCreatedSessions();
+            } catch (e) {
+                showMsg(e.message || 'Network error.', true);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Publish Session';
+            }
+        });
+    }
+
+
+    async function acceptSession(id) { if(confirm('Accept?')){ await apiRequest(`/sessions/${id}/accept`,{method:'PUT'}); alert('Accepted'); loadDashboard(); } }
+    async function rejectSession(id) { if(confirm('Reject?')){ await apiRequest(`/sessions/${id}/reject`,{method:'PUT'}); alert('Rejected'); loadDashboard(); } }
+    async function cancelSession(id) { if(confirm('Cancel?')){ await apiRequest(`/sessions/${id}/cancel`,{method:'DELETE'}); alert('Cancelled'); loadDashboard(); } }
+    async function completeSession(id) { if(confirm('Complete?')){ await apiRequest(`/sessions/${id}/complete`,{method:'PUT'}); alert('Completed!'); loadDashboard(); } }
+
+    const modal = document.getElementById('requestModal');
+    document.getElementById('requestSessionBtn').addEventListener('click', () => modal.style.display = 'flex');
+    document.getElementById('creditUseBtn').addEventListener('click', () => modal.style.display = 'flex');
+    document.getElementById('closeModalBtn').addEventListener('click', () => modal.style.display = 'none');
+    document.getElementById('confirmRequestBtn').addEventListener('click', async () => {
+        const mentorId = parseInt(document.getElementById('mentorSelect').value);
+        const skillId = parseInt(document.getElementById('skillSelect').value);
+        const scheduledTime = document.getElementById('scheduledTime').value;
+        const durationMinutes = parseInt(document.getElementById('duration').value);
+        const mode = document.getElementById('mode').value;
+        const location = document.getElementById('location').value;
+        if (!mentorId || !skillId || !scheduledTime || !durationMinutes) { alert('Please fill all fields'); return; }
+        await apiRequest('/sessions/request', { method: 'POST', body: JSON.stringify({ mentorId, skillId, scheduledTime, durationMinutes, mode, location }) });
+        alert('Request sent!'); modal.style.display = 'none'; loadDashboard();
+    });
+    document.getElementById('refreshRecsLink').addEventListener('click', async (e) => { e.preventDefault(); recommendations = await apiRequest('/recommendations/me'); renderRecommendations(); });
+    document.getElementById('viewAllSessionsLink').addEventListener('click', (e) => { e.preventDefault(); alert('Upcoming sessions: ' + upcomingSessions.map(s=>s.skillName).join(', ') || 'None'); });
+    document.getElementById('completeFirstSessionBtn').addEventListener('click', async () => { if(upcomingSessions.length) await completeSession(upcomingSessions[0].id); else alert('No upcoming sessions'); });
+    document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.removeItem('jwtToken'); window.location.href = '/login.html'; });
+    loadDashboard();
+</script>
+</body>
+</html>

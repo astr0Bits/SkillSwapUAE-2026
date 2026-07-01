@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillSwap – My Badges</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --indigo:       #4f46e5;
+      --indigo-dark:  #3730a3;
+      --indigo-light: #e0e7ff;
+      --green:        #10b981;
+      --amber:        #f59e0b;
+      --muted:        #64748b;
+      --border:       #e2e8f0;
+      --bg:           #f8faff;
+      --text:         #0f172a;
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── Top bar ─────────────────────────────────────────────────────────── */
+    .topbar {
+      background: white; border-bottom: 1px solid var(--border);
+      padding: 14px 32px; display: flex; align-items: center; gap: 14px;
+      position: sticky; top: 0; z-index: 50;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .topbar-brand {
+      font-family: 'Fraunces', serif; font-size: 1.15rem;
+      font-weight: 700; color: var(--indigo);
+    }
+    .topbar-sep { color: var(--border); font-size: 1.2rem; }
+    .topbar-title { font-size: 0.9rem; color: var(--muted); font-weight: 500; }
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+    .back-link {
+      color: var(--indigo); text-decoration: none;
+      font-size: 0.875rem; font-weight: 500; display: flex; align-items: center; gap: 6px;
+    }
+    .back-link:hover { text-decoration: underline; }
+    .nav-link-sm {
+      color: var(--muted); text-decoration: none;
+      font-size: 0.82rem; font-weight: 500;
+    }
+    .nav-link-sm:hover { color: var(--indigo); }
+
+    /* ── Page ────────────────────────────────────────────────────────────── */
+    .page { max-width: 1080px; margin: 0 auto; padding: 40px 32px; }
+
+    .page-head { margin-bottom: 32px; }
+    .page-head h1 {
+      font-family: 'Fraunces', serif; font-size: 1.9rem;
+      font-weight: 700; letter-spacing: -0.4px; margin-bottom: 6px;
+    }
+    .page-head p { color: var(--muted); font-size: 0.95rem; }
+
+    /* ── Summary bar ─────────────────────────────────────────────────────── */
+    .summary-bar {
+      background: white; border: 1px solid var(--border); border-radius: 14px;
+      padding: 20px 28px; margin-bottom: 32px;
+      display: flex; align-items: center; gap: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .summary-stat { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .summary-val {
+      font-family: 'Fraunces', serif; font-size: 2rem;
+      font-weight: 700; color: var(--indigo); line-height: 1;
+    }
+    .summary-lbl {
+      font-size: 0.72rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.6px; font-weight: 500;
+    }
+    .summary-sep { width: 1px; height: 44px; background: var(--border); }
+    .progress-overall { flex: 1; }
+    .progress-overall-bar {
+      background: #e2e8f0; border-radius: 99px; height: 10px; overflow: hidden; margin-bottom: 6px;
+    }
+    .progress-overall-fill {
+      background: linear-gradient(90deg, var(--indigo), #818cf8);
+      height: 100%; border-radius: 99px; transition: width 0.6s ease;
+    }
+    .progress-overall-lbl { font-size: 0.8rem; color: var(--muted); }
+
+    /* ── Badge grid ──────────────────────────────────────────────────────── */
+    .badge-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 20px;
+    }
+
+    .badge-card {
+      background: white; border: 1.5px solid var(--border); border-radius: 16px;
+      padding: 28px 20px 22px; text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      transition: all 0.2s ease;
+    }
+    .badge-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.09); }
+    .badge-card.earned { border-color: #fbbf24; background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%); }
+    .badge-card.unearned { opacity: 0.78; }
+
+    .badge-icon-wrap {
+      width: 72px; height: 72px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+    }
+    .badge-card.earned   .badge-icon-wrap { background: #fef3c7; }
+    .badge-card.unearned .badge-icon-wrap { background: #f1f5f9; filter: grayscale(0.5); }
+
+    .badge-name { font-weight: 700; font-size: 0.9rem; letter-spacing: -0.2px; }
+    .badge-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+
+    .criteria-chip {
+      font-size: 0.68rem; font-weight: 600; padding: 2px 9px; border-radius: 99px;
+      background: var(--indigo-light); color: var(--indigo); letter-spacing: 0.03em;
+    }
+
+    .earned-tag {
+      background: #d1fae5; color: #065f46;
+      font-size: 0.72rem; font-weight: 700;
+      padding: 4px 12px; border-radius: 99px;
+    }
+
+    .badge-progress { width: 100%; }
+    .badge-progress-bar {
+      background: #e2e8f0; border-radius: 99px; height: 6px;
+      overflow: hidden; margin-bottom: 4px;
+    }
+    .badge-progress-fill {
+      height: 100%; border-radius: 99px;
+      background: linear-gradient(90deg, var(--indigo), #818cf8);
+      transition: width 0.6s ease;
+    }
+    .badge-progress-text { font-size: 0.7rem; color: var(--muted); }
+
+    /* ── States ──────────────────────────────────────────────────────────── */
+    .loading-state { text-align: center; padding: 72px 20px; color: var(--muted); font-size: 0.95rem; }
+    .loading-state i { font-size: 1.5rem; margin-bottom: 12px; display: block; }
+    .error-box {
+      background: #fee2e2; border: 1px solid #fecaca; border-radius: 10px;
+      padding: 14px 18px; color: #991b1b; margin-bottom: 20px;
+      font-size: 0.875rem; display: none;
+    }
+
+    @media (max-width: 640px) {
+      .page { padding: 20px 16px; }
+      .badge-grid { grid-template-columns: repeat(2, 1fr); }
+      .summary-bar { flex-wrap: wrap; }
+      .topbar { padding: 12px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-brand">SkillSwap</div>
+  <span class="topbar-sep">|</span>
+  <div class="topbar-title">My Badges</div>
+  <nav class="topbar-right">
+    <a href="sessions.html" class="nav-link-sm">Sessions</a>
+    <a href="userProfile.html" class="nav-link-sm">Profile</a>
+    <a href="dashboard.html" class="back-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="page-head">
+    <h1><i class="fas fa-medal" style="color:var(--amber);margin-right:10px"></i>Badges &amp; Achievements</h1>
+    <p>Complete sessions and earn great reviews to unlock all badges</p>
+  </div>
+
+  <div id="error-box" class="error-box"></div>
+
+  <div class="summary-bar" id="summary-bar" style="display:none">
+    <div class="summary-stat">
+      <span class="summary-val" id="earned-count">0</span>
+      <span class="summary-lbl">Earned</span>
+    </div>
+    <div class="summary-sep"></div>
+    <div class="summary-stat">
+      <span class="summary-val" id="total-count">—</span>
+      <span class="summary-lbl">Total</span>
+    </div>
+    <div class="summary-sep"></div>
+    <div class="progress-overall">
+      <div class="progress-overall-bar">
+        <div class="progress-overall-fill" id="overall-fill" style="width:0%"></div>
+      </div>
+      <div class="progress-overall-lbl" id="overall-lbl">Loading…</div>
+    </div>
+  </div>
+
+  <div class="badge-grid" id="badge-grid">
+    <div class="loading-state" style="grid-column:1/-1">
+      <i class="fas fa-spinner fa-spin"></i>
+      Loading your badges…
+    </div>
+  </div>
+</main>
+
+<script>
+const TOKEN = localStorage.getItem('jwtToken');
+if (!TOKEN) { window.location.href = '/login.html'; }
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function criteriaLabel(type) {
+  return type === 'SESSION_COUNT' ? 'Sessions' : 'Reputation';
+}
+
+function badgeCard(b) {
+  const earned = b.earned;
+  const pct = b.progressPercent || 0;
+  const progress = b.progress || '0/' + b.thresholdValue;
+
+  const footerHtml = earned
+    ? `<div class="earned-tag"><i class="fas fa-check"></i> Earned</div>`
+    : `<div class="badge-progress">
+         <div class="badge-progress-bar">
+           <div class="badge-progress-fill" style="width:${pct}%"></div>
+         </div>
+         <div class="badge-progress-text">${esc(progress)} ${criteriaLabel(b.criteriaType).toLowerCase()}</div>
+       </div>`;
+
+  return `
+    <div class="badge-card ${earned ? 'earned' : 'unearned'}">
+      <div class="badge-icon-wrap" title="${esc(b.name)}">${esc(b.icon)}</div>
+      <div class="badge-name">${esc(b.name)}</div>
+      <div class="badge-desc">${esc(b.description)}</div>
+      <span class="criteria-chip">${criteriaLabel(b.criteriaType)}</span>
+      ${footerHtml}
+    </div>`;
+}
+
+async function loadBadges() {
+  try {
+    const res = await fetch('/api/badges/me/progress', {
+      headers: { 'Authorization': 'Bearer ' + TOKEN }
+    });
+    if (res.status === 401) { window.location.href = '/login.html'; return; }
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+
+    const badges = await res.json();
+    const grid = document.getElementById('badge-grid');
+
+    if (!badges || badges.length === 0) {
+      grid.innerHTML = '<div class="loading-state" style="grid-column:1/-1"><i class="fas fa-medal"></i>No badges defined yet — check back soon!</div>';
+      return;
+    }
+
+    const earnedCount = badges.filter(b => b.earned).length;
+    const total = badges.length;
+    const pct = total > 0 ? Math.round(earnedCount / total * 100) : 0;
+
+    document.getElementById('earned-count').textContent = earnedCount;
+    document.getElementById('total-count').textContent = total;
+    document.getElementById('overall-fill').style.width = pct + '%';
+    document.getElementById('overall-lbl').textContent =
+      pct + '% complete — ' + earnedCount + ' of ' + total + ' badges earned';
+    document.getElementById('summary-bar').style.display = 'flex';
+
+    // Earned badges first, then unearned by progress descending
+    const sorted = [...badges].sort((a, b) => {
+      if (a.earned !== b.earned) return a.earned ? -1 : 1;
+      return (b.progressPercent || 0) - (a.progressPercent || 0);
+    });
+
+    grid.innerHTML = sorted.map(badgeCard).join('');
+  } catch (err) {
+    const box = document.getElementById('error-box');
+    box.textContent = 'Failed to load badges. Please refresh and try again.';
+    box.style.display = 'block';
+    document.getElementById('badge-grid').innerHTML = '';
+  }
+}
+
+if (TOKEN) { loadBadges(); }
+</script>
+</body>
+</html>

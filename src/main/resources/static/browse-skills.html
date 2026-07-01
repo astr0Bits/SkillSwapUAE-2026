@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillSwap – Explore Skills</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --indigo:       #4f46e5;
+      --indigo-dark:  #3730a3;
+      --indigo-light: #eef2ff;
+      --green:        #10b981;
+      --amber:        #f59e0b;
+      --rose:         #f43f5e;
+      --text:         #0f172a;
+      --muted:        #64748b;
+      --border:       #e2e8f0;
+      --bg:           #f5f7fc;
+      --white:        #ffffff;
+      --radius:       12px;
+      --shadow:       0 4px 20px rgba(0,0,0,0.06);
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; font-size:14px; }
+    a { text-decoration:none; color:inherit; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width:220px; background:var(--white); border-right:1px solid var(--border);
+      height:100vh; position:fixed; left:0; top:0;
+      display:flex; flex-direction:column; z-index:100;
+    }
+    .sidebar-logo {
+      display:flex; align-items:center; gap:8px;
+      padding:18px 16px; border-bottom:1px solid var(--border);
+    }
+    .sidebar-logo-icon {
+      width:28px; height:28px; background:var(--indigo); border-radius:7px;
+      display:flex; align-items:center; justify-content:center; color:white; flex-shrink:0;
+    }
+    .sidebar-logo-text { font-family:'Fraunces',serif; font-size:17px; font-weight:600; color:var(--indigo); }
+    .nav-section { padding:14px 10px; flex:1; overflow-y:auto; }
+    .nav-label {
+      font-size:10px; font-weight:500; letter-spacing:1.2px; text-transform:uppercase;
+      color:var(--muted); padding:0 8px; margin-bottom:4px; margin-top:14px;
+    }
+    .nav-label:first-child { margin-top:0; }
+    .nav-link {
+      display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px;
+      color:var(--muted); font-size:13.5px; font-weight:400; transition:all .15s; margin-bottom:1px;
+    }
+    .nav-link:hover { background:var(--indigo-light); color:var(--indigo); }
+    .nav-link.active { background:var(--indigo-light); color:var(--indigo); font-weight:500; }
+    .sidebar-footer {
+      padding:12px 14px; border-top:1px solid var(--border); display:flex; align-items:center; gap:8px;
+    }
+    .user-avatar-sm {
+      width:32px; height:32px; background:linear-gradient(135deg,var(--indigo),#818cf8);
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+      color:white; font-family:'Fraunces',serif; font-size:13px; font-weight:600; flex-shrink:0;
+    }
+    .user-info h4 { font-size:12.5px; font-weight:500; }
+    .user-info p  { font-size:11px; color:var(--muted); }
+    .logout-btn {
+      margin-left:auto; background:none; border:none; cursor:pointer; color:var(--muted);
+      padding:3px; border-radius:5px; transition:color .2s; display:flex;
+    }
+    .logout-btn:hover { color:var(--rose); }
+
+    /* ── Main ── */
+    .main { margin-left:220px; flex:1; display:flex; flex-direction:column; min-width:0; }
+    .topbar {
+      background:rgba(245,247,252,0.95); backdrop-filter:blur(10px);
+      border-bottom:1px solid var(--border); padding:11px 28px;
+      display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:50;
+    }
+    .topbar-title { font-family:'Fraunces',serif; font-size:1.1rem; font-weight:600; color:var(--indigo); flex:1; }
+    .page { padding:24px 28px; flex:1; }
+
+    /* ── Error banner ── */
+    .error-banner {
+      background:#fef2f2; color:#dc2626; border:1px solid #fecaca;
+      border-radius:10px; padding:12px 16px; margin-bottom:16px;
+      font-size:.87rem; display:flex; align-items:center; gap:8px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background:linear-gradient(135deg,#4f46e5 0%,#6366f1 50%,#818cf8 100%);
+      color:white; padding:42px 32px 36px; border-radius:18px;
+      margin-bottom:24px; text-align:center;
+      box-shadow:0 8px 32px rgba(79,70,229,.22);
+    }
+    .hero h1 {
+      font-family:'Fraunces',serif; font-size:2.1rem; font-weight:700;
+      letter-spacing:-.4px; margin-bottom:7px;
+    }
+    .hero p { font-size:.95rem; opacity:.88; margin-bottom:22px; }
+
+    .hero-search-wrap { position:relative; max-width:560px; margin:0 auto; }
+    .hero-search {
+      display:flex; background:white; border-radius:50px;
+      overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,.18);
+    }
+    .hero-search input {
+      flex:1; padding:13px 22px; border:none; font-size:.9rem;
+      font-family:'DM Sans',sans-serif; outline:none; color:var(--text);
+    }
+    .hero-search button {
+      padding:13px 22px; background:var(--indigo); border:none;
+      color:white; cursor:pointer; font-size:.88rem; font-family:'DM Sans',sans-serif;
+      font-weight:500; transition:background .18s; white-space:nowrap;
+    }
+    .hero-search button:hover { background:var(--indigo-dark); }
+
+    .search-dropdown {
+      position:absolute; top:calc(100% + 6px); left:0; right:0;
+      background:white; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.14);
+      display:none; z-index:300; overflow:hidden; border:1px solid var(--border);
+    }
+    .search-suggestion {
+      padding:10px 18px; cursor:pointer;
+      display:flex; align-items:center; justify-content:space-between;
+      font-size:.87rem; color:var(--text); transition:background .13s;
+      border-bottom:1px solid #f8faff;
+    }
+    .search-suggestion:last-child { border-bottom:none; }
+    .search-suggestion:hover { background:var(--indigo-light); }
+    .sugg-name { font-weight:500; }
+    .sugg-meta { display:flex; align-items:center; gap:6px; }
+    .sugg-count { font-size:.75rem; color:var(--muted); background:#f1f5f9; padding:1px 7px; border-radius:10px; }
+    .sugg-cat { font-size:.73rem; color:var(--indigo); background:var(--indigo-light); padding:1px 7px; border-radius:10px; }
+
+    /* ── Filter / sort bar ── */
+    .filter-sort-bar {
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; margin-bottom:20px; flex-wrap:wrap;
+    }
+    .category-pills { display:flex; gap:6px; flex-wrap:wrap; flex:1; }
+    .cat-pill {
+      padding:5px 14px; border-radius:20px; border:1.5px solid var(--border);
+      background:white; font-size:.8rem; font-weight:500; color:var(--muted);
+      cursor:pointer; transition:all .15s; font-family:'DM Sans',sans-serif;
+    }
+    .cat-pill:hover { border-color:var(--indigo); color:var(--indigo); background:var(--indigo-light); }
+    .cat-pill.active { background:var(--indigo); color:white; border-color:var(--indigo); }
+
+    .sort-bar-right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+    .result-count { font-size:.82rem; font-weight:600; color:var(--muted); white-space:nowrap; }
+    .sort-select {
+      padding:6px 11px; border-radius:8px; border:1.5px solid var(--border);
+      font-size:.8rem; font-family:'DM Sans',sans-serif; color:var(--text);
+      outline:none; cursor:pointer; transition:border-color .15s; background:white;
+    }
+    .sort-select:focus { border-color:var(--indigo); }
+
+    /* ── Skills grid ── */
+    .skills-grid {
+      display:grid; grid-template-columns:repeat(3,1fr);
+      gap:16px; margin-bottom:24px;
+    }
+
+    /* ── Skill card ── */
+    .skill-card {
+      background:white; border:1.5px solid var(--border); border-radius:14px;
+      overflow:hidden; display:flex; flex-direction:column;
+      transition:box-shadow .2s,border-color .2s,transform .2s;
+    }
+    .skill-card:hover {
+      box-shadow:0 8px 28px rgba(0,0,0,.09);
+      border-color:#c7d2fe; transform:translateY(-2px);
+    }
+    .skill-card.highlighted {
+      border-color:var(--indigo);
+      box-shadow:0 0 0 3px rgba(79,70,229,.18), 0 8px 28px rgba(0,0,0,.09);
+    }
+    .skill-card-body { padding:18px 16px; flex:1; display:flex; flex-direction:column; gap:9px; }
+    .skill-top { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+    .skill-name { font-size:1rem; font-weight:700; color:var(--text); line-height:1.3; }
+    .cat-badge {
+      flex-shrink:0; background:var(--indigo-light); color:var(--indigo);
+      font-size:.68rem; font-weight:600; padding:3px 9px; border-radius:20px;
+      white-space:nowrap; margin-top:1px;
+    }
+    .mentor-count-row { display:flex; align-items:center; gap:5px; font-size:.82rem; }
+    .mentor-count-row i { font-size:.72rem; color:var(--muted); }
+    .has-mentors { color:var(--green); font-weight:500; }
+    .no-mentors  { color:#94a3b8; }
+    .rating-row  { display:flex; align-items:center; gap:4px; font-size:.79rem; color:var(--amber); }
+    .rating-val  { color:var(--muted); font-weight:600; font-size:.79rem; }
+    .no-rating   { color:#94a3b8; font-size:.79rem; }
+    .skill-card-footer { padding:12px 16px; border-top:1px solid #f1f5f9; }
+    .skill-card-footer .btn { width:100%; justify-content:center; }
+
+    /* ── Buttons ── */
+    .btn {
+      padding:8px 15px; border-radius:8px;
+      font-family:'DM Sans',sans-serif; font-size:.81rem; font-weight:500;
+      cursor:pointer; border:none; display:inline-flex; align-items:center;
+      justify-content:center; gap:5px; transition:all .18s; text-decoration:none;
+    }
+    .btn-primary { background:var(--indigo); color:white; }
+    .btn-primary:hover { background:var(--indigo-dark); box-shadow:0 3px 10px rgba(79,70,229,.22); }
+    .btn-outline { background:white; border:1.5px solid var(--indigo); color:var(--indigo); }
+    .btn-outline:hover { background:var(--indigo-light); }
+    .btn-disabled {
+      background:#f1f5f9; color:#94a3b8; cursor:not-allowed;
+      border:1.5px solid var(--border); padding:8px 15px; border-radius:8px;
+      font-size:.81rem; font-family:'DM Sans',sans-serif; font-weight:500;
+      display:inline-flex; align-items:center; justify-content:center;
+    }
+    .btn-sm { padding:6px 12px; font-size:.77rem; }
+    .btn-back {
+      background:none; border:1.5px solid var(--border); border-radius:8px;
+      padding:7px 14px; cursor:pointer; font-size:.82rem;
+      font-family:'DM Sans',sans-serif; color:var(--muted);
+      transition:all .15s; display:inline-flex; align-items:center; gap:6px;
+    }
+    .btn-back:hover { border-color:var(--indigo); color:var(--indigo); }
+
+    /* ── Skeleton shimmer ── */
+    @keyframes shimmer {
+      0%   { background-position:-200% 0; }
+      100% { background-position:200% 0; }
+    }
+    .skeleton {
+      background:linear-gradient(90deg,#f0f4f8 25%,#e2e8f0 50%,#f0f4f8 75%);
+      background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:6px;
+    }
+    .skeleton-card {
+      background:white; border:1.5px solid var(--border); border-radius:14px;
+      padding:18px 16px; height:176px; display:flex; flex-direction:column; gap:10px;
+    }
+    .sk-line { height:14px; }
+
+    /* ── Empty state ── */
+    .empty-state {
+      display:flex; flex-direction:column; align-items:center; padding:60px 20px;
+      text-align:center; background:white; border:1.5px solid var(--border);
+      border-radius:14px; grid-column:1/-1;
+    }
+    .empty-state i { font-size:2.8rem; color:var(--border); margin-bottom:14px; }
+    .empty-state h3 { font-family:'Fraunces',serif; font-size:1.1rem; margin-bottom:6px; }
+    .empty-state p  { color:var(--muted); font-size:.85rem; max-width:320px; }
+
+    /* ── Mentor list view ── */
+    .mentor-view-header {
+      display:flex; align-items:center; gap:14px; margin-bottom:20px; flex-wrap:wrap;
+    }
+    .mentor-view-title { font-family:'Fraunces',serif; font-size:1.2rem; font-weight:700; flex:1; }
+    .mentor-sort-wrap  { display:flex; align-items:center; gap:8px; }
+    .mentor-sort-wrap label { font-size:.8rem; color:var(--muted); }
+
+    .mentor-list-grid {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:16px;
+    }
+
+    /* ── Mentor card (in list view) ── */
+    .mentor-list-card {
+      background:white; border:1.5px solid var(--border); border-radius:14px;
+      padding:16px; display:flex; flex-direction:column; gap:10px;
+      transition:box-shadow .2s,border-color .2s;
+    }
+    .mentor-list-card:hover { box-shadow:0 6px 22px rgba(0,0,0,.07); border-color:#c7d2fe; }
+    .mlc-top   { display:flex; gap:11px; align-items:flex-start; position:relative; }
+    .mlc-avatar {
+      width:44px; height:44px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      color:white; font-family:'Fraunces',serif; font-size:15px; font-weight:700; flex-shrink:0;
+    }
+    .mlc-info  { flex:1; min-width:0; }
+    .mlc-name  { font-weight:700; font-size:.92rem; color:var(--text); }
+    .mlc-loc   { font-size:.74rem; color:var(--muted); margin-top:2px; display:flex; align-items:center; gap:3px; }
+    .level-badge {
+      display:inline-block; padding:2px 8px; border-radius:20px;
+      font-size:.67rem; font-weight:700; margin-top:4px; letter-spacing:.2px;
+    }
+    .level-expert       { background:#d1fae5; color:#065f46; }
+    .level-advanced     { background:#fef3c7; color:#92400e; }
+    .level-intermediate { background:#dbeafe; color:#1e40af; }
+    .level-beginner     { background:#f1f5f9; color:#475569; }
+    .avail-dot {
+      width:10px; height:10px; background:var(--green); border-radius:50%;
+      border:2px solid white; box-shadow:0 0 0 1.5px var(--green);
+      position:absolute; top:0; right:0;
+    }
+    .mlc-stats { display:flex; gap:14px; font-size:.77rem; color:var(--muted); flex-wrap:wrap; }
+    .mlc-stats i { color:var(--amber); font-size:.7rem; }
+    .mlc-badges { display:flex; flex-wrap:wrap; gap:4px; }
+    .mbadge {
+      padding:2px 7px; border-radius:4px; font-size:.67rem; font-weight:600;
+      background:var(--indigo-light); color:var(--indigo);
+    }
+    .mbadge-more { background:#f1f5f9; color:var(--muted); }
+    .mlc-actions { display:flex; gap:7px; margin-top:2px; }
+    .mlc-actions .btn { flex:1; }
+
+    /* ── Avail label in mentor list ── */
+    .avail-chip {
+      font-size:.74rem; color:var(--green); display:flex; align-items:center; gap:4px; font-weight:500;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width:1200px) { .skills-grid { grid-template-columns:repeat(2,1fr); } .mentor-list-grid { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:900px)  { .sidebar { width:52px; } .sidebar-logo-text,.nav-link span,.nav-label,.user-info,.logout-btn { display:none; } .nav-link { justify-content:center; padding:8px; } .main { margin-left:52px; } }
+    @media (max-width:640px)  { .page { padding:16px; } .skills-grid { grid-template-columns:1fr; } .mentor-list-grid { grid-template-columns:1fr; } .hero { padding:28px 16px; } .hero h1 { font-size:1.5rem; } }
+  </style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══════════════════════════════════════════════════════════════ -->
+<aside class="sidebar">
+  <a href="/dashboard.html" class="sidebar-logo">
+    <div class="sidebar-logo-icon">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+        <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+      </svg>
+    </div>
+    <span class="sidebar-logo-text">SkillSwap</span>
+  </a>
+  <nav class="nav-section">
+    <p class="nav-label">Main</p>
+    <a href="/dashboard.html" class="nav-link">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span>Dashboard</span>
+    </a>
+    <a href="/userProfile.html" class="nav-link">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </a>
+    <p class="nav-label">Discover</p>
+    <a href="/ai-matching.html" class="nav-link">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+      <span>AI Matching</span>
+    </a>
+    <a href="/browse-skills.html" class="nav-link active">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span>Browse Skills</span>
+    </a>
+    <a href="/sessions.html" class="nav-link">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <span>Sessions</span>
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-avatar-sm" id="sidebarAvatar">S</div>
+    <div class="user-info">
+      <h4 id="sidebarName">—</h4>
+      <p id="sidebarRole">Member</p>
+    </div>
+    <button class="logout-btn" id="logoutBtn" title="Log out">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+      </svg>
+    </button>
+  </div>
+</aside>
+
+<!-- ══ MAIN ═════════════════════════════════════════════════════════════════ -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-title">Explore Skills</span>
+  </header>
+
+  <div class="page">
+
+    <!-- Error banner -->
+    <div class="error-banner" id="errorBanner" style="display:none;">
+      <i class="fas fa-exclamation-circle"></i>
+      <span id="errorMsg">Something went wrong, please try again.</span>
+    </div>
+
+    <!-- ── Hero ── -->
+    <div class="hero">
+      <h1>Explore Skills</h1>
+      <p>Find the right mentor for what you want to learn</p>
+      <div class="hero-search-wrap">
+        <div class="hero-search">
+          <input type="text" id="heroSearch" placeholder="Search skills… e.g. Python, Guitar, Finance">
+          <button id="heroSearchBtn"><i class="fas fa-search"></i> Search</button>
+        </div>
+        <div class="search-dropdown" id="searchDropdown"></div>
+      </div>
+    </div>
+
+    <!-- ══ SKILLS VIEW ══════════════════════════════════════════════════════ -->
+    <div id="skillsView">
+      <div class="filter-sort-bar">
+        <div class="category-pills" id="categoryPills">
+          <button class="cat-pill active" data-cat="">All</button>
+        </div>
+        <div class="sort-bar-right">
+          <span class="result-count" id="skillCount">Loading…</span>
+          <select class="sort-select" id="sortSelect">
+            <option value="mentorCount">Most Mentors</option>
+            <option value="rating">Highest Rated</option>
+            <option value="name">A → Z</option>
+          </select>
+        </div>
+      </div>
+      <div class="skills-grid" id="skillsGrid"></div>
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <i class="fas fa-search"></i>
+        <h3>No skills found</h3>
+        <p>No skills match your search — try a different term or clear the filter.</p>
+      </div>
+    </div>
+
+    <!-- ══ MENTOR LIST VIEW ═════════════════════════════════════════════════ -->
+    <div id="mentorView" style="display:none;">
+      <div class="mentor-view-header">
+        <button class="btn-back" id="backBtn">
+          <i class="fas fa-arrow-left"></i> Back to Skills
+        </button>
+        <h2 class="mentor-view-title">Mentors for <em id="selectedSkillName"></em></h2>
+        <div class="mentor-sort-wrap">
+          <label for="mentorSortSelect">Sort:</label>
+          <select class="sort-select" id="mentorSortSelect">
+            <option value="rating">Highest Rated</option>
+            <option value="sessions">Most Sessions</option>
+            <option value="level">Proficiency Level</option>
+          </select>
+        </div>
+      </div>
+      <div class="mentor-list-grid" id="mentorGrid"></div>
+    </div>
+
+  </div><!-- /page -->
+</div><!-- /main -->
+
+<!-- ══ BOOKING MODAL ════════════════════════════════════════════════════════ -->
+<div id="bookingModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);
+     z-index:2000;align-items:center;justify-content:center;">
+  <div style="background:white;max-width:520px;width:93%;border-radius:16px;
+              overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.22);margin:20px auto;
+              max-height:90vh;overflow-y:auto;">
+    <div style="background:linear-gradient(135deg,#4f46e5,#818cf8);padding:22px 26px;position:sticky;top:0;z-index:1;">
+      <h3 style="margin:0;color:white;font-size:17px;">Request a Session</h3>
+      <p style="margin:5px 0 0;color:#c7d2fe;font-size:12px;">Choose a time and confirm your booking</p>
+    </div>
+    <div style="padding:26px;" id="bookingModalBody"></div>
+    <div style="padding:14px 26px 20px;display:flex;gap:10px;justify-content:flex-end;
+                border-top:1px solid #e2e8f0;position:sticky;bottom:0;background:white;">
+      <button onclick="closeBookingModal()"
+              style="padding:9px 18px;border-radius:8px;border:1px solid #e2e8f0;
+                     background:white;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;color:#64748b;">
+        Cancel
+      </button>
+      <button id="confirmBookBtn" onclick="confirmBooking()"
+              style="padding:9px 20px;border-radius:8px;border:none;background:#4f46e5;
+                     color:white;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;">
+        Confirm &amp; Book Session
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ──────────────────────────────────────────────────────────────────────────────
+// Auth & API
+// ──────────────────────────────────────────────────────────────────────────────
+const token = localStorage.getItem('jwtToken');
+if (!token) window.location.href = '/login.html';
+
+async function apiFetch(path, opts = {}) {
+  const res = await fetch('/api' + path, {
+    ...opts,
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...opts.headers }
+  });
+  if (res.status === 401) { localStorage.removeItem('jwtToken'); window.location.href = '/login.html'; throw new Error('401'); }
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+function showError(msg) {
+  const b = document.getElementById('errorBanner');
+  document.getElementById('errorMsg').textContent = msg || 'Something went wrong, please try again.';
+  b.style.display = 'flex';
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function toast(msg) {
+  const prev = document.getElementById('_toast');
+  if (prev) prev.remove();
+  const t = document.createElement('div');
+  t.id = '_toast';
+  t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(10px);background:#0f172a;color:#fff;padding:9px 18px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.18);z-index:4000;font-size:.81rem;font-weight:500;opacity:0;transition:opacity .2s,transform .2s;white-space:nowrap;';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(() => { t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)'; });
+  setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(10px)'; setTimeout(() => t.remove(), 220); }, 2600);
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// State
+// ──────────────────────────────────────────────────────────────────────────────
+let allSkills      = [];
+let currentCategory = '';
+let currentSort    = 'mentorCount';
+let searchQuery    = '';
+let activeSkillId  = null;
+let searchTimer    = null;
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Init
+// ──────────────────────────────────────────────────────────────────────────────
+async function init() {
+  // Load sidebar user
+  try {
+    const u = await apiFetch('/users/me');
+    document.getElementById('sidebarAvatar').textContent = (u.name?.[0] || 'U').toUpperCase();
+    document.getElementById('sidebarName').textContent   = u.name || '';
+    document.getElementById('sidebarRole').textContent   = u.role || 'Member';
+  } catch(e) {}
+
+  showSkeleton();
+
+  try {
+    const [skills, cats] = await Promise.all([
+      apiFetch('/browse/skills?sort=mentorCount'),
+      apiFetch('/browse/categories').catch(() => [])
+    ]);
+    allSkills = skills;
+    renderCategoryPills(cats);
+    applyFilters();
+  } catch(e) {
+    showError('Failed to load skills. Please refresh the page.');
+    document.getElementById('skillsGrid').innerHTML = '';
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Skeleton
+// ──────────────────────────────────────────────────────────────────────────────
+function showSkeleton() {
+  document.getElementById('skillsGrid').innerHTML = Array(9).fill(0).map(() => `
+    <div class="skeleton-card">
+      <div class="skeleton sk-line" style="width:70%;"></div>
+      <div class="skeleton sk-line" style="width:40%;height:12px;"></div>
+      <div class="skeleton sk-line" style="width:55%;height:12px;"></div>
+      <div class="skeleton" style="height:36px;margin-top:auto;border-radius:8px;"></div>
+    </div>`).join('');
+  document.getElementById('skillCount').textContent = 'Loading…';
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Category pills
+// ──────────────────────────────────────────────────────────────────────────────
+function renderCategoryPills(cats) {
+  const container = document.getElementById('categoryPills');
+  cats.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-pill';
+    btn.dataset.cat = cat.name;
+    btn.textContent = `${cat.name} (${cat.count})`;
+    btn.addEventListener('click', () => selectCategory(cat.name));
+    container.appendChild(btn);
+  });
+}
+
+function selectCategory(cat) {
+  currentCategory = cat;
+  document.querySelectorAll('.cat-pill').forEach(p =>
+    p.classList.toggle('active', p.dataset.cat === (cat || '')));
+  applyFilters();
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Filter + sort (client-side)
+// ──────────────────────────────────────────────────────────────────────────────
+function applyFilters() {
+  let list = allSkills;
+
+  if (currentCategory) {
+    list = list.filter(s => s.category === currentCategory);
+  }
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    list = list.filter(s => s.name.toLowerCase().includes(q));
+  }
+
+  if (currentSort === 'name') {
+    list = [...list].sort((a,b) => a.name.localeCompare(b.name));
+  } else if (currentSort === 'rating') {
+    list = [...list].sort((a,b) => (b.averageRating||0) - (a.averageRating||0));
+  } else {
+    list = [...list].sort((a,b) => (b.mentorCount||0) - (a.mentorCount||0));
+  }
+
+  renderSkills(list);
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Skills grid
+// ──────────────────────────────────────────────────────────────────────────────
+function renderSkills(skills) {
+  const grid    = document.getElementById('skillsGrid');
+  const empty   = document.getElementById('emptyState');
+  const countEl = document.getElementById('skillCount');
+
+  countEl.textContent = `Showing ${skills.length} skill${skills.length !== 1 ? 's' : ''}`;
+
+  if (!skills.length) {
+    grid.innerHTML = '';
+    empty.style.display = 'flex';
+    return;
+  }
+  empty.style.display = 'none';
+
+  grid.innerHTML = skills.map(s => {
+    const hasM = s.mentorCount > 0;
+    const stars = hasM && s.averageRating > 0 ? renderStars(s.averageRating) : '';
+    const ratingLabel = hasM
+      ? (s.averageRating > 0
+          ? `<span class="rating-row">${stars}<span class="rating-val">${s.averageRating.toFixed(1)}</span></span>`
+          : `<span class="no-rating">No ratings yet</span>`)
+      : `<span class="no-rating">No ratings yet</span>`;
+
+    return `<div class="skill-card" data-id="${s.id}" data-name="${esc(s.name)}">
+      <div class="skill-card-body">
+        <div class="skill-top">
+          <h3 class="skill-name">${esc(s.name)}</h3>
+          ${s.category ? `<span class="cat-badge">${esc(s.category)}</span>` : ''}
+        </div>
+        <div class="mentor-count-row">
+          <i class="fas fa-users"></i>
+          <span class="${hasM ? 'has-mentors' : 'no-mentors'}">
+            ${hasM ? `${s.mentorCount} mentor${s.mentorCount !== 1 ? 's' : ''} available` : 'No mentors yet'}
+          </span>
+        </div>
+        <div>${ratingLabel}</div>
+      </div>
+      <div class="skill-card-footer">
+        ${hasM
+          ? `<button class="btn btn-primary browse-mentors-btn" data-skill-id="${s.id}" data-skill-name="${esc(s.name)}">
+               <i class="fas fa-users"></i> Browse Mentors
+             </button>`
+          : `<span class="btn-disabled">No mentors yet</span>`}
+      </div>
+    </div>`;
+  }).join('');
+
+  grid.querySelectorAll('.browse-mentors-btn').forEach(btn => {
+    btn.addEventListener('click', () =>
+      showMentorView(parseInt(btn.dataset.skillId), btn.dataset.skillName));
+  });
+}
+
+function renderStars(rating) {
+  const full  = Math.floor(rating);
+  const half  = (rating - full) >= 0.5 ? 1 : 0;
+  const empty = 5 - full - half;
+  return '<i class="fas fa-star"></i>'.repeat(full) +
+         (half ? '<i class="fas fa-star-half-alt"></i>' : '') +
+         '<i class="far fa-star"></i>'.repeat(empty);
+}
+
+function highlightSkillCard(name) {
+  document.querySelectorAll('.skill-card').forEach(c => c.classList.remove('highlighted'));
+  const match = [...document.querySelectorAll('.skill-card')]
+    .find(c => c.dataset.name === name);
+  if (match) {
+    match.classList.add('highlighted');
+    match.scrollIntoView({ behavior:'smooth', block:'center' });
+    setTimeout(() => match.classList.remove('highlighted'), 2200);
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Mentor list view
+// ──────────────────────────────────────────────────────────────────────────────
+async function showMentorView(skillId, skillName) {
+  activeSkillId = skillId;
+  document.getElementById('skillsView').style.display = 'none';
+  document.getElementById('mentorView').style.display  = 'block';
+  document.getElementById('selectedSkillName').textContent = skillName;
+  window.scrollTo({ top:0, behavior:'smooth' });
+
+  document.getElementById('mentorGrid').innerHTML = `
+    <div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--muted);">
+      <i class="fas fa-spinner fa-spin" style="font-size:1.6rem;margin-bottom:12px;display:block;"></i>
+      Loading mentors…
+    </div>`;
+
+  try {
+    const sort    = document.getElementById('mentorSortSelect').value;
+    const mentors = await apiFetch(`/browse/skills/${skillId}/mentors?sort=${sort}`);
+    renderMentors(mentors, skillId, skillName);
+  } catch(e) {
+    document.getElementById('mentorGrid').innerHTML =
+      `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--rose);">
+         <i class="fas fa-exclamation-circle" style="font-size:1.4rem;margin-bottom:8px;display:block;"></i>
+         Failed to load mentors. Please try again.
+       </div>`;
+  }
+}
+
+function renderMentors(mentors, skillId, skillName) {
+  const grid = document.getElementById('mentorGrid');
+
+  if (!mentors.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;" class="empty-state">
+      <i class="fas fa-user-slash"></i>
+      <h3>No mentors yet</h3>
+      <p>Be the first to offer mentoring for this skill!</p>
+    </div>`;
+    return;
+  }
+
+  const LEVEL_CLASS = { EXPERT:'level-expert', ADVANCED:'level-advanced', INTERMEDIATE:'level-intermediate', BEGINNER:'level-beginner' };
+  const AVATAR_COLORS = ['#4f46e5','#7c3aed','#0891b2','#059669','#d97706','#dc2626','#db2777'];
+
+  grid.innerHTML = mentors.map((m, i) => {
+    const initials   = (m.name||'U').split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
+    const lvlClass   = LEVEL_CLASS[m.proficiencyLevel] || 'level-beginner';
+    const lvlLabel   = m.proficiencyLevel || 'BEGINNER';
+    const color      = AVATAR_COLORS[i % AVATAR_COLORS.length];
+    const ratingStr  = m.averageRating > 0 ? m.averageRating.toFixed(1) : 'New';
+    const badges     = (m.badges||[]);
+    const shownBadges= badges.slice(0,3);
+    const extraCount = badges.length - shownBadges.length;
+
+    const badgeHtml = shownBadges.length
+      ? `<div class="mlc-badges">
+           ${shownBadges.map(b => `<span class="mbadge">${esc(b)}</span>`).join('')}
+           ${extraCount > 0 ? `<span class="mbadge mbadge-more">+${extraCount} more</span>` : ''}
+         </div>`
+      : '';
+
+    return `<div class="mentor-list-card">
+      <div class="mlc-top">
+        <div class="mlc-avatar" style="background:linear-gradient(135deg,${color},${color}cc);">${initials}</div>
+        <div class="mlc-info">
+          <div class="mlc-name">${esc(m.name)}</div>
+          <div class="mlc-loc">
+            <i class="fas fa-map-marker-alt" style="font-size:.65rem;"></i>
+            ${esc(m.location || 'Remote')}
+          </div>
+          <span class="level-badge ${lvlClass}">${lvlLabel}</span>
+        </div>
+        ${m.availableThisWeek ? '<span class="avail-dot" title="Available this week"></span>' : ''}
+      </div>
+      <div class="mlc-stats">
+        <span><i class="fas fa-star"></i> ${ratingStr} <span style="color:#94a3b8;">(${m.reviewCount} reviews)</span></span>
+        <span><i class="fas fa-check-circle"></i> ${m.totalSessions} sessions</span>
+      </div>
+      ${m.availableThisWeek ? '<div class="avail-chip"><i class="fas fa-circle" style="font-size:.5rem;"></i> Available this week</div>' : ''}
+      ${badgeHtml}
+      <div class="mlc-actions">
+        <a href="/user-profile-view.html?id=${m.userId}" class="btn btn-outline btn-sm">
+          <i class="fas fa-user"></i> View Profile
+        </a>
+        <button class="btn btn-primary btn-sm mlc-book-btn"
+                data-mentor-id="${m.userId}" data-mentor-name="${esc(m.name)}"
+                data-skill-name="${esc(skillName)}">
+          <i class="fas fa-calendar-plus"></i> Request Session
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+
+  grid.querySelectorAll('.mlc-book-btn').forEach(btn => {
+    btn.addEventListener('click', () =>
+      openBookingModal(
+        parseInt(btn.dataset.mentorId),
+        btn.dataset.mentorName,
+        btn.dataset.skillName,
+        '', 'BEGINNER', 'ONLINE', null
+      ));
+  });
+}
+
+function showSkillsView() {
+  document.getElementById('mentorView').style.display  = 'none';
+  document.getElementById('skillsView').style.display = 'block';
+  activeSkillId = null;
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Search (debounced 300ms, dropdown suggestions)
+// ──────────────────────────────────────────────────────────────────────────────
+(function setupSearch() {
+  const input    = document.getElementById('heroSearch');
+  const dropdown = document.getElementById('searchDropdown');
+  const btn      = document.getElementById('heroSearchBtn');
+
+  async function fetchSuggestions(q) {
+    try {
+      const results = await apiFetch(`/browse/skills/search?q=${encodeURIComponent(q)}`);
+      if (!results.length) { dropdown.style.display = 'none'; return; }
+      dropdown.innerHTML = results.slice(0,6).map(s => `
+        <div class="search-suggestion" data-name="${esc(s.name)}">
+          <span class="sugg-name">${esc(s.name)}</span>
+          <span class="sugg-meta">
+            ${s.category ? `<span class="sugg-cat">${esc(s.category)}</span>` : ''}
+            ${s.mentorCount > 0 ? `<span class="sugg-count">${s.mentorCount} mentor${s.mentorCount !== 1 ? 's' : ''}</span>` : ''}
+          </span>
+        </div>`).join('');
+      dropdown.style.display = 'block';
+      dropdown.querySelectorAll('.search-suggestion').forEach(item => {
+        item.addEventListener('click', () => {
+          const name = item.dataset.name;
+          input.value   = name;
+          searchQuery   = name.toLowerCase();
+          dropdown.style.display = 'none';
+          applyFilters();
+          highlightSkillCard(name);
+        });
+      });
+    } catch(e) { dropdown.style.display = 'none'; }
+  }
+
+  input.addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    const q = input.value.trim();
+    if (q.length < 1) {
+      dropdown.style.display = 'none';
+      searchQuery = '';
+      applyFilters();
+      return;
+    }
+    searchTimer = setTimeout(() => fetchSuggestions(q), 300);
+  });
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { dropdown.style.display = 'none'; }
+    else if (e.key === 'Enter') {
+      dropdown.style.display = 'none';
+      searchQuery = input.value.trim().toLowerCase();
+      applyFilters();
+    }
+  });
+
+  btn.addEventListener('click', () => {
+    dropdown.style.display = 'none';
+    searchQuery = input.value.trim().toLowerCase();
+    applyFilters();
+  });
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.hero-search-wrap')) dropdown.style.display = 'none';
+  });
+})();
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Sort & back button
+// ──────────────────────────────────────────────────────────────────────────────
+document.getElementById('sortSelect').addEventListener('change', e => {
+  currentSort = e.target.value;
+  applyFilters();
+});
+
+document.getElementById('backBtn').addEventListener('click', showSkillsView);
+
+document.getElementById('mentorSortSelect').addEventListener('change', () => {
+  if (activeSkillId !== null) {
+    const name = document.getElementById('selectedSkillName').textContent;
+    showMentorView(activeSkillId, name);
+  }
+});
+
+document.getElementById('categoryPills').addEventListener('click', e => {
+  const pill = e.target.closest('.cat-pill');
+  if (pill) selectCategory(pill.dataset.cat);
+});
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  localStorage.removeItem('jwtToken');
+  window.location.href = '/login.html';
+});
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Booking modal (reused pattern from dashboard / original page)
+// ──────────────────────────────────────────────────────────────────────────────
+let pendingBooking = null;
+
+function openBookingModal(mentorId, mentorName, skillName, skillCategory, skillLevel, mode, skillId) {
+  const modal = document.getElementById('bookingModal');
+  const body  = document.getElementById('bookingModalBody');
+  const btn   = document.getElementById('confirmBookBtn');
+  pendingBooking = { mentorId, mentorName, skillName, skillId };
+
+  const pad = n => String(n).padStart(2,'0');
+  const d = new Date(); d.setDate(d.getDate()+1);
+  const defVal = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T10:00`;
+  const minD   = new Date(Date.now() + 3600*1000);
+  const minVal = `${minD.getFullYear()}-${pad(minD.getMonth()+1)}-${pad(minD.getDate())}T${pad(minD.getHours())}:${pad(minD.getMinutes())}`;
+
+  btn.disabled = false;
+  btn.innerHTML = 'Confirm &amp; Book Session';
+
+  body.innerHTML = `
+    <div style="font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.8px;margin-bottom:16px;">Booking Details</div>
+    <div style="margin-bottom:14px;">
+      <label style="display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:5px;">Mentor</label>
+      <div style="padding:9px 12px;background:#f8faff;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-weight:600;">${esc(mentorName)}</div>
+    </div>
+    ${skillName ? `<div style="margin-bottom:14px;">
+      <label style="display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:5px;">Skill</label>
+      <div style="padding:9px 12px;background:#f8faff;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;">${esc(skillName)}</div>
+    </div>` : ''}
+    <div style="margin-bottom:14px;">
+      <label for="bookingDateTime" style="display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:5px;">
+        Date &amp; Time <span style="color:#ef4444">*</span>
+      </label>
+      <input type="datetime-local" id="bookingDateTime" value="${defVal}" min="${minVal}"
+             style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;
+                    font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"
+             onfocus="this.style.borderColor='#4f46e5'" onblur="this.style.borderColor='#e2e8f0'">
+    </div>
+    <div style="margin-bottom:14px;">
+      <label style="display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:8px;">
+        Session Mode <span style="color:#ef4444">*</span>
+      </label>
+      <div style="display:flex;gap:10px;">
+        <label id="lblOnline" style="flex:1;display:flex;align-items:center;gap:8px;padding:9px 12px;
+               border:1px solid #4f46e5;border-radius:8px;cursor:pointer;font-size:13px;">
+          <input type="radio" name="bookingMode" value="online" checked
+                 onchange="document.getElementById('lblOnline').style.borderColor='#4f46e5';document.getElementById('lblInPerson').style.borderColor='#e2e8f0';">
+          💻 Online
+        </label>
+        <label id="lblInPerson" style="flex:1;display:flex;align-items:center;gap:8px;padding:9px 12px;
+               border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:13px;">
+          <input type="radio" name="bookingMode" value="in-person"
+                 onchange="document.getElementById('lblInPerson').style.borderColor='#4f46e5';document.getElementById('lblOnline').style.borderColor='#e2e8f0';">
+          📍 In-Person
+        </label>
+      </div>
+    </div>
+    <div style="background:#f0fdf4;border-radius:10px;padding:12px 14px;font-size:12px;color:#065f46;line-height:1.6;">
+      📧 A confirmation email will be sent to your registered address after booking.
+    </div>`;
+
+  modal.style.display = 'flex';
+}
+
+function closeBookingModal() {
+  document.getElementById('bookingModal').style.display = 'none';
+  document.getElementById('confirmBookBtn').innerHTML = 'Confirm &amp; Book Session';
+  pendingBooking = null;
+}
+
+async function confirmBooking() {
+  if (!pendingBooking) return;
+  const dateInput = document.getElementById('bookingDateTime');
+  const modeInput = document.querySelector('input[name="bookingMode"]:checked');
+  if (!dateInput?.value) { toast('Please select a date and time.'); return; }
+
+  const btn = document.getElementById('confirmBookBtn');
+  btn.textContent = 'Booking…';
+  btn.disabled = true;
+
+  const payload = {
+    mentorId: pendingBooking.mentorId,
+    scheduledTime: dateInput.value + ':00',
+    mode: modeInput ? modeInput.value : 'online',
+    durationMinutes: 60
+  };
+  if (pendingBooking.skillId)   payload.skillId   = pendingBooking.skillId;
+  if (pendingBooking.skillName) payload.skillName = pendingBooking.skillName;
+
+  try {
+    const res  = await fetch('/api/sessions/book', {
+      method:'POST',
+      headers:{ 'Authorization':`Bearer ${token}`, 'Content-Type':'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (res.ok) {
+      closeBookingModal();
+      toast('Session booked! Confirmation email sent.');
+    } else {
+      toast(data.error || 'Could not book session.');
+      btn.innerHTML = 'Confirm &amp; Book Session';
+      btn.disabled  = false;
+    }
+  } catch(e) {
+    toast('Network error. Please try again.');
+    btn.innerHTML = 'Confirm &amp; Book Session';
+    btn.disabled  = false;
+  }
+}
+
+document.getElementById('bookingModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('bookingModal')) closeBookingModal();
+});
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Start
+// ──────────────────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap – My Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --indigo: #4f46e5;
+            --indigo-dark: #3730a3;
+            --indigo-light: #e0e7ff;
+            --indigo-mid: #c7d2fe;
+            --green: #10b981;
+            --green-light: #d1fae5;
+            --amber: #f59e0b;
+            --amber-light: #fef3c7;
+            --purple: #8b5cf6;
+            --purple-light: #ede9fe;
+            --red: #ef4444;
+            --red-light: #fef2f2;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --bg: #f8faff;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9999; opacity: 0.4;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: white;
+            border-right: 1px solid var(--border);
+            height: 100vh;
+            position: fixed;
+            left: 0; top: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 50;
+            animation: slideInLeft 0.4s ease forwards;
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-100%); opacity: 0; }
+            to   { transform: translateX(0); opacity: 1; }
+        }
+
+        .sidebar-logo {
+            display: flex; align-items: center; gap: 9px;
+            text-decoration: none;
+            padding: 22px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-logo-icon {
+            width: 32px; height: 32px;
+            background: var(--indigo); border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; flex-shrink: 0;
+        }
+
+        .sidebar-logo-text {
+            font-family: 'Fraunces', serif;
+            font-size: 19px; font-weight: 600;
+            color: var(--indigo); letter-spacing: -0.3px;
+        }
+
+        .nav-section { padding: 20px 12px; flex: 1; overflow-y: auto; }
+
+        .nav-label {
+            font-size: 10px; font-weight: 500;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            color: var(--muted); padding: 0 10px;
+            margin-bottom: 8px; margin-top: 16px;
+        }
+        .nav-label:first-child { margin-top: 0; }
+
+        .nav-link {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px; border-radius: 9px;
+            text-decoration: none; color: var(--muted);
+            font-size: 14px; font-weight: 500;
+            transition: all 0.18s ease; margin-bottom: 2px;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: var(--indigo-light); color: var(--indigo);
+        }
+        .nav-link svg { flex-shrink: 0; opacity: 0.7; }
+        .nav-link.active svg, .nav-link:hover svg { opacity: 1; }
+
+        .sidebar-user {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        .user-avatar-sm {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--indigo), #818cf8);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-family: 'Fraunces', serif;
+            font-size: 14px; font-weight: 600; flex-shrink: 0;
+        }
+
+        .user-details h4 { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 1px; }
+        .user-details p  { font-size: 11px; color: var(--muted); }
+
+        .logout-btn {
+            margin-left: auto; background: none; border: none;
+            cursor: pointer; color: var(--muted);
+            padding: 4px; border-radius: 5px;
+            transition: color 0.2s; display: flex;
+        }
+        .logout-btn:hover { color: var(--red); }
+
+        .main {
+            margin-left: 240px; flex: 1;
+            padding: 28px 28px 60px;
+            max-width: calc(100% - 240px);
+            animation: fadeIn 0.5s ease 0.15s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .profile-hero {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 22px;
+        }
+
+        .hero-banner {
+            height: 110px;
+            background: linear-gradient(135deg, var(--indigo) 0%, #6366f1 50%, #818cf8 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .hero-body {
+            padding: 0 28px 24px;
+            display: flex;
+            align-items: flex-end;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .avatar-wrap {
+            margin-top: -40px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .profile-avatar {
+            width: 82px; height: 82px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--indigo), #818cf8);
+            border: 4px solid white;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            font-family: 'Fraunces', serif;
+            font-size: 30px; font-weight: 700;
+            box-shadow: 0 4px 16px rgba(79,70,229,0.25);
+        }
+
+        .hero-info {
+            padding-top: 14px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .hero-info h1 {
+            font-family: 'Fraunces', serif;
+            font-size: 22px; font-weight: 700;
+            letter-spacing: -0.4px;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .hero-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 6px;
+        }
+
+        .hero-meta-item {
+            display: flex; align-items: center; gap: 5px;
+            font-size: 13px; color: var(--muted);
+        }
+
+        .role-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px; font-weight: 500;
+            background: var(--indigo-light);
+            color: var(--indigo);
+        }
+
+        .hero-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding-top: 14px;
+            flex-wrap: wrap;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .pstat {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            text-align: center;
+            transition: all 0.2s;
+            animation: fadeUp 0.5s ease both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .pstat:hover {
+            border-color: var(--indigo-mid);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79,70,229,0.08);
+        }
+
+        .pstat-value {
+            font-family: 'Fraunces', serif;
+            font-size: 26px; font-weight: 700;
+            color: var(--text); line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .pstat-label { font-size: 12px; color: var(--muted); }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 18px;
+            transition: box-shadow 0.2s;
+        }
+        .card:last-child { margin-bottom: 0; }
+        .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+
+        .card-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .card-title {
+            font-family: 'Fraunces', serif;
+            font-size: 15px; font-weight: 600;
+            color: var(--text);
+            display: flex; align-items: center; gap: 8px;
+            letter-spacing: -0.2px;
+        }
+
+        .card-title-icon {
+            width: 28px; height: 28px; border-radius: 7px;
+            background: var(--indigo-light);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--indigo);
+        }
+
+        .btn {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 9px 16px; border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px; font-weight: 500;
+            cursor: pointer; border: none;
+            transition: all 0.2s ease; text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--indigo); color: white;
+            box-shadow: 0 1px 3px rgba(79,70,229,0.2);
+        }
+        .btn-primary:hover {
+            background: var(--indigo-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(79,70,229,0.3);
+        }
+
+        .btn-ghost {
+            background: white; border: 1px solid var(--border); color: var(--muted);
+        }
+        .btn-ghost:hover {
+            border-color: var(--indigo-mid); color: var(--indigo);
+            background: var(--indigo-light);
+        }
+
+        .btn-danger {
+            background: var(--red-light); color: var(--red);
+            border: 1px solid #fecaca;
+        }
+        .btn-danger:hover { background: #fecaca; }
+
+        .btn-sm { padding: 7px 13px; font-size: 12px; }
+
+        .field { margin-bottom: 16px; }
+
+        .field label {
+            display: block; font-size: 13px; font-weight: 500;
+            color: #374151; margin-bottom: 6px;
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            width: 100%; padding: 10px 13px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px; color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 9px; background: white;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            resize: vertical;
+        }
+
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus {
+            border-color: var(--indigo);
+            box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+        }
+
+        .field input::placeholder,
+        .field textarea::placeholder { color: #b0bac5; }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .field-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+        .skills-wrap {
+            display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;
+        }
+
+        .skill-tag {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 5px 12px; border-radius: 20px;
+            font-size: 12px; font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .skill-mentoring { background: var(--green-light); color: #047857; }
+        .skill-learning  { background: var(--amber-light); color: #b45309; }
+
+        .skill-tag button {
+            background: none; border: none; cursor: pointer;
+            display: flex; align-items: center;
+            color: inherit; opacity: 0.6;
+            padding: 0; transition: opacity 0.2s;
+        }
+        .skill-tag button:hover { opacity: 1; }
+
+        .skill-add-row {
+            display: flex; gap: 8px; margin-top: 4px;
+        }
+
+        .skill-add-row input {
+            flex: 1; padding: 8px 12px;
+            font-family: 'DM Sans', sans-serif; font-size: 13px;
+            border: 1px solid var(--border); border-radius: 8px;
+            outline: none; transition: border-color 0.2s;
+        }
+        .skill-add-row input:focus { border-color: var(--indigo); }
+
+        .skill-type-toggle { display: flex; gap: 6px; }
+
+        .type-btn {
+            padding: 7px 12px;
+            border-radius: 8px; border: 1px solid var(--border);
+            font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+            cursor: pointer; background: white; color: var(--muted);
+            transition: all 0.2s;
+        }
+
+        .type-btn.active-mentor {
+            background: var(--green-light); border-color: #6ee7b7; color: #047857;
+        }
+
+        .type-btn.active-learn {
+            background: var(--amber-light); border-color: #fcd34d; color: #b45309;
+        }
+
+        .review-item {
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: 10px; padding: 14px; margin-bottom: 10px;
+        }
+        .review-item:last-child { margin-bottom: 0; }
+
+        .review-top {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 8px;
+        }
+
+        .reviewer { display: flex; align-items: center; gap: 8px; }
+
+        .reviewer-avatar {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--indigo), #818cf8);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-family: 'Fraunces', serif;
+            font-size: 12px; font-weight: 600;
+        }
+
+        .reviewer-name { font-size: 13px; font-weight: 500; color: var(--text); }
+        .stars { display: flex; align-items: center; gap: 2px; color: var(--amber); font-size: 12px; font-weight: 600; }
+        .review-text { font-size: 13px; color: var(--muted); line-height: 1.55; }
+
+        /* ── Toast / Alert ── */
+        #toastBanner {
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            padding: 12px 20px; border-radius: 10px; font-size: 13px;
+            font-weight: 500; box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            opacity: 0; transition: opacity 0.3s; pointer-events: none;
+        }
+        #toastBanner.show { opacity: 1; }
+        #toastBanner.success { background: #10b981; color: white; }
+        #toastBanner.error   { background: #ef4444; color: white; }
+
+        .toggle-row {
+            display: flex; align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .toggle-row:last-child { border-bottom: none; }
+
+        .toggle-label h4 { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+        .toggle-label p  { font-size: 12px; color: var(--muted); }
+
+        .toggle { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+
+        .toggle-slider {
+            position: absolute; inset: 0;
+            background: var(--border); border-radius: 24px;
+            cursor: pointer; transition: background 0.2s;
+        }
+
+        .toggle-slider::before {
+            content: ''; position: absolute;
+            width: 18px; height: 18px;
+            left: 3px; top: 3px;
+            background: white; border-radius: 50%;
+            transition: transform 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+
+        .toggle input:checked + .toggle-slider { background: var(--indigo); }
+        .toggle input:checked + .toggle-slider::before { transform: translateX(18px); }
+
+        @media (max-width: 1100px) {
+            .profile-grid { grid-template-columns: 1fr; }
+            .profile-stats { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 60px; }
+            .sidebar-logo-text, .nav-link span, .nav-label,
+            .user-details, .logout-btn { display: none; }
+            .nav-link { justify-content: center; padding: 10px; }
+            .main { margin-left: 60px; max-width: calc(100% - 60px); padding: 16px; }
+            .profile-stats { grid-template-columns: repeat(2, 1fr); }
+            .field-row { grid-template-columns: 1fr; }
+            .hero-actions { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOAST -->
+    <div id="toastBanner"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a href="/dashboard.html" class="sidebar-logo">
+            <div class="sidebar-logo-icon">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+            </div>
+            <span class="sidebar-logo-text">SkillSwap</span>
+        </a>
+
+        <nav class="nav-section">
+            <p class="nav-label">Main</p>
+            <a href="/dashboard.html" class="nav-link">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="/userProfile.html" class="nav-link active">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>Profile</span>
+            </a>
+            <p class="nav-label">Discover</p>
+            <a href="/ai-matching.html" class="nav-link">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                <span>AI Matching</span>
+            </a>
+            <a href="/browse-skills.html" class="nav-link">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <span>Browse Skills</span>
+            </a>
+            <a href="/sessions.html" class="nav-link">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                <span>Sessions</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-user">
+            <div class="user-avatar-sm" id="sidebarAvatar">S</div>
+            <div class="user-details">
+                <h4 id="sidebarName">Loading…</h4>
+                <p id="sidebarRole">Member</p>
+            </div>
+            <button class="logout-btn" id="logoutBtn" title="Log out">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+                </svg>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <!-- Profile Hero -->
+        <div class="profile-hero">
+            <div class="hero-banner"></div>
+            <div class="hero-body">
+                <div class="avatar-wrap">
+                    <div class="profile-avatar" id="profileAvatar">?</div>
+                </div>
+
+                <div class="hero-info">
+                    <h1 id="profileName">Loading…</h1>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:4px;">
+                        <span class="role-badge" id="profileRoleBadge">
+                            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/></svg>
+                            Member
+                        </span>
+                    </div>
+                    <div class="hero-meta">
+                        <div class="hero-meta-item">
+                            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span id="profileLocation">UAE</span>
+                        </div>
+                        <div class="hero-meta-item">
+                            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            <span id="profileEmail">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="window.location.href='/dashboard.html'">
+                        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                        Dashboard
+                    </button>
+                    <button class="btn btn-primary btn-sm" id="saveProfileBtn">
+                        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="profile-stats">
+            <div class="pstat" style="animation-delay:0.1s">
+                <div class="pstat-value" id="statCredits">0</div>
+                <div class="pstat-label">Credits</div>
+            </div>
+            <div class="pstat" style="animation-delay:0.2s">
+                <div class="pstat-value" id="statSessions">0</div>
+                <div class="pstat-label">Sessions Completed</div>
+            </div>
+            <div class="pstat" style="animation-delay:0.3s">
+                <div class="pstat-value" id="statRating">0.0</div>
+                <div class="pstat-label">Avg Rating</div>
+            </div>
+            <div class="pstat" style="animation-delay:0.4s">
+                <div class="pstat-value" id="statSkillsCount">0</div>
+                <div class="pstat-label">Skills Listed</div>
+            </div>
+        </div>
+
+        <!-- Grid -->
+        <div class="profile-grid">
+
+            <!-- LEFT -->
+            <div>
+                <!-- Personal Info Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <div class="card-title-icon">
+                                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            </div>
+                            Personal Information
+                        </div>
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" placeholder="Your full name">
+                        </div>
+                        <div class="field">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" placeholder="your@email.com">
+                        </div>
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="location">Emirate</label>
+                            <select id="location">
+                                <option value="">Select emirate</option>
+                                <option>Abu Dhabi</option>
+                                <option>Dubai</option>
+                                <option>Sharjah</option>
+                                <option>Ajman</option>
+                                <option>Umm Al Quwain</option>
+                                <option>Ras Al Khaimah</option>
+                                <option>Fujairah</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="role">Role</label>
+                            <select id="role">
+                                <option value="LEARNER">Learner / Mentor</option>
+                                <option value="SPONSOR">Sponsor</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="bio">Bio</label>
+                        <textarea id="bio" rows="3" placeholder="Tell the community a bit about yourself…"></textarea>
+                        <div class="field-hint">Max 280 characters</div>
+                    </div>
+
+                    <div class="field">
+                        <label for="newPassword">New Password <span style="color:var(--muted); font-weight:400;">(leave blank to keep current)</span></label>
+                        <input type="password" id="newPassword" placeholder="••••••••">
+                    </div>
+                    <div class="field">
+                        <label for="currentPassword">Current Password <span style="color:var(--muted); font-weight:400;">(required when changing email or password)</span></label>
+                        <input type="password" id="currentPassword" placeholder="••••••••">
+                    </div>
+                </div>
+
+                <!-- Skills Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <div class="card-title-icon">
+                                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                            </div>
+                            Skills
+                        </div>
+                    </div>
+
+                    <p style="font-size:12px; color:var(--muted); margin-bottom:12px;">
+                        <span style="display:inline-flex;align-items:center;gap:4px;background:var(--green-light);color:#047857;padding:2px 8px;border-radius:10px;font-weight:500;">mentoring</span>
+                        &nbsp;
+                        <span style="display:inline-flex;align-items:center;gap:4px;background:var(--amber-light);color:#b45309;padding:2px 8px;border-radius:10px;font-weight:500;">Learning</span>
+                    </p>
+
+                    <div class="skills-wrap" id="skillsWrap">
+                        <p style="color:var(--muted);font-size:13px;">Loading skills…</p>
+                    </div>
+
+                    <div class="skill-add-row">
+                        <input type="text" id="skillInput" placeholder="Add a skill… e.g. Make a brownie" maxlength="60">
+                        <div class="skill-type-toggle">
+                            <button class="type-btn active-mentor" id="btnmentor" onclick="setSkillType('mentor')">mentoring</button>
+                            <button class="type-btn" id="btnLearn" onclick="setSkillType('learn')">Learning</button>
+                        </div>
+                        <button class="btn btn-primary btn-sm" id="addSkillBtn">Add</button>
+                    </div>
+                    <div id="skillMsg" style="font-size:12px;margin-top:8px;min-height:16px;"></div>
+                </div>
+
+                <!-- MFA Card -->
+                <div class="card" id="mfaCard">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <div class="card-title-icon">
+                                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
+                            </div>
+                            Two-Factor Authentication
+                        </div>
+                        <span id="mfaStatusBadge" style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;background:var(--red-light);color:var(--red);">
+                            <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4"/></svg>
+                            Disabled
+                        </span>
+                    </div>
+                    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.55;">
+                        Add an extra layer of security. Once enabled, you'll need a code each time you sign in.
+                    </p>
+                    <button class="btn btn-primary btn-sm" id="mfaBtn" onclick="enableMFA()">Enable MFA</button>
+                </div>
+
+                <!-- Danger Zone -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title" style="color:var(--red);">
+                            <div class="card-title-icon" style="background:var(--red-light); color:var(--red);">
+                                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            </div>
+                            Danger Zone
+                        </div>
+                    </div>
+                    <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">These actions are permanent and cannot be undone.</p>
+                    <button class="btn btn-danger btn-sm" onclick="confirmDelete()">
+                        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                        Delete Account
+                    </button>
+                </div>
+            </div>
+
+            <!-- RIGHT -->
+            <div>
+                <!-- Availability -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <div class="card-title-icon">
+                                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                            </div>
+                            Availability
+                        </div>
+                    </div>
+                    <div class="toggle-row">
+                        <div class="toggle-label"><h4>Open to Sessions</h4><p>Let others request sessions with you</p></div>
+                        <label class="toggle"><input type="checkbox" id="toggleOpen" checked><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="toggle-row">
+                        <div class="toggle-label"><h4>Online Sessions</h4><p>Available for video / virtual sessions</p></div>
+                        <label class="toggle"><input type="checkbox" id="toggleOnline" checked><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="toggle-row">
+                        <div class="toggle-label"><h4>In-Person Sessions</h4><p>Available to meet in your emirate</p></div>
+                        <label class="toggle"><input type="checkbox" id="toggleInPerson"><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="toggle-row">
+                        <div class="toggle-label"><h4>Email Notifications</h4><p>Get notified about new requests</p></div>
+                        <label class="toggle"><input type="checkbox" id="toggleNotifs" checked><span class="toggle-slider"></span></label>
+                    </div>
+                </div>
+
+                <!-- Reviews -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <div class="card-title-icon">
+                                <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            </div>
+                            Reviews Received
+                        </div>
+                    </div>
+                    <div id="reviewsList">
+                        <p style="font-size:13px; color:var(--muted); text-align:center; padding:12px 0;">Loading reviews…</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+<!-- MFA Modal -->
+<div id="mfaModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:white; max-width:450px; width:90%; padding:24px; border-radius:16px; margin:20px auto; box-shadow:0 20px 30px rgba(0,0,0,0.2);">
+        <h3 style="font-family:'Fraunces',serif; margin-bottom:12px;">Set Up Two-Factor Authentication</h3>
+        <p style="color:var(--muted); margin-bottom:16px;">Scan this QR code with your authenticator app.</p>
+        <div id="qrCodeContainer" style="text-align:center; margin:16px 0;"></div>
+        <p style="color:var(--muted); margin-bottom:8px;">Enter the 6-digit code from the app:</p>
+        <input type="text" id="mfaCode" placeholder="123456" maxlength="6"
+               style="width:100%; padding:10px; margin-bottom:16px; border:1px solid var(--border); border-radius:8px; font-family:inherit;">
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+            <button class="btn btn-primary" id="verifyMfaBtn">Verify &amp; Enable</button>
+            <button class="btn btn-ghost" id="closeMfaModal">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// TOKEN — supports both key names used across the app
+// ═══════════════════════════════════════════════════════════════
+function getToken() {
+    return localStorage.getItem('jwtToken');
+}
+
+const token = getToken();
+if (!token) window.location.href = '/login.html';
+
+// ═══════════════════════════════════════════════════════════════
+// API HELPER
+// ═══════════════════════════════════════════════════════════════
+async function apiRequest(url, options = {}) {
+    const res = await fetch('/api' + url, {
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`,
+            ...(options.headers || {})
+        }
+    });
+    if (res.status === 401) {
+        localStorage.removeItem('jwtToken');
+        localStorage.removeItem('token');
+        window.location.href = '/login.html';
+        throw new Error('Unauthorized');
+    }
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `HTTP ${res.status}`);
+    }
+    // handle empty responses (e.g. DELETE 200 with no body)
+    const ct = res.headers.get('content-type') || '';
+    if (ct.includes('application/json')) return res.json();
+    return res.text();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════════════
+function showToast(type, msg) {
+    const el = document.getElementById('toastBanner');
+    el.textContent = msg;
+    el.className = `show ${type}`;
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+let currentUser = null;
+let skills = [];           // { id, name, type:'mentor'|'learn' }
+let skillType = 'mentor';
+let mfaEnabled = false;
+let mfaSecretTemp = null;
+let mfaQrUri = null;
+
+// ═══════════════════════════════════════════════════════════════
+// LOAD PROFILE FROM BACKEND
+// ═══════════════════════════════════════════════════════════════
+async function loadProfile() {
+    try {
+        const user = await apiRequest('/users/me');
+        currentUser = user;
+
+        const name      = user.name  || 'User';
+        const firstName = name.split(' ')[0];
+        const initial   = firstName.charAt(0).toUpperCase();
+        const roleDisplay = user.role === 'SPONSOR' ? 'Sponsor' : 'Learner & Mentor';
+
+        // Hero
+        document.getElementById('profileAvatar').textContent   = initial;
+        document.getElementById('profileName').textContent     = name;
+        document.getElementById('profileEmail').textContent    = user.email || '';
+        document.getElementById('profileLocation').textContent = user.location || user.emirate || 'UAE';
+        document.getElementById('profileRoleBadge').innerHTML  =
+            `<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/></svg> ${roleDisplay}`;
+
+        // Sidebar
+        document.getElementById('sidebarAvatar').textContent = initial;
+        document.getElementById('sidebarName').textContent   = firstName;
+        document.getElementById('sidebarRole').textContent   = roleDisplay;
+
+        // Stats
+        document.getElementById('statCredits').textContent  = user.credits       ?? 0;
+        document.getElementById('statSessions').textContent = user.totalSessions ?? 0;
+        document.getElementById('statRating').textContent   = user.avgRating
+            ? parseFloat(user.avgRating).toFixed(1) : '0.0';
+
+        // Form fields
+        document.getElementById('fullName').value = name;
+        document.getElementById('email').value    = user.email || '';
+        document.getElementById('bio').value      = user.bio   || '';
+
+        const locVal = user.location || user.emirate || '';
+        const locSel = document.getElementById('location');
+        for (const opt of locSel.options) {
+            if (opt.value === locVal || opt.text === locVal) { opt.selected = true; break; }
+        }
+
+        const roleSel = document.getElementById('role');
+        roleSel.value = (user.role === 'SPONSOR') ? 'SPONSOR' : 'LEARNER';
+
+    } catch (e) {
+        console.error('loadProfile:', e);
+        showToast('error', 'Could not load profile.');
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SAVE PROFILE
+// ═══════════════════════════════════════════════════════════════
+async function saveProfile() {
+    if (!currentUser) { showToast('error', 'Session invalid. Please log in again.'); return; }
+
+    const btn = document.getElementById('saveProfileBtn');
+    const orig = btn.innerHTML;
+    btn.textContent = 'Saving…';
+    btn.disabled = true;
+
+    try {
+        const nameVal        = document.getElementById('fullName').value.trim();
+        const newEmailVal    = document.getElementById('email').value.trim();
+        const locationVal    = document.getElementById('location').value;
+        const newPasswordVal = document.getElementById('newPassword').value;
+        const currentPwdVal  = document.getElementById('currentPassword').value;
+
+        const emailChanged    = newEmailVal && newEmailVal !== currentUser.email;
+        const passwordChanged = newPasswordVal.length > 0;
+
+        if ((emailChanged || passwordChanged) && !currentPwdVal) {
+            showToast('error', 'Enter your current password to change email or password.');
+            btn.innerHTML = orig;
+            btn.disabled = false;
+            return;
+        }
+
+        const payload = { email: currentUser.email };
+        if (nameVal)     payload.name     = nameVal;
+        if (locationVal) payload.location = locationVal;
+        if (emailChanged)    payload.newEmail     = newEmailVal;
+        if (passwordChanged) payload.newPassword  = newPasswordVal;
+        if (currentPwdVal)   payload.currentPassword = currentPwdVal;
+
+        await apiRequest('/auth/update-account', { method: 'PUT', body: JSON.stringify(payload) });
+
+        if (emailChanged) currentUser = { ...currentUser, email: newEmailVal };
+        currentUser = { ...currentUser, name: nameVal || currentUser.name, location: locationVal };
+
+        const displayName = currentUser.name || 'User';
+        const firstName   = displayName.split(' ')[0];
+        const initial     = firstName.charAt(0).toUpperCase();
+        const roleDisplay = currentUser.role === 'SPONSOR' ? 'Sponsor' : 'Learner & Mentor';
+
+        document.getElementById('profileAvatar').textContent   = initial;
+        document.getElementById('profileName').textContent     = displayName;
+        document.getElementById('profileEmail').textContent    = currentUser.email;
+        document.getElementById('profileLocation').textContent = locationVal || 'UAE';
+        document.getElementById('profileRoleBadge').innerHTML  =
+            `<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/></svg> ${roleDisplay}`;
+        document.getElementById('sidebarAvatar').textContent = initial;
+        document.getElementById('sidebarName').textContent   = firstName;
+        document.getElementById('sidebarRole').textContent   = roleDisplay;
+
+        document.getElementById('newPassword').value     = '';
+        document.getElementById('currentPassword').value = '';
+
+        showToast('success', '✅ Profile saved!');
+    } catch (e) {
+        console.error('saveProfile:', e);
+        showToast('error', 'Save failed: ' + (e.message || 'Unknown error'));
+    } finally {
+        btn.innerHTML = orig;
+        btn.disabled = false;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SKILLS
+// ═══════════════════════════════════════════════════════════════
+function setSkillType(type) {
+    skillType = type;
+    document.getElementById('btnmentor').className = 'type-btn' + (type === 'mentor' ? ' active-mentor' : '');
+    document.getElementById('btnLearn').className  = 'type-btn' + (type === 'learn'  ? ' active-learn'  : '');
+}
+
+function renderSkills() {
+    const wrap = document.getElementById('skillsWrap');
+    if (!skills.length) {
+        wrap.innerHTML = '<p style="color:var(--muted);font-size:13px;">No skills yet. Add one below!</p>';
+        document.getElementById('statSkillsCount').textContent = 0;
+        return;
+    }
+    wrap.innerHTML = skills.map(s => `
+        <span class="skill-tag ${s.type === 'mentor' ? 'skill-mentoring' : 'skill-learning'}">
+            ${escapeHtml(s.name)}
+            ${s.type === 'learn' && s.skillId ? `<a href="/assessment.html?skillId=${s.skillId}&skillName=${encodeURIComponent(s.name)}"
+                title="Take Assessment" style="margin-left:5px;font-size:10px;font-weight:600;color:inherit;text-decoration:none;background:rgba(0,0,0,0.12);padding:1px 5px;border-radius:4px;">
+                Quiz
+            </a>` : ''}
+            <button onclick="removeSkill(${s.id})" title="Remove" style="line-height:1;">
+                <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </span>
+    `).join('');
+    document.getElementById('statSkillsCount').textContent = skills.length;
+}
+
+async function loadMySkills() {
+    try {
+        const data = await apiRequest('/users/me/skills');
+        // data = { teach: [...], learn: [...] }
+        skills = [
+            ...(data.teach || []).map(s => ({ id: s.id, skillId: s.skillId, name: s.skillName, type: 'mentor' })),
+            ...(data.learn || []).map(s => ({ id: s.id, skillId: s.skillId, name: s.skillName, type: 'learn'  }))
+        ];
+        renderSkills();
+    } catch (e) {
+        console.error('loadMySkills:', e);
+        document.getElementById('skillsWrap').innerHTML =
+            '<p style="color:var(--muted);font-size:13px;">Could not load skills.</p>';
+    }
+}
+
+async function addSkill() {
+    const input = document.getElementById('skillInput');
+    const msgEl = document.getElementById('skillMsg');
+    const val   = input.value.trim();
+
+    if (!val) { msgEl.style.color='var(--red)'; msgEl.textContent='Please enter a skill name.'; return; }
+
+    // Client-side duplicate check
+    if (skills.find(s => s.name.toLowerCase() === val.toLowerCase() && s.type === skillType)) {
+        msgEl.style.color = 'var(--red)';
+        msgEl.textContent = 'You already have this skill listed.';
+        return;
+    }
+
+    msgEl.style.color = 'var(--muted)';
+    msgEl.textContent = 'Adding…';
+
+    try {
+        await apiRequest('/users/me/skills', {
+            method: 'POST',
+            body: JSON.stringify({
+                skillName: val,
+                type:  skillType === 'mentor' ? 'MENTOR' : 'LEARN',
+                level: 'BEGINNER'
+            })
+        });
+        // Reload from DB so delete buttons have real IDs
+        await loadMySkills();
+        input.value = '';
+        msgEl.style.color = 'var(--green)';
+        msgEl.textContent = `✅ "${val}" added!`;
+        setTimeout(() => msgEl.textContent = '', 2500);
+    } catch (e) {
+        console.error('addSkill:', e);
+        msgEl.style.color = 'var(--red)';
+        msgEl.textContent = '❌ ' + (e.message || 'Could not add skill.');
+    }
+}
+
+async function removeSkill(userSkillId) {
+    try {
+        await apiRequest(`/users/me/skills/${userSkillId}`, { method: 'DELETE' });
+        skills = skills.filter(s => s.id !== userSkillId);
+        renderSkills();
+        showToast('success', 'Skill removed.');
+    } catch (e) {
+        console.error('removeSkill:', e);
+        showToast('error', 'Could not remove skill.');
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// REVIEWS
+// ═══════════════════════════════════════════════════════════════
+function relativeDate(dateStr) {
+    if (!dateStr) return '';
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1)   return 'just now';
+    if (mins < 60)  return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 30)  return `${days}d ago`;
+    const months = Math.floor(days / 30);
+    if (months < 12) return `${months}mo ago`;
+    return `${Math.floor(months / 12)}y ago`;
+}
+
+function starDisplay(rating) {
+    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+}
+
+async function loadReviews() {
+    try {
+        const reviews = await apiRequest('/reviews/me');
+        const el = document.getElementById('reviewsList');
+        if (!reviews || !reviews.length) {
+            el.innerHTML = `<div style="text-align:center;padding:20px 0;">
+                <div style="font-size:32px;margin-bottom:8px;">⭐</div>
+                <p style="font-size:13px;color:var(--muted);">No reviews yet — be the first to book a session!</p>
+            </div>`;
+            return;
+        }
+        const total = reviews.length;
+        const avg   = (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / total).toFixed(1);
+        const header = `
+            <div style="display:flex;align-items:center;gap:14px;padding:12px 14px;
+                        background:var(--amber-light);border-radius:10px;margin-bottom:14px;">
+                <div style="font-size:28px;font-weight:700;font-family:'Fraunces',serif;color:#b45309;">${avg}</div>
+                <div>
+                    <div style="color:#f59e0b;font-size:18px;letter-spacing:2px;">${'★'.repeat(Math.round(avg))}${'☆'.repeat(5-Math.round(avg))}</div>
+                    <div style="font-size:12px;color:#b45309;">${total} review${total !== 1 ? 's' : ''}</div>
+                </div>
+            </div>`;
+        el.innerHTML = header + reviews.map(r => `
+            <div class="review-item">
+                <div class="review-top">
+                    <div class="reviewer">
+                        <div class="reviewer-avatar">${(r.reviewerName?.[0] || 'U').toUpperCase()}</div>
+                        <div>
+                            <span class="reviewer-name">${escapeHtml(r.reviewerName || 'Anonymous')}</span>
+                            <div style="font-size:11px;color:var(--muted);">${relativeDate(r.createdAt)}</div>
+                        </div>
+                    </div>
+                    <div class="stars" style="font-size:14px;letter-spacing:1px;">${starDisplay(r.rating || 0)}</div>
+                </div>
+                ${r.comment ? `<p class="review-text">${escapeHtml(r.comment)}</p>` : ''}
+            </div>`).join('');
+    } catch (e) {
+        console.error('loadReviews:', e);
+        document.getElementById('reviewsList').innerHTML =
+            '<p style="font-size:13px;color:var(--muted);text-align:center;padding:12px 0;">Could not load reviews.</p>';
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MFA
+// ═══════════════════════════════════════════════════════════════
+async function fetchMFAStatus() {
+    try {
+        const data = await apiRequest('/mfa/status');
+        mfaEnabled = data.enabled === true;
+        updateMFAStyle(mfaEnabled);
+    } catch (e) { updateMFAStyle(false); }
+}
+
+function updateMFAStyle(enabled) {
+    const badge = document.getElementById('mfaStatusBadge');
+    const btn   = document.getElementById('mfaBtn');
+    if (enabled) {
+        badge.style.background = 'var(--green-light)'; badge.style.color = '#047857';
+        badge.innerHTML = `<svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4"/></svg> Enabled`;
+        btn.textContent = 'MFA Enabled'; btn.style.background = 'var(--green)';
+        btn.onclick = disableMFA;
+    } else {
+        badge.style.background = 'var(--red-light)'; badge.style.color = 'var(--red)';
+        badge.innerHTML = `<svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4"/></svg> Disabled`;
+        btn.textContent = 'Enable MFA'; btn.style.background = 'var(--indigo)';
+        btn.onclick = enableMFA;
+    }
+}
+
+async function enableMFA() {
+    try {
+        const data = await apiRequest('/mfa/enable', { method: 'POST' });
+        mfaSecretTemp = data.secret;
+        mfaQrUri      = data.qrCodeUri;
+        document.getElementById('qrCodeContainer').innerHTML =
+            `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(mfaQrUri)}" alt="QR Code">
+             <p style="font-size:12px;margin-top:8px;">Or enter manually: <strong>${mfaSecretTemp}</strong></p>`;
+        document.getElementById('mfaModal').style.display = 'flex';
+    } catch (e) { showToast('error', 'Failed to enable MFA: ' + e.message); }
+}
+
+async function verifyAndEnableMfa() {
+    const code = document.getElementById('mfaCode').value.trim();
+    if (!code) { showToast('error', 'Enter the 6-digit code.'); return; }
+    try {
+        await apiRequest('/mfa/verify-enable', { method: 'POST', body: JSON.stringify({ code }) });
+        document.getElementById('mfaModal').style.display = 'none';
+        mfaEnabled = true;
+        updateMFAStyle(true);
+        showToast('success', '2FA enabled successfully!');
+    } catch (e) { showToast('error', 'Invalid code. Try again.'); }
+}
+
+async function disableMFA() {
+    if (!confirm('Disabling MFA reduces security. Are you sure?')) return;
+    try {
+        await apiRequest('/mfa/disable', { method: 'POST' });
+        mfaEnabled = false;
+        updateMFAStyle(false);
+        showToast('success', '2FA disabled.');
+    } catch (e) { showToast('error', 'Failed: ' + e.message); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DELETE ACCOUNT
+// ═══════════════════════════════════════════════════════════════
+async function confirmDelete() {
+    if (!currentUser) { showToast('error', 'Session invalid — please refresh and try again.'); return; }
+
+    const email = currentUser.email || document.getElementById('email').value.trim();
+    if (!email) { showToast('error', 'Could not determine account email.'); return; }
+
+    if (!confirm('Delete your account? This CANNOT be undone.')) return;
+
+    try {
+        await apiRequest(`/users/delete/${encodeURIComponent(email)}`, { method: 'DELETE' });
+        localStorage.clear();
+        window.location.href = '/login.html';
+    } catch (e) {
+        console.error('confirmDelete error:', e);
+        showToast('error', 'Delete failed: ' + (e.message || 'Unknown error'));
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════════
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EVENT LISTENERS
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('jwtToken'); localStorage.removeItem('token'); localStorage.removeItem('user');
+    window.location.href = '/login.html';
+});
+
+document.getElementById('saveProfileBtn').addEventListener('click', saveProfile);
+document.getElementById('addSkillBtn').addEventListener('click', addSkill);
+
+document.getElementById('skillInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addSkill();
+});
+
+document.getElementById('verifyMfaBtn').addEventListener('click', verifyAndEnableMfa);
+document.getElementById('closeMfaModal').addEventListener('click', () => {
+    document.getElementById('mfaModal').style.display = 'none';
+});
+
+// ═══════════════════════════════════════════════════════════════
+// INIT — load everything on page load
+// ═══════════════════════════════════════════════════════════════
+(async () => {
+    await loadProfile();
+    await loadMySkills();
+    await loadReviews();
+    await fetchMFAStatus();
+    setSkillType('mentor');
+})();
+</script>
+</body>
+</html>

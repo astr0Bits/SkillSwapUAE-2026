@@ -1,0 +1,773 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ----------------< com.capstone:Capstone-Prototype-1.0 >-----------------
+[INFO] Building Capstone-Prototype-1.0 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.4.3:run (default-cli) > test-compile @ Capstone-Prototype-1.0 >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ Capstone-Prototype-1.0 ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 20 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.0:compile (default-compile) @ Capstone-Prototype-1.0 ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 125 source files with javac [debug parameters release 17] to target\classes
+[INFO] /C:/Users/LENOVO/git/Skillswap/src/main/java/service/AssessmentService.java: Some input files use or override a deprecated API.
+[INFO] /C:/Users/LENOVO/git/Skillswap/src/main/java/service/AssessmentService.java: Recompile with -Xlint:deprecation for details.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ Capstone-Prototype-1.0 ---
+[INFO] skip non existing resourceDirectory C:\Users\LENOVO\git\Skillswap\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.0:testCompile (default-testCompile) @ Capstone-Prototype-1.0 ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 17] to target\test-classes
+[INFO] 
+[INFO] <<< spring-boot:3.4.3:run (default-cli) < test-compile @ Capstone-Prototype-1.0 <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.4.3:run (default-cli) @ Capstone-Prototype-1.0 ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.3)
+
+2026-06-21T11:51:00.853+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] com.capstone.demo.SkillSwapApplication   : Starting SkillSwapApplication using Java 26 with PID 24712 (C:\Users\LENOVO\git\Skillswap\target\classes started by LENOVO in C:\Users\LENOVO\git\Skillswap)
+2026-06-21T11:51:00.856+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] com.capstone.demo.SkillSwapApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-06-21T11:51:01.565+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-21T11:51:01.780+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 206 ms. Found 15 JPA repository interfaces.
+2026-06-21T11:51:02.326+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] ptablePropertiesBeanFactoryPostProcessor : Post-processing PropertySource instances
+2026-06-21T11:51:02.329+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] c.u.j.EncryptablePropertySourceConverter : Skipping PropertySource configurationProperties [class org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertySource
+2026-06-21T11:51:02.330+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] c.u.j.EncryptablePropertySourceConverter : Skipping PropertySource servletConfigInitParams [class org.springframework.core.env.PropertySource$StubPropertySource
+2026-06-21T11:51:02.331+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] c.u.j.EncryptablePropertySourceConverter : Skipping PropertySource servletContextInitParams [class org.springframework.core.env.PropertySource$StubPropertySource
+2026-06-21T11:51:02.331+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource systemProperties [org.springframework.core.env.PropertiesPropertySource] to EncryptableMapPropertySourceWrapper
+2026-06-21T11:51:02.332+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource systemEnvironment [org.springframework.boot.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor$OriginAwareSystemEnvironmentPropertySource] to EncryptableSystemEnvironmentPropertySourceWrapper
+2026-06-21T11:51:02.332+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource random [org.springframework.boot.env.RandomValuePropertySource] to EncryptablePropertySourceWrapper
+2026-06-21T11:51:02.332+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource Config resource 'class path resource [application.properties]' via location 'optional:classpath:/' [org.springframework.boot.env.OriginTrackedMapPropertySource] to EncryptableMapPropertySourceWrapper
+2026-06-21T11:51:02.332+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource applicationInfo [org.springframework.boot.ApplicationInfoPropertySource] to EncryptableMapPropertySourceWrapper
+2026-06-21T11:51:02.355+04:00  WARN 24712 --- [Capstone-Prototype-1.2] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'inputValidationConfig' of type [config.InputValidationConfig$$SpringCGLIB$$0] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [methodValidationPostProcessor] is declared through a non-static factory method on that class; consider declaring it as static instead.
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.apache.tomcat.jni.Library in an unnamed module (file:/C:/Users/LENOVO/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/10.1.36/tomcat-embed-core-10.1.36.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+2026-06-21T11:51:02.517+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] c.u.j.filter.DefaultLazyPropertyFilter   : Property Filter custom Bean not found with name 'encryptablePropertyFilter'. Initializing Default Property Filter
+2026-06-21T11:51:02.527+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] c.u.j.r.DefaultLazyPropertyResolver      : Property Resolver custom Bean not found with name 'encryptablePropertyResolver'. Initializing Default Property Resolver
+2026-06-21T11:51:02.529+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] c.u.j.d.DefaultLazyPropertyDetector      : Property Detector custom Bean not found with name 'encryptablePropertyDetector'. Initializing Default Property Detector
+2026-06-21T11:51:02.856+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8443 (https)
+2026-06-21T11:51:02.872+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-21T11:51:02.872+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.36]
+2026-06-21T11:51:02.942+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-21T11:51:02.943+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2015 ms
+2026-06-21T11:51:03.095+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-06-21T11:51:03.142+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.8.Final
+2026-06-21T11:51:03.184+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-06-21T11:51:03.464+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-21T11:51:03.505+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-21T11:51:03.675+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@56299b0e
+2026-06-21T11:51:03.678+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-21T11:51:03.748+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0.42
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-21T11:51:04.918+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-21T11:51:05.058+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-21T11:51:05.381+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-21T11:51:08.053+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name myUserDetailsService
+2026-06-21T11:51:08.904+04:00  WARN 24712 --- [Capstone-Prototype-1.2] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-21T11:51:09.003+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::allocateMemory has been called by io.netty.util.internal.PlatformDependent0$2 (file:/C:/Users/LENOVO/.m2/repository/io/netty/netty-common/4.1.118.Final/netty-common-4.1.118.Final.jar)
+WARNING: Please consider reporting this to the maintainers of class io.netty.util.internal.PlatformDependent0$2
+WARNING: sun.misc.Unsafe::allocateMemory will be removed in a future release
+2026-06-21T11:51:09.908+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-8443], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [C:\Users\LENOVO\.keystore] using alias [SkillSwapUAE] with trust store [null]
+2026-06-21T11:51:09.932+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8443 (https) with context path '/'
+2026-06-21T11:51:09.934+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] u.j.c.RefreshScopeRefreshedEventListener : Refreshing cached encryptable property sources on ServletWebServerInitializedEvent
+2026-06-21T11:51:09.936+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] CachingDelegateEncryptablePropertySource : Property Source systemProperties refreshed
+2026-06-21T11:51:09.936+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] CachingDelegateEncryptablePropertySource : Property Source systemEnvironment refreshed
+2026-06-21T11:51:09.936+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] CachingDelegateEncryptablePropertySource : Property Source random refreshed
+2026-06-21T11:51:09.937+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] CachingDelegateEncryptablePropertySource : Property Source Config resource 'class path resource [application.properties]' via location 'optional:classpath:/' refreshed
+2026-06-21T11:51:09.937+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] CachingDelegateEncryptablePropertySource : Property Source applicationInfo refreshed
+2026-06-21T11:51:09.938+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] c.u.j.EncryptablePropertySourceConverter : Skipping PropertySource configurationProperties [class org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertySource
+2026-06-21T11:51:09.938+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] c.u.j.EncryptablePropertySourceConverter : Skipping PropertySource servletConfigInitParams [class org.springframework.core.env.PropertySource$StubPropertySource
+2026-06-21T11:51:09.940+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] c.u.j.EncryptablePropertySourceConverter : Converting PropertySource servletContextInitParams [org.springframework.web.context.support.ServletContextPropertySource] to EncryptableEnumerablePropertySourceWrapper
+2026-06-21T11:51:09.949+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] com.capstone.demo.SkillSwapApplication   : Started SkillSwapApplication in 9.543 seconds (process running for 9.918)
+2026-06-21T11:51:10.055+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        s1_0.id,
+        s1_0.category,
+        s1_0.name 
+    from
+        skills s1_0 
+    where
+        upper(s1_0.name)=upper(?)
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.category,
+        s1_0.name 
+    from
+        skills s1_0 
+    where
+        upper(s1_0.name)=upper(?)
+2026-06-21T11:51:10.096+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+2026-06-21T11:51:10.117+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        users u1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        users u1_0
+2026-06-21T11:51:10.121+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+2026-06-21T11:51:10.124+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+2026-06-21T11:51:10.125+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+2026-06-21T11:51:10.127+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+2026-06-21T11:51:10.129+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+2026-06-21T11:51:10.130+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+2026-06-21T11:51:10.132+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+2026-06-21T11:51:10.135+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+2026-06-21T11:51:10.137+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+2026-06-21T11:51:10.139+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+2026-06-21T11:51:10.141+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+2026-06-21T11:51:10.143+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+2026-06-21T11:51:10.144+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+2026-06-21T11:51:10.147+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+2026-06-21T11:51:10.148+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+2026-06-21T11:51:10.150+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+2026-06-21T11:51:10.151+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+2026-06-21T11:51:10.152+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] config.DataSeeder                        : === DataSeeder: seeded all test accounts (up to 17) ===
+2026-06-21T11:51:10.154+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [           main] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        badges b1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        badges b1_0
+2026-06-21T11:51:10.158+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [           main] config.GeminiStartupChecker              : Gemini API key loaded — AI features are active.
+2026-06-21T11:55:42.164+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [nio-8443-exec-9] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-21T11:55:42.164+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [nio-8443-exec-9] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-21T11:55:42.166+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [nio-8443-exec-9] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-06-21T11:55:42.382+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [nio-8443-exec-9] service.MyUserDetailsService             : Attempting to load user by email: learner1@skillswap.dev
+2026-06-21T11:55:42.384+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [nio-8443-exec-9] org.hibernate.SQL                        : 
+    select
+        u1_0.id,
+        u1_0.credits,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.location,
+        u1_0.mfa_enabled,
+        u1_0.mfa_secret,
+        u1_0.name,
+        u1_0.password,
+        u1_0.reputation,
+        u1_0.reset_code,
+        u1_0.reset_code_expiry,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.credits,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.location,
+        u1_0.mfa_enabled,
+        u1_0.mfa_secret,
+        u1_0.name,
+        u1_0.password,
+        u1_0.reputation,
+        u1_0.reset_code,
+        u1_0.reset_code_expiry,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2026-06-21T11:55:42.389+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [nio-8443-exec-9] service.MyUserDetailsService             : User found: learner1@skillswap.dev
+2026-06-21T11:55:42.491+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [nio-8443-exec-9] org.hibernate.SQL                        : 
+    select
+        u1_0.id,
+        u1_0.credits,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.location,
+        u1_0.mfa_enabled,
+        u1_0.mfa_secret,
+        u1_0.name,
+        u1_0.password,
+        u1_0.reputation,
+        u1_0.reset_code,
+        u1_0.reset_code_expiry,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.credits,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.location,
+        u1_0.mfa_enabled,
+        u1_0.mfa_secret,
+        u1_0.name,
+        u1_0.password,
+        u1_0.reputation,
+        u1_0.reset_code,
+        u1_0.reset_code_expiry,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2026-06-21T11:55:42.562+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [nio-8443-exec-9] org.hibernate.SQL                        : 
+    insert 
+    into
+        audit_logs
+        (action, ip_address, message, status, timestamp, user_email) 
+    values
+        (?, ?, ?, ?, ?, ?)
+Hibernate: 
+    insert 
+    into
+        audit_logs
+        (action, ip_address, message, status, timestamp, user_email) 
+    values
+        (?, ?, ?, ?, ?, ?)
+2026-06-21T11:55:42.686+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [nio-8443-exec-2] security.AuthTokenFilter                 : AuthTokenFilter invoked for request URI: /api/badges/me/progress
+2026-06-21T11:55:42.720+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [nio-8443-exec-2] service.MyUserDetailsService             : Attempting to load user by email: learner1@skillswap.dev
+2026-06-21T11:55:42.722+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [nio-8443-exec-2] org.hibernate.SQL                        : 
+    select
+        u1_0.id,
+        u1_0.credits,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.location,
+        u1_0.mfa_enabled,
+        u1_0.mfa_secret,
+        u1_0.name,
+        u1_0.password,
+        u1_0.reputation,
+        u1_0.reset_code,
+        u1_0.reset_code_expiry,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.credits,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.location,
+        u1_0.mfa_enabled,
+        u1_0.mfa_secret,
+        u1_0.name,
+        u1_0.password,
+        u1_0.reputation,
+        u1_0.reset_code,
+        u1_0.reset_code_expiry,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2026-06-21T11:55:42.724+04:00  INFO 24712 --- [Capstone-Prototype-1.2] [nio-8443-exec-2] service.MyUserDetailsService             : User found: learner1@skillswap.dev
+2026-06-21T11:55:42.727+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [nio-8443-exec-2] org.hibernate.SQL                        : 
+    select
+        u1_0.id,
+        u1_0.credits,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.location,
+        u1_0.mfa_enabled,
+        u1_0.mfa_secret,
+        u1_0.name,
+        u1_0.password,
+        u1_0.reputation,
+        u1_0.reset_code,
+        u1_0.reset_code_expiry,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.credits,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.location,
+        u1_0.mfa_enabled,
+        u1_0.mfa_secret,
+        u1_0.name,
+        u1_0.password,
+        u1_0.reputation,
+        u1_0.reset_code,
+        u1_0.reset_code_expiry,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2026-06-21T11:55:42.735+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [nio-8443-exec-2] org.hibernate.SQL                        : 
+    select
+        count(s1_0.id) 
+    from
+        sessions s1_0 
+    where
+        (
+            s1_0.mentor_id=? 
+            or s1_0.learner_id=?
+        ) 
+        and s1_0.status='COMPLETED'
+Hibernate: 
+    select
+        count(s1_0.id) 
+    from
+        sessions s1_0 
+    where
+        (
+            s1_0.mentor_id=? 
+            or s1_0.learner_id=?
+        ) 
+        and s1_0.status='COMPLETED'
+2026-06-21T11:55:42.739+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [nio-8443-exec-2] org.hibernate.SQL                        : 
+    select
+        avg(r1_0.rating) 
+    from
+        reviews r1_0 
+    where
+        r1_0.reviewee_id=?
+Hibernate: 
+    select
+        avg(r1_0.rating) 
+    from
+        reviews r1_0 
+    where
+        r1_0.reviewee_id=?
+2026-06-21T11:55:42.743+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [nio-8443-exec-2] org.hibernate.SQL                        : 
+    select
+        b1_0.id,
+        b1_0.created_at,
+        b1_0.criteria_type,
+        b1_0.description,
+        b1_0.icon_name,
+        b1_0.name,
+        b1_0.published,
+        b1_0.threshold_value 
+    from
+        badges b1_0 
+    where
+        b1_0.published 
+    order by
+        b1_0.threshold_value
+Hibernate: 
+    select
+        b1_0.id,
+        b1_0.created_at,
+        b1_0.criteria_type,
+        b1_0.description,
+        b1_0.icon_name,
+        b1_0.name,
+        b1_0.published,
+        b1_0.threshold_value 
+    from
+        badges b1_0 
+    where
+        b1_0.published 
+    order by
+        b1_0.threshold_value
+2026-06-21T11:55:42.751+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [nio-8443-exec-2] org.hibernate.SQL                        : 
+    select
+        ub1_0.id,
+        ub1_0.badge_id,
+        ub1_0.earned_at,
+        ub1_0.user_id 
+    from
+        user_badges ub1_0 
+    where
+        ub1_0.user_id=?
+Hibernate: 
+    select
+        ub1_0.id,
+        ub1_0.badge_id,
+        ub1_0.earned_at,
+        ub1_0.user_id 
+    from
+        user_badges ub1_0 
+    where
+        ub1_0.user_id=?
+2026-06-21T11:55:42.760+04:00 DEBUG 24712 --- [Capstone-Prototype-1.2] [nio-8443-exec-2] org.hibernate.SQL                        : 
+    select
+        b1_0.id,
+        b1_0.created_at,
+        b1_0.criteria_type,
+        b1_0.description,
+        b1_0.icon_name,
+        b1_0.name,
+        b1_0.published,
+        b1_0.threshold_value 
+    from
+        badges b1_0 
+    where
+        b1_0.id=?
+Hibernate: 
+    select
+        b1_0.id,
+        b1_0.created_at,
+        b1_0.criteria_type,
+        b1_0.description,
+        b1_0.icon_name,
+        b1_0.name,
+        b1_0.published,
+        b1_0.threshold_value 
+    from
+        badges b1_0 
+    where
+        b1_0.id=?
+Terminate batch job (Y/N)? 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    [INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  08:41 min
+[INFO] Finished at: 2026-06-21T11:50:51+04:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:3.4.3:run (default-cli) on project Capstone-Prototype-1.0: Process terminated with exit code: -1 -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException

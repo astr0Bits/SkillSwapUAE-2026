@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — SkillSwap</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --indigo: #4f46e5;
+      --indigo-dark: #3730a3;
+      --indigo-light: #eef2ff;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-900: #111827;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--gray-50); color: var(--gray-900); display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ─────────────────────────────────────────────────────── */
+    #sidebar {
+      width: 240px; min-height: 100vh; background: var(--indigo-dark); color: #fff;
+      display: flex; flex-direction: column; position: fixed; left: 0; top: 0; z-index: 100;
+    }
+    .sidebar-logo {
+      padding: 24px 20px 18px; border-bottom: 1px solid rgba(255,255,255,0.12);
+      font-family: 'Fraunces', serif; font-size: 1.45rem; font-weight: 700; letter-spacing: -0.01em;
+    }
+    .sidebar-logo small {
+      display: block; font-family: 'DM Sans', sans-serif; font-size: 0.68rem;
+      font-weight: 500; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 3px;
+    }
+    #sidebar nav { flex: 1; padding: 12px 0; }
+    .nav-link {
+      display: flex; align-items: center; gap: 10px; padding: 10px 20px;
+      color: rgba(255,255,255,0.75); text-decoration: none; font-size: 0.88rem;
+      font-weight: 500; cursor: pointer; transition: background 0.12s, color 0.12s;
+      border-left: 3px solid transparent;
+    }
+    .nav-link:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .nav-link.active { background: rgba(255,255,255,0.15); color: #fff; border-left-color: #a5b4fc; }
+    .nav-icon { width: 18px; text-align: center; opacity: 0.85; }
+    .sidebar-footer {
+      padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.12); font-size: 0.8rem;
+    }
+    .admin-email { color: rgba(255,255,255,0.65); margin-bottom: 10px; word-break: break-all; line-height: 1.4; }
+    .btn-signout {
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18);
+      color: #fff; padding: 7px 0; border-radius: 8px; cursor: pointer;
+      font-size: 0.82rem; font-family: inherit; width: 100%; font-weight: 500;
+      transition: background 0.12s;
+    }
+    .btn-signout:hover { background: rgba(255,255,255,0.2); }
+
+    /* ── Main ────────────────────────────────────────────────────────── */
+    #main { margin-left: 240px; flex: 1; padding: 32px; max-width: 1400px; }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .page-header { margin-bottom: 26px; }
+    .page-header h1 { font-family: 'Fraunces', serif; font-size: 1.75rem; color: var(--gray-900); line-height: 1.2; }
+    .page-header p { color: var(--gray-600); margin-top: 5px; font-size: 0.88rem; }
+
+    /* ── Stat cards ──────────────────────────────────────────────────── */
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .stat-card {
+      background: #fff; border-radius: 14px; padding: 22px 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid var(--gray-200);
+    }
+    .stat-val { font-size: 2.1rem; font-weight: 700; color: var(--indigo); font-variant-numeric: tabular-nums; }
+    .stat-lbl { font-size: 0.8rem; color: var(--gray-600); margin-top: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+
+    /* ── Card ────────────────────────────────────────────────────────── */
+    .card { background: #fff; border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid var(--gray-200); overflow: hidden; }
+    .card-head {
+      padding: 14px 18px; border-bottom: 1px solid var(--gray-200);
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .card-head h2 { font-size: 0.95rem; font-weight: 600; flex: 1; min-width: 80px; }
+    .card-head input[type="search"], .card-head select {
+      border: 1px solid var(--gray-300); border-radius: 8px; padding: 6px 11px;
+      font-size: 0.82rem; font-family: inherit; outline: none; background: var(--gray-50);
+      color: var(--gray-900);
+    }
+    .card-head input[type="search"]:focus, .card-head select:focus { border-color: var(--indigo); background: #fff; }
+
+    /* ── Table ───────────────────────────────────────────────────────── */
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+    th {
+      padding: 10px 14px; background: var(--gray-50); text-align: left;
+      font-weight: 600; color: var(--gray-700); border-bottom: 1px solid var(--gray-200);
+      white-space: nowrap; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    td { padding: 10px 14px; border-bottom: 1px solid var(--gray-100); color: var(--gray-700); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #fafafe; }
+    .empty-row td { text-align: center; padding: 32px; color: var(--gray-600); }
+
+    /* ── Badges ──────────────────────────────────────────────────────── */
+    .badge {
+      display: inline-block; padding: 2px 9px; border-radius: 100px;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em;
+    }
+    .bg-success { background: #d1fae5; color: #065f46; }
+    .bg-danger   { background: #fee2e2; color: #991b1b; }
+    .bg-warning  { background: #fef3c7; color: #92400e; }
+    .bg-info     { background: #dbeafe; color: #1e40af; }
+    .bg-purple   { background: #ede9fe; color: #5b21b6; }
+    .bg-gray     { background: var(--gray-100); color: var(--gray-700); }
+
+    /* ── Buttons ─────────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 5px 11px; border-radius: 7px; border: none; cursor: pointer;
+      font-size: 0.78rem; font-weight: 600; font-family: inherit; transition: all 0.12s;
+    }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-success { background: #d1fae5; color: #065f46; }
+    .btn-success:hover:not(:disabled) { background: #a7f3d0; }
+    .btn-warning { background: #fef3c7; color: #92400e; }
+    .btn-warning:hover:not(:disabled) { background: #fde68a; }
+    .btn-danger  { background: #fee2e2; color: #991b1b; }
+    .btn-danger:hover:not(:disabled)  { background: #fecaca; }
+    .btn-ghost   { background: transparent; color: var(--gray-700); border: 1px solid var(--gray-300); }
+    .btn-ghost:hover:not(:disabled) { background: var(--gray-100); }
+
+    /* ── Pagination ──────────────────────────────────────────────────── */
+    .pagination {
+      padding: 12px 18px; display: flex; align-items: center; gap: 8px;
+      border-top: 1px solid var(--gray-200); flex-wrap: wrap;
+    }
+    .pg-info { font-size: 0.8rem; color: var(--gray-600); flex: 1; }
+    .pg-btn {
+      border: 1px solid var(--gray-300); background: #fff; padding: 5px 12px;
+      border-radius: 7px; cursor: pointer; font-size: 0.8rem; font-family: inherit;
+      transition: background 0.1s;
+    }
+    .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .pg-btn:hover:not(:disabled) { background: var(--gray-100); }
+
+    /* ── Stars ───────────────────────────────────────────────────────── */
+    .stars { color: var(--amber); font-size: 0.95rem; letter-spacing: -1px; }
+
+    /* ── Outcome colors ──────────────────────────────────────────────── */
+    .outcome-success { color: var(--green); font-weight: 700; font-size: 0.78rem; }
+    .outcome-failure { color: var(--rose);  font-weight: 700; font-size: 0.78rem; }
+
+    /* ── Confirm modal ───────────────────────────────────────────────── */
+    #confirm-modal {
+      display: none; position: fixed; inset: 0; z-index: 999;
+      background: rgba(0,0,0,0.45); align-items: center; justify-content: center;
+    }
+    .modal-box {
+      background: #fff; border-radius: 16px; padding: 28px 26px 22px;
+      max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.22);
+    }
+    .modal-box h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+    .modal-box p { font-size: 0.87rem; color: var(--gray-600); line-height: 1.55; margin-bottom: 22px; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+    .modal-actions .btn { padding: 8px 18px; font-size: 0.85rem; }
+
+    /* ── Error banner ────────────────────────────────────────────────── */
+    #error-banner {
+      display: none; background: #fee2e2; border: 1px solid #fecaca; border-radius: 10px;
+      padding: 12px 16px; margin-bottom: 20px; color: #991b1b; font-size: 0.875rem;
+    }
+
+    /* ── Toast ───────────────────────────────────────────────────────── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #1f2937; color: #fff; padding: 12px 20px;
+      border-radius: 10px; font-size: 0.875rem; z-index: 9999;
+      opacity: 0; transform: translateY(8px); transition: all 0.22s; pointer-events: none;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 768px) {
+      #sidebar { width: 200px; }
+      #main { margin-left: 200px; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Sidebar ─────────────────────────────────────────────────────────────── -->
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    SkillSwap
+    <small>Admin Panel</small>
+  </div>
+  <nav>
+    <div class="nav-link active" id="nav-overview" onclick="showSection('overview')">
+      <span class="nav-icon">📊</span> Overview
+    </div>
+    <div class="nav-link" id="nav-users" onclick="showSection('users')">
+      <span class="nav-icon">👥</span> Users
+    </div>
+    <div class="nav-link" id="nav-sessions" onclick="showSection('sessions')">
+      <span class="nav-icon">📅</span> Sessions
+    </div>
+    <div class="nav-link" id="nav-reviews" onclick="showSection('reviews')">
+      <span class="nav-icon">⭐</span> Reviews
+    </div>
+    <div class="nav-link" id="nav-badges" onclick="showSection('badges')">
+      <span class="nav-icon">🏅</span> Badges
+    </div>
+    <div class="nav-link" id="nav-audit-logs" onclick="showSection('audit-logs')">
+      <span class="nav-icon">📋</span> Audit Logs
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-email" id="admin-email-display"></div>
+    <button class="btn-signout" onclick="logout()">Sign Out</button>
+  </div>
+</aside>
+
+<!-- ── Main ───────────────────────────────────────────────────────────────── -->
+<main id="main">
+  <div id="error-banner"></div>
+
+  <!-- Overview -->
+  <div id="section-overview" class="section active">
+    <div class="page-header">
+      <h1>Overview</h1>
+      <p>Platform statistics at a glance</p>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-val" id="stat-users">—</div><div class="stat-lbl">Total Users</div></div>
+      <div class="stat-card"><div class="stat-val" id="stat-enabled">—</div><div class="stat-lbl">Active Users</div></div>
+      <div class="stat-card"><div class="stat-val" id="stat-disabled">—</div><div class="stat-lbl">Disabled Users</div></div>
+      <div class="stat-card"><div class="stat-val" id="stat-sessions">—</div><div class="stat-lbl">Total Sessions</div></div>
+      <div class="stat-card"><div class="stat-val" id="stat-reviews">—</div><div class="stat-lbl">Total Reviews</div></div>
+    </div>
+    <p style="font-size:0.83rem;color:var(--gray-600)">
+      Stats refresh on page load. Click <strong>↻ Refresh</strong> inside any section to reload its data.
+    </p>
+  </div>
+
+  <!-- Users -->
+  <div id="section-users" class="section">
+    <div class="page-header">
+      <h1>User Management</h1>
+      <p>View, enable / disable, and permanently delete users</p>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <h2>All Users</h2>
+        <input type="search" id="user-search" placeholder="Search by name or email…" oninput="filterUsers()">
+        <button class="btn btn-ghost" onclick="loadUsers()">↻ Refresh</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Credits</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="users-tbody">
+            <tr class="empty-row"><td colspan="7">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <span class="pg-info" id="user-pg-info"></span>
+        <button class="pg-btn" id="user-prev" onclick="userPg(-1)">← Prev</button>
+        <button class="pg-btn" id="user-next" onclick="userPg(1)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sessions -->
+  <div id="section-sessions" class="section">
+    <div class="page-header">
+      <h1>Session Management</h1>
+      <p>Monitor, cancel, and delete sessions</p>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <h2>All Sessions</h2>
+        <select id="session-status-filter" onchange="filterSessions()">
+          <option value="">All statuses</option>
+          <option value="PENDING">PENDING</option>
+          <option value="SCHEDULED">SCHEDULED</option>
+          <option value="COMPLETED">COMPLETED</option>
+          <option value="CANCELLED">CANCELLED</option>
+          <option value="OPEN">OPEN</option>
+        </select>
+        <input type="search" id="session-search" placeholder="Search mentor / learner…" oninput="filterSessions()">
+        <button class="btn btn-ghost" onclick="loadSessions()">↻ Refresh</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Learner</th><th>Mentor</th><th>Skill</th><th>Scheduled</th><th>Mode</th><th>Status</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="sessions-tbody">
+            <tr class="empty-row"><td colspan="8">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <span class="pg-info" id="session-pg-info"></span>
+        <button class="pg-btn" id="session-prev" onclick="sessionPg(-1)">← Prev</button>
+        <button class="pg-btn" id="session-next" onclick="sessionPg(1)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews -->
+  <div id="section-reviews" class="section">
+    <div class="page-header">
+      <h1>Review Management</h1>
+      <p>Inspect and remove platform reviews</p>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <h2>All Reviews</h2>
+        <select id="review-rating-filter" onchange="filterReviews()">
+          <option value="">All ratings</option>
+          <option value="5">5 ★</option>
+          <option value="4">4 ★</option>
+          <option value="3">3 ★</option>
+          <option value="2">2 ★</option>
+          <option value="1">1 ★</option>
+        </select>
+        <input type="search" id="review-search" placeholder="Search reviewer / reviewee…" oninput="filterReviews()">
+        <button class="btn btn-ghost" onclick="loadReviews()">↻ Refresh</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Reviewer</th><th>Reviewee</th><th>Rating</th><th>Comment</th><th>Date</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="reviews-tbody">
+            <tr class="empty-row"><td colspan="7">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <span class="pg-info" id="review-pg-info"></span>
+        <button class="pg-btn" id="review-prev" onclick="reviewPg(-1)">← Prev</button>
+        <button class="pg-btn" id="review-next" onclick="reviewPg(1)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audit Logs -->
+  <div id="section-audit-logs" class="section">
+    <div class="page-header">
+      <h1>Audit Logs</h1>
+      <p>Most recent 100 security and system events</p>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <h2>Event Log</h2>
+        <select id="log-outcome-filter" onchange="filterLogs()">
+          <option value="">All outcomes</option>
+          <option value="SUCCESS">SUCCESS</option>
+          <option value="FAILURE">FAILURE</option>
+        </select>
+        <input type="search" id="log-search" placeholder="Search by email or action…" oninput="filterLogs()">
+        <button class="btn btn-ghost" onclick="loadAuditLogs()">↻ Refresh</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>User Email</th><th>Action</th><th>IP Address</th><th>Outcome</th><th>Timestamp</th><th>Message</th></tr>
+          </thead>
+          <tbody id="logs-tbody">
+            <tr class="empty-row"><td colspan="7">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <span class="pg-info" id="log-pg-info"></span>
+        <button class="pg-btn" id="log-prev" onclick="logPg(-1)">← Prev</button>
+        <button class="pg-btn" id="log-next" onclick="logPg(1)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Badges -->
+  <div id="section-badges" class="section">
+    <div class="page-header">
+      <h1>Badge Management</h1>
+      <p>Create, publish, and manage platform achievement badges</p>
+    </div>
+
+    <!-- Create form -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-head"><h2>Create New Badge</h2></div>
+      <div style="padding:18px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+        <div>
+          <label style="font-size:0.8rem;font-weight:600;color:var(--gray-700);display:block;margin-bottom:4px">Name *</label>
+          <input type="text" id="badge-form-name" placeholder="e.g. Speed Learner"
+                 style="width:100%;border:1px solid var(--gray-300);border-radius:7px;padding:7px 10px;font-size:0.83rem;font-family:inherit;outline:none">
+        </div>
+        <div>
+          <label style="font-size:0.8rem;font-weight:600;color:var(--gray-700);display:block;margin-bottom:4px">Icon (emoji) *</label>
+          <input type="text" id="badge-form-icon" placeholder="🎯" maxlength="4"
+                 style="width:100%;border:1px solid var(--gray-300);border-radius:7px;padding:7px 10px;font-size:0.83rem;font-family:inherit;outline:none">
+        </div>
+        <div>
+          <label style="font-size:0.8rem;font-weight:600;color:var(--gray-700);display:block;margin-bottom:4px">Criteria Type *</label>
+          <select id="badge-form-criteria"
+                  style="width:100%;border:1px solid var(--gray-300);border-radius:7px;padding:7px 10px;font-size:0.83rem;font-family:inherit;outline:none">
+            <option value="SESSION_COUNT">Session Count</option>
+            <option value="RATING_THRESHOLD">Reputation Score (0–100)</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:0.8rem;font-weight:600;color:var(--gray-700);display:block;margin-bottom:4px">Threshold *</label>
+          <input type="number" id="badge-form-threshold" min="1" placeholder="5"
+                 style="width:100%;border:1px solid var(--gray-300);border-radius:7px;padding:7px 10px;font-size:0.83rem;font-family:inherit;outline:none">
+        </div>
+        <div style="grid-column:span 2">
+          <label style="font-size:0.8rem;font-weight:600;color:var(--gray-700);display:block;margin-bottom:4px">Description *</label>
+          <input type="text" id="badge-form-desc" placeholder="e.g. Complete 5 sessions"
+                 style="width:100%;border:1px solid var(--gray-300);border-radius:7px;padding:7px 10px;font-size:0.83rem;font-family:inherit;outline:none">
+        </div>
+      </div>
+      <div style="padding:0 18px 18px;display:flex;align-items:center;gap:12px">
+        <button class="btn btn-success" onclick="createBadge()">+ Create Badge (Draft)</button>
+        <span id="badge-form-msg" style="font-size:0.82rem"></span>
+      </div>
+    </div>
+
+    <!-- Badges table -->
+    <div class="card">
+      <div class="card-head">
+        <h2>All Badges</h2>
+        <button class="btn btn-ghost" onclick="loadBadges()">↻ Refresh</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Icon</th><th>Name</th><th>Description</th>
+              <th>Criteria</th><th>Threshold</th><th>Status</th><th>Earned By</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="badges-tbody">
+            <tr class="empty-row"><td colspan="9">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ── Confirm modal ──────────────────────────────────────────────────────── -->
+<div id="confirm-modal">
+  <div class="modal-box">
+    <h3 id="confirm-title">Confirm Action</h3>
+    <p id="confirm-msg"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger" onclick="doConfirm()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast ──────────────────────────────────────────────────────────────── -->
+<div id="toast"></div>
+
+<script>
+// ── Auth guard ───────────────────────────────────────────────────────────────
+const _u = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; } })();
+const _tok = localStorage.getItem('jwtToken');
+if (!_tok || _u.role !== 'ADMIN') { window.location.href = '/login.html'; }
+document.getElementById('admin-email-display').textContent = _u.email || 'admin';
+
+// ── Utilities ────────────────────────────────────────────────────────────────
+const esc = s => String(s == null ? '' : s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function fmtDate(s) {
+  if (!s) return '—';
+  try {
+    return new Date(s).toLocaleString(undefined, { dateStyle:'medium', timeStyle:'short' });
+  } catch { return s; }
+}
+
+function showErr(msg) {
+  const b = document.getElementById('error-banner');
+  b.textContent = msg; b.style.display = 'block';
+  setTimeout(() => b.style.display = 'none', 6000);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+async function authFetch(url, opts = {}) {
+  const res = await fetch(url, {
+    ...opts,
+    headers: { 'Authorization': 'Bearer ' + _tok, 'Content-Type': 'application/json', ...(opts.headers || {}) }
+  });
+  if (res.status === 401) { window.location.href = '/login.html'; throw new Error('401'); }
+  if (res.status === 403) { showErr('Access denied. Your session may have expired.'); throw new Error('403'); }
+  return res;
+}
+
+function stars(n) { return '★'.repeat(n) + '☆'.repeat(5 - n); }
+
+function roleBadge(r) {
+  const cls = { ADMIN:'bg-danger', MENTOR:'bg-info', LEARNER:'bg-success', SPONSOR:'bg-warning' };
+  return `<span class="badge ${cls[r] || 'bg-gray'}">${esc(r)}</span>`;
+}
+
+function statusBadge(s) {
+  const cls = { PENDING:'bg-warning', SCHEDULED:'bg-info', COMPLETED:'bg-success', CANCELLED:'bg-gray', OPEN:'bg-purple' };
+  return `<span class="badge ${cls[s] || 'bg-gray'}">${esc(s)}</span>`;
+}
+
+const PS = 10; // page size
+
+function pgInfo(elId, page, filtered) {
+  const total = filtered.length;
+  const start = page * PS;
+  document.getElementById(elId).textContent =
+    total === 0 ? '0 results' : `${start + 1}–${Math.min(start + PS, total)} of ${total}`;
+}
+
+// ── Navigation ───────────────────────────────────────────────────────────────
+const SECTIONS = ['overview','users','sessions','reviews','badges','audit-logs'];
+const _loaded = {};
+
+function showSection(id) {
+  SECTIONS.forEach(s => {
+    document.getElementById('section-' + s).classList.toggle('active', s === id);
+    document.getElementById('nav-' + s).classList.toggle('active', s === id);
+  });
+  if (!_loaded[id]) {
+    if (id === 'overview')    loadOverview();
+    else if (id === 'users')      loadUsers();
+    else if (id === 'sessions')   loadSessions();
+    else if (id === 'reviews')    loadReviews();
+    else if (id === 'badges')     loadBadges();
+    else if (id === 'audit-logs') loadAuditLogs();
+  }
+}
+
+// ── Confirm modal ────────────────────────────────────────────────────────────
+let _confirmFn = null;
+function openConfirm(title, msg, fn) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent = msg;
+  _confirmFn = fn;
+  document.getElementById('confirm-modal').style.display = 'flex';
+}
+function closeConfirm() { document.getElementById('confirm-modal').style.display = 'none'; _confirmFn = null; }
+function doConfirm() { const f = _confirmFn; closeConfirm(); if (f) f(); }
+
+// Close modal on backdrop click
+document.getElementById('confirm-modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeConfirm();
+});
+
+// ── Overview ─────────────────────────────────────────────────────────────────
+async function loadOverview() {
+  try {
+    const res = await authFetch('/api/admin/stats');
+    if (!res.ok) { showErr('Failed to load stats'); return; }
+    const d = await res.json();
+    document.getElementById('stat-users').textContent    = d.totalUsers;
+    document.getElementById('stat-enabled').textContent  = d.enabledUsers;
+    document.getElementById('stat-disabled').textContent = d.disabledUsers;
+    document.getElementById('stat-sessions').textContent = d.totalSessions;
+    document.getElementById('stat-reviews').textContent  = d.totalReviews;
+    _loaded['overview'] = true;
+  } catch (err) {
+    if (err.message !== '401' && err.message !== '403') showErr('Error loading stats: ' + err.message);
+  }
+}
+
+// ── Users ─────────────────────────────────────────────────────────────────────
+let _users = [], _usersF = [], _userPg = 0;
+
+async function loadUsers() {
+  _loaded['users'] = false;
+  document.getElementById('users-tbody').innerHTML = '<tr class="empty-row"><td colspan="7">Loading…</td></tr>';
+  try {
+    const res = await authFetch('/api/admin/users');
+    if (!res.ok) { showErr('Failed to load users'); return; }
+    _users = await res.json();
+    _usersF = [..._users];
+    _userPg = 0;
+    renderUsers();
+    _loaded['users'] = true;
+  } catch (err) {
+    if (err.message !== '401' && err.message !== '403') showErr('Error loading users: ' + err.message);
+  }
+}
+
+function filterUsers() {
+  const q = document.getElementById('user-search').value.trim().toLowerCase();
+  _usersF = q
+    ? _users.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
+    : [..._users];
+  _userPg = 0;
+  renderUsers();
+}
+
+function renderUsers() {
+  const start = _userPg * PS;
+  const slice = _usersF.slice(start, start + PS);
+  const tbody = document.getElementById('users-tbody');
+  if (!slice.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No users found</td></tr>';
+  } else {
+    tbody.innerHTML = slice.map(u => `
+      <tr>
+        <td>${u.id}</td>
+        <td>${esc(u.name)}</td>
+        <td>${esc(u.email)}</td>
+        <td>${roleBadge(u.role)}</td>
+        <td><span class="badge ${u.enabled ? 'bg-success' : 'bg-danger'}">${u.enabled ? 'Active' : 'Disabled'}</span></td>
+        <td>${u.credits ?? 0}</td>
+        <td style="white-space:nowrap;display:flex;gap:6px">
+          <button class="btn ${u.enabled ? 'btn-warning' : 'btn-success'}"
+                  onclick="toggleUser(${u.id}, ${u.enabled})">
+            ${u.enabled ? 'Disable' : 'Enable'}
+          </button>
+          <button class="btn btn-danger"
+                  onclick="openConfirm('Delete User','Permanently delete user #${u.id} and all their data? This cannot be undone.',()=>deleteUser(${u.id}))">
+            Delete
+          </button>
+        </td>
+      </tr>`).join('');
+  }
+  pgInfo('user-pg-info', _userPg, _usersF);
+  document.getElementById('user-prev').disabled = _userPg === 0;
+  document.getElementById('user-next').disabled = (_userPg + 1) * PS >= _usersF.length;
+}
+
+function userPg(d) { _userPg += d; renderUsers(); }
+
+async function toggleUser(id, currentEnabled) {
+  try {
+    const res = await authFetch(`/api/admin/users/${id}/toggle-status`, { method: 'PUT' });
+    if (!res.ok) { const d = await res.json(); showErr(d.error || 'Toggle failed'); return; }
+    const data = await res.json();
+    const idx = _users.findIndex(u => u.id === id);
+    if (idx !== -1) _users[idx].enabled = data.enabled;
+    filterUsers();
+    showToast(data.enabled ? '✓ User enabled' : '✓ User disabled');
+  } catch (err) {
+    if (err.message !== '401' && err.message !== '403') showErr('Error: ' + err.message);
+  }
+}
+
+async function deleteUser(id) {
+  try {
+    const res = await authFetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+    if (!res.ok) { const d = await res.json(); showErr(d.error || 'Delete failed'); return; }
+    _users = _users.filter(u => u.id !== id);
+    filterUsers();
+    showToast('✓ User deleted');
+    // Reload overview stats since counts changed
+    _loaded['overview'] = false;
+    if (document.getElementById('section-overview').classList.contains('active')) loadOverview();
+  } catch (err) {
+    if (err.message !== '401' && err.message !== '403') showErr('Error: ' + err.message);
+  }
+}
+
+// ── Sessions ──────────────────────────────────────────────────────────────────
+let _sessions = [], _sessionsF = [], _sessionPg = 0;
+
+async function loadSessions() {
+  _loaded['sessions'] = false;
+  document.getElementById('sessions-tbody').innerHTML = '<tr class="empty-row"><td colspan="8">Loading…</td></tr>';
+  try {
+    const res = await authFetch('/api/admin/sessions');
+    if (!res.ok) { showErr('Failed to load sessions'); return; }
+    _sessions = await res.json();
+    _sessionsF = [..._sessions];
+    _sessionPg = 0;
+    renderSessions();
+    _loaded['sessions'] = true;
+  } catch (err) {
+    if (err.message !== '401' && err.message !== '403') showErr('Error loading sessions: ' + err.message);
+  }
+}
+
+function filterSessions() {
+  const status = document.getElementById('session-status-filter').value;
+  const q = document.getElementById('session-search').value.trim().toLowerCase();
+  _sessionsF = _sessions.filter(s =>
+    (!status || s.status === status) &&
+    (!q || s.learnerName.toLowerCase().includes(q) ||
+           s.mentorName.toLowerCase().includes(q) ||
+           (s.skillName || '').toLowerCase().includes(q))
+  );
+  _sessionPg = 0;
+  renderSessions();
+}
+
+function renderSessions() {
+  const start = _sessionPg * PS;
+  const slice = _sessionsF.slice(start, start + PS);
+  const tbody = document.getElementById('sessions-tbody');
+  if (!slice.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No sessions found</td></tr>';
+  } else {
+    tbody.innerHTML = slice.map(s => `
+      <tr>
+        <td>${s.id}</td>
+        <td title="${esc(s.learnerEmail)}">${esc(s.learnerName || '—')}</td>
+        <td title="${esc(s.mentorEmail)}">${esc(s.mentorName || '—')}</td>
+        <td>${esc(s.skillName || '—')}</td>
+        <td style="white-space:nowrap">${fmtDate(s.scheduledTime)}</td>
+        <td>${esc(s.mode || '—')}</td>
+        <td>${statusBadge(s.status)}</td>
+        <td style="white-space:nowrap;display:flex;gap:6px">
+          ${s.status !== 'CANCELLED'
+            ? `<button class="btn btn-warning" onclick="cancelSession(${s.id})">Cancel</button>`
+            : ''}
+          <button class="btn btn-danger"
+                  onclick="openConfirm('Delete Session','Permanently delete session #${s.id}? This cannot be undone.',()=>deleteSession(${s.id}))">
+            Delete
+          </button>
+        </td>
+      </tr>`).join('');
+  }
+  pgInfo('session-pg-info', _sessionPg, _sessionsF);
+  document.getElementById('session-prev').disabled = _sessionPg === 0;
+  document.getElementById('session-next').disabled = (_sessionPg + 1) * PS >= _sessionsF.length;
+}
+
+function sessionPg(d) { _sessionPg += d; renderSessions(); }
+
+async function cancelSession(id) {
+  try {
+    const res = await authFetch(`/api/admin/sessions/${id}/cancel`, { method: 'PUT' });
+    if (!res.ok) { const d = await res.json(); showErr(d.error || 'Cancel failed'); return; }
+    const idx = _sessions.findIndex(s => s.id === id);
+    if (idx !== -1) _sessions[idx].status = 'CANCELLED';
+    filterSessions();
+    showToast('✓ Session cancelled');
+  } catch (err) {
+    if (err.message !== '401' && err.message !== '403') showErr('Error: ' + err.message);
+  }
+}
+
+async function deleteSession(id) {
+  try {
+    const res = await authFetch(`/api/admin/sessions/${id}`, { method: 'DELETE' });
+    if (!res.ok) { const d = await res.json(); showErr(d.error || 'Delete failed'); return; }
+    _sessions = _sessions.filter(s => s.id !== id);
+    filterSessions();
+    showToast('✓ Session deleted');
+    _loaded['overview'] = false;
+  } catch (err) {
+    if (err.message !== '401' && err.message !== '403') showErr('Error: ' + err.message);
+  }
+}
+
+// ── Reviews ───────────────────────────────────────────────────────────────────
+let _reviews = [], _reviewsF = [], _reviewPg = 0;
+
+async function loadReviews() {
+  _loaded['reviews'] = false;
+  document.getElementById('reviews-tbody').innerHTML = '<tr class="empty-row"><td colspan="7">Loading…</td></tr>';
+  try {
+    const res = await authFetch('/api/admin/reviews');
+    if (!res.ok) { showErr('Failed to load reviews'); return; }
+    _reviews = await res.json();
+    _reviewsF = [..._reviews];
+    _reviewPg = 0;
+    renderReviews();
+    _loaded['reviews'] = true;
+  } catch (err) {
+    if (err.message !== '401' && err.message !== '403') showErr('Error loading reviews: ' + err.message);
+  }
+}
+
+function filterReviews() {
+  const rating = document.getElementById('review-rating-filter').value;
+  const q = document.getElementById('review-search').value.trim().toLowerCase();
+  _reviewsF = _reviews.filter(r =>
+    (!rating || String(r.rating) === rating) &&
+    (!q || r.reviewerName.toLowerCase().includes(q) || r.revieweeName.toLowerCase().includes(q))
+  );
+  _reviewPg = 0;
+  renderReviews();
+}
+
+function renderReviews() {
+  const start = _reviewPg * PS;
+  const slice = _reviewsF.slice(start, start + PS);
+  const tbody = document.getElementById('reviews-tbody');
+  if (!slice.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No reviews found</td></tr>';
+  } else {
+    tbody.innerHTML = slice.map(r => `
+      <tr>
+        <td>${r.id}</td>
+        <td title="${esc(r.reviewerEmail)}">${esc(r.reviewerName || '—')}</td>
+        <td title="${esc(r.revieweeEmail)}">${esc(r.revieweeName || '—')}</td>
+        <td><span class="stars" title="${r.rating} out of 5">${stars(r.rating || 0)}</span></td>
+        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
+            title="${esc(r.comment)}">${esc(r.comment || '—')}</td>
+        <td style="white-space:nowrap">${fmtDate(r.createdAt)}</td>
+        <td>
+          <button class="btn btn-danger"
+                  onclick="openConfirm('Delete Review','Permanently delete review #${r.id}? This cannot be undone.',()=>deleteReview(${r.id}))">
+            Delete
+          </button>
+        </td>
+      </tr>`).join('');
+  }
+  pgInfo('review-pg-info', _reviewPg, _reviewsF);
+  document.getElementById('review-prev').disabled = _reviewPg === 0;
+  document.getElementById('review-next').disabled = (_reviewPg + 1) * PS >= _reviewsF.length;
+}
+
+function reviewPg(d) { _reviewPg += d; renderReviews(); }
+
+async function deleteReview(id) {
+  try {
+    const res = await authFetch(`/api/admin/reviews/${id}`, { method: 'DELETE' });
+    if (!res.ok) { const d = await res.json(); showErr(d.error || 'Delete failed'); return; }
+    _reviews = _reviews.filter(r => r.id !== id);
+    filterReviews();
+    showToast('✓ Review deleted');
+    _loaded['overview'] = false;
+  } catch (err) {
+    if (err.message !== '401' && err.message !== '403') showErr('Error: ' + err.message);
+  }
+}
+
+// ── Audit Logs ────────────────────────────────────────────────────────────────
+let _logs = [], _logsF = [], _logPg = 0;
+
+async function loadAuditLogs() {
+  _loaded['audit-logs'] = false;
+  document.getElementById('logs-tbody').innerHTML = '<tr class="empty-row"><td colspan="7">Loading…</td></tr>';
+  try {
+    const res = await authFetch('/api/admin/audit-logs');
+    if (!res.ok) { showErr('Failed to load audit logs'); return; }
+    _logs = await res.json();
+    _logsF = [..._logs];
+    _logPg = 0;
+    renderLogs();
+    _loaded['audit-logs'] = true;
+  } catch (err) {
+    if (err.message !== '401' && err.message !== '403') showErr('Error loading audit logs: ' + err.message);
+  }
+}
+
+function filterLogs() {
+  const outcome = document.getElementById('log-outcome-filter').value.toUpperCase();
+  const q = document.getElementById('log-search').value.trim().toLowerCase();
+  _logsF = _logs.filter(l =>
+    (!outcome || (l.outcome || '').toUpperCase() === outcome) &&
+    (!q || (l.actorEmail || '').toLowerCase().includes(q) || (l.action || '').toLowerCase().includes(q))
+  );
+  _logPg = 0;
+  renderLogs();
+}
+
+function renderLogs() {
+  const start = _logPg * PS;
+  const slice = _logsF.slice(start, start + PS);
+  const tbody = document.getElementById('logs-tbody');
+  if (!slice.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No logs found</td></tr>';
+  } else {
+    tbody.innerHTML = slice.map(l => {
+      const oc = (l.outcome || '').toUpperCase();
+      const cls = oc === 'SUCCESS' ? 'outcome-success' : oc === 'FAILURE' ? 'outcome-failure' : '';
+      return `<tr>
+        <td>${l.id}</td>
+        <td>${esc(l.actorEmail || '—')}</td>
+        <td>${esc(l.action || '—')}</td>
+        <td>${esc(l.ipAddress || '—')}</td>
+        <td class="${cls}">${esc(l.outcome || '—')}</td>
+        <td style="white-space:nowrap">${fmtDate(l.timestamp)}</td>
+        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
+            title="${esc(l.message)}">${esc(l.message || '—')}</td>
+      </tr>`;
+    }).join('');
+  }
+  pgInfo('log-pg-info', _logPg, _logsF);
+  document.getElementById('log-prev').disabled = _logPg === 0;
+  document.getElementById('log-next').disabled = (_logPg + 1) * PS >= _logsF.length;
+}
+
+function logPg(d) { _logPg += d; renderLogs(); }
+
+// ── Badges ────────────────────────────────────────────────────────────────────
+let _badges = [];
+
+async function loadBadges() {
+  _loaded['badges'] = false;
+  document.getElementById('badges-tbody').innerHTML = '<tr class="empty-row"><td colspan="9">Loading…</td></tr>';
+  try {
+    const res = await authFetch('/api/admin/badges');
+    if (!res.ok) { showErr('Failed to load badges'); return; }
+    _badges = await res.json();
+    renderBadgesTable();
+    _loaded['badges'] = true;
+  } catch (err) {
+    if (err.message !== '401' && err.message !== '403') showErr('Error loading badges: ' + err.message);
+  }
+}
+
+function renderBadgesTable() {
+  const tbody = document.getElementById('badges-tbody');
+  if (!_badges.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="9">No badges found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = _badges.map(b => `
+    <tr>
+      <td>${b.id}</td>
+      <td style="font-size:1.4rem;line-height:1">${esc(b.icon)}</td>
+      <td><strong>${esc(b.name)}</strong></td>
+      <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+          title="${esc(b.description)}">${esc(b.description)}</td>
+      <td><span class="badge ${b.criteriaType === 'SESSION_COUNT' ? 'bg-info' : 'bg-purple'}">
+        ${b.criteriaType === 'SESSION_COUNT' ? 'Sessions' : 'Reputation'}
+      </span></td>
+      <td>${b.thresholdValue}</td>
+      <td><span class="badge ${b.published ? 'bg-success' : 'bg-gray'}">${b.published ? 'Published' : 'Draft'}</span></td>
+      <td>${b.earnedCount}</td>
+      <td style="white-space:nowrap;display:flex;gap:6px">
+        ${b.published
+          ? `<button class="btn btn-warning" onclick="unpublishBadge(${b.id})">Unpublish</button>`
+          : `<button class="btn btn-success" onclick="publishBadge(${b.id})">Publish</button>`}
+        <button class="btn btn-danger" onclick="deleteBadge(${b.id}, ${b.earnedCount})">Delete</button>
+      </td>
+    </tr>`).join('');
+}
+
+async function createBadge() {
+  const name = document.getElementById('badge-form-name').value.trim();
+  const icon = document.getElementById('badge-form-icon').value.trim();
+  const criteriaType = document.getElementById('badge-form-criteria').value;
+  const threshold = parseInt(document.getElementById('badge-form-threshold').value, 10);
+  const description = document.getElementById('badge-form-desc').value.trim();
+  const msgEl = document.getElementById('badge-form-msg');
+
+  if (!name || !icon || !description || !threshold || threshold < 1) {
+    msgEl.style.color = '#991b1b';
+    msgEl.textContent = 'All fields are required and threshold must be ≥ 1.';
+    return;
+  }
+
+  try {
+    const res = await authFetch('/api/admin/badges/create', {
+      method: 'POST',
+      body: JSON.stringify({ name, iconName: icon, criteriaType, thresholdValue: threshold, description })
+    });
+    const data = await res.json();
+    if (!res.ok) { msgEl.style.color = '#991b1b'; msgEl.textContent = data.error || 'Create failed'; return; }
+    msgEl.style.color = '#065f46';
+    msgEl.textContent = '✓ Badge "' + name + '" created as draft';
+    ['badge-form-name','badge-form-icon','badge-form-threshold','badge-form-desc']
+      .forEach(id => { document.getElementById(id).value = ''; });
+    loadBadges();
+    setTimeout(() => { msgEl.textContent = ''; }, 5000);
+  } catch (err) {
+    if (err.message !== '401' && err.message !== '403') showErr('Create failed: ' + err.message);
+  }
+}
+
+async function publishBadge(id) {
+  try {
+    const res = await authFetch(`/api/admin/badges/${id}/publish`, { method: 'PUT' });
+    if (!res.ok) { const d = await res.json(); showErr(d.error || 'Publish failed'); return; }
+    const idx = _badges.findIndex(b => b.id === id);
+    if (idx !== -1) _badges[idx].published = true;
+    renderBadgesTable();
+    showToast('✓ Badge published');
+  } catch (err) {
+    if (err.message !== '401' && err.message !== '403') showErr('Error: ' + err.message);
+  }
+}
+
+async function unpublishBadge(id) {
+  try {
+    const res = await authFetch(`/api/admin/badges/${id}/unpublish`, { method: 'PUT' });
+    if (!res.ok) { const d = await res.json(); showErr(d.error || 'Unpublish failed'); return; }
+    const idx = _badges.findIndex(b => b.id === id);
+    if (idx !== -1) _badges[idx].published = false;
+    renderBadgesTable();
+    showToast('✓ Badge unpublished');
+  } catch (err) {
+    if (err.message !== '401' && err.message !== '403') showErr('Error: ' + err.message);
+  }
+}
+
+function deleteBadge(id, earnedCount) {
+  if (earnedCount > 0) {
+    showErr('Cannot delete: this badge has been earned by ' + earnedCount + ' user(s).');
+    return;
+  }
+  openConfirm('Delete Badge',
+    'Permanently delete badge #' + id + '? This cannot be undone.',
+    async () => {
+      try {
+        const res = await authFetch(`/api/admin/badges/${id}`, { method: 'DELETE' });
+        if (!res.ok) { const d = await res.json(); showErr(d.error || 'Delete failed'); return; }
+        _badges = _badges.filter(b => b.id !== id);
+        renderBadgesTable();
+        showToast('✓ Badge deleted');
+      } catch (err) {
+        if (err.message !== '401' && err.message !== '403') showErr('Error: ' + err.message);
+      }
+    });
+}
+
+// ── Logout ────────────────────────────────────────────────────────────────────
+function logout() {
+  localStorage.removeItem('jwtToken');
+  localStorage.removeItem('user');
+  window.location.href = '/login.html';
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+loadOverview();
+</script>
+</body>
+</html>
